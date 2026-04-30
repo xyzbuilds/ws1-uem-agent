@@ -1,13 +1,26 @@
 #!/usr/bin/env bash
 #
-# Alice-lock end-to-end demo. Runs the v0 acceptance scenario from spec
-# section 11 against a local mock WS1 tenant.
+# Alice-lock end-to-end demo. Drives the v0 acceptance scenario from
+# spec section 11 against a local mock WS1 tenant, using only real
+# (real-spec-derived) ops:
 #
-# Usage:  make demo
-#         WS1_DEMO_INTERACTIVE=1 make demo   (you click Approve yourself)
-#         WS1_DEMO_KEEP_AUDIT=1 make demo    (don't wipe audit log between runs)
+#   1. systemv1.user.search        find alice@example.com
+#   2. mdmv1.devices.search        list alice's devices
+#   3. mdmv2.commandsv2.execute    Lock each device (write, no approval)
+#   4. mdmv2.commandsv2.execute    DeviceWipe one device (destructive
+#                                  -> browser approval; runtime
+#                                  classification escalation flips
+#                                  this to require approval based on
+#                                  the --commandName arg)
+#   5. ws1 audit verify            chain integrity
+#   6. ws1 audit tail              recent entries
 #
-# Defaults to auto-approve so the demo runs unattended.
+# Defaults to auto-approve via curl so the demo runs unattended.
+# WS1_DEMO_INTERACTIVE=1 lets you click Approve in your own browser.
+#
+# Usage:
+#   make demo
+#   WS1_DEMO_INTERACTIVE=1 make demo
 
 set -euo pipefail
 
@@ -20,6 +33,10 @@ MOCK="$BIN_DIR/mockws1"
 DEMO_DIR="$ROOT_DIR/.build/demo"
 PORT=9911
 BASE_URL="http://127.0.0.1:$PORT"
+
+# UUIDs for the mock fixtures (see test/mockws1/server.go).
+ALICE_IPHONE_UUID="ip15-uuid-0000-0000-000000000001"
+ALICE_MBP_UUID="mbp-uuid-0000-0000-000000000001"
 
 # --- helpers ---------------------------------------------------------------
 
@@ -68,7 +85,6 @@ step "Starting mock WS1 tenant on $BASE_URL"
 MOCK_PID=$!
 note "mock pid=$MOCK_PID, log=$DEMO_DIR/mock.log"
 
-# wait for /healthz-like readiness (the mock returns text on /).
 for _ in 1 2 3 4 5 6 7 8 9 10 11 12; do
   if curl -fsS "$BASE_URL/" >/dev/null 2>&1; then
     ok "mock is ready"
@@ -93,9 +109,6 @@ fi
 note "WS1_BASE_URL=$WS1_BASE_URL"
 note "WS1_CONFIG_DIR=$WS1_CONFIG_DIR (clean for this run)"
 
-"$WS1" og use 12345 >/dev/null
-note "OG context: 12345"
-
 # --- doctor ----------------------------------------------------------------
 
 step "ws1 doctor"
@@ -104,56 +117,58 @@ step "ws1 doctor"
 # --- 1. Find Alice ---------------------------------------------------------
 
 step "1. Find user alice@example.com"
-USER_OUT=$("$WS1" systemv2 users search --email alice@example.com)
-echo "$USER_OUT" | jq '{ok: .ok, count: .meta.count, users: [.data[] | {UserID, Email, FirstName, LastName}]}'
-ALICE_UID=$(echo "$USER_OUT" | jq '.data[0].UserID')
-[[ "$ALICE_UID" == "10001" ]] && ok "alice = UserID $ALICE_UID" || fail "wrong alice id: $ALICE_UID"
+USER_OUT=$("$WS1" --profile operator systemv1 user search --email alice@example.com)
+echo "$USER_OUT" | jq '{ok: .ok, count: .meta.count, user: .data.Users[0] | {UserID, Uuid, displayName, emailAddress}}'
+ALICE_UUID=$(echo "$USER_OUT" | jq -r '.data.Users[0].Uuid')
+[[ "$ALICE_UUID" == "alice-uuid-0000-0000-000000000001" ]] && ok "alice Uuid = $ALICE_UUID" || fail "wrong alice uuid: $ALICE_UUID"
 
 # --- 2. List Alice's devices -----------------------------------------------
 
 step "2. List Alice's devices"
-DEV_OUT=$("$WS1" mdmv4 devices search --user alice@example.com)
-echo "$DEV_OUT" | jq '{ok: .ok, count: .meta.count, devices: [.data[] | {DeviceID, FriendlyName, EnrollmentStatus, OrganizationGroupName}]}'
+DEV_OUT=$("$WS1" --profile operator mdmv1 devices search --user alice@example.com)
+echo "$DEV_OUT" | jq '{ok, count: .meta.count, devices: [.data.Devices[] | {DeviceID, Uuid, FriendlyName, EnrollmentStatus, OrganizationGroupName}]}'
 DEV_COUNT=$(echo "$DEV_OUT" | jq '.meta.count')
 [[ "$DEV_COUNT" == "2" ]] && ok "alice owns $DEV_COUNT devices" || fail "expected 2 devices, got $DEV_COUNT"
 
-DEVICE_IDS=$(echo "$DEV_OUT" | jq -r '[.data[].DeviceID] | join(",")')
-note "device IDs: $DEVICE_IDS"
+# --- 3. Lock both devices (write class, no approval needed) ---------------
 
-# --- 3. Lock Alice's devices (bulk under threshold; no approval) -----------
+step "3. Lock Alice's iPhone (mdmv2.commandsv2.execute --commandName Lock; write class)"
+LOCK_IP_OUT=$("$WS1" --profile operator mdmv2 commandsv2 execute \
+  --deviceUuid "$ALICE_IPHONE_UUID" --commandName Lock)
+echo "$LOCK_IP_OUT" | jq '{ok, op: .operation, status: .data.status, command_uuid: .data.command_uuid, audit: .meta.audit_log_entry}'
+[[ "$(echo "$LOCK_IP_OUT" | jq -r '.data.status')" == "Queued" ]] && ok "iPhone Lock queued (dispatched, not yet executed — UEM async-nature)" || fail "iPhone lock status wrong"
 
-step "3. Lock Alice's devices (bulk, under threshold -> no browser approval)"
-LOCK_OUT=$("$WS1" --profile operator mdmv4 devices lock --ids "$DEVICE_IDS")
-echo "$LOCK_OUT" | jq '{ok, op: .operation, success_count: .meta.success_count, failure_count: .meta.failure_count, audit: .meta.audit_log_entry}'
-SUCC=$(echo "$LOCK_OUT" | jq '.meta.success_count')
-[[ "$SUCC" == "2" ]] && ok "locked 2 devices" || fail "lock success count = $SUCC"
+step "4. Lock Alice's MacBook"
+LOCK_MBP_OUT=$("$WS1" --profile operator mdmv2 commandsv2 execute \
+  --deviceUuid "$ALICE_MBP_UUID" --commandName Lock)
+echo "$LOCK_MBP_OUT" | jq '{ok, status: .data.status, audit: .meta.audit_log_entry}'
 
-# --- 4. Wipe one device (destructive -> approval required) -----------------
+# --- 5. Wipe iPhone (destructive -> approval flow) ------------------------
 
-step "4. Wipe Alice's iPhone (DESTRUCTIVE -> browser approval flow)"
+step "5. Wipe Alice's iPhone (commandName=DeviceWipe -> runtime escalation -> destructive -> approval flow)"
 
 if [[ "${WS1_DEMO_INTERACTIVE:-}" == "1" ]]; then
   note "interactive mode: open the URL the CLI prints and click Approve"
-  "$WS1" --profile operator mdmv4 devices wipe --id 12345 \
+  "$WS1" --profile operator mdmv2 commandsv2 execute \
+    --deviceUuid "$ALICE_IPHONE_UUID" --commandName DeviceWipe \
     | jq '{ok, op: .operation, approval_request_id: .meta.approval_request_id}'
 else
   note "auto-approving via curl on the CLI's stderr-printed URL"
   TMPSTDOUT=$(mktemp)
   TMPSTDERR=$(mktemp)
-  trap "rm -f $TMPSTDOUT $TMPSTDERR" RETURN
-  ("$WS1" --profile operator mdmv4 devices wipe --id 12345 \
+  ("$WS1" --profile operator mdmv2 commandsv2 execute \
+    --deviceUuid "$ALICE_IPHONE_UUID" --commandName DeviceWipe \
     >"$TMPSTDOUT" 2>"$TMPSTDERR") &
   WIPE_PID=$!
 
-  # Read stderr until we find the approval URL.
   APPROVAL_URL=""
   for _ in $(seq 1 60); do
-    if grep -o 'http://127.0.0.1:[0-9]*/r/req_[a-z0-9]*' "$TMPSTDERR" 2>/dev/null | head -1; then
+    if grep -o 'http://127.0.0.1:[0-9]*/r/req_[a-z0-9]*' "$TMPSTDERR" 2>/dev/null | head -1 >/dev/null; then
       APPROVAL_URL=$(grep -o 'http://127.0.0.1:[0-9]*/r/req_[a-z0-9]*' "$TMPSTDERR" | head -1)
       break
     fi
     sleep 0.1
-  done >/dev/null
+  done
 
   if [[ -z "$APPROVAL_URL" ]]; then
     cat "$TMPSTDERR"
@@ -165,14 +180,15 @@ else
 
   wait "$WIPE_PID" || true
   jq '{ok, op: .operation, approval_request_id: .meta.approval_request_id, audit: .meta.audit_log_entry}' < "$TMPSTDOUT"
+  rm -f "$TMPSTDOUT" "$TMPSTDERR"
 fi
 
-# --- 5. Verify the audit chain ---------------------------------------------
+# --- 6. Verify the audit chain --------------------------------------------
 
-step "5. ws1 audit verify (chain integrity)"
+step "6. ws1 audit verify (chain integrity)"
 "$WS1" audit verify | jq '{ok, total: .data.total, failures: .data.failures}'
 
-step "6. ws1 audit tail (recent entries)"
+step "7. ws1 audit tail (recent entries)"
 "$WS1" audit tail --last 5 | jq '.data.entries[] | {seq, operation, class, result, profile, approval_request_id}'
 
 # --- done ------------------------------------------------------------------
@@ -180,4 +196,4 @@ step "6. ws1 audit tail (recent entries)"
 step "Demo complete"
 note "mock log: $DEMO_DIR/mock.log"
 note "audit log: $WS1_CONFIG_DIR/audit.log"
-ok "alice-lock scenario executed end-to-end"
+ok "alice-lock scenario executed end-to-end against real-spec ops"

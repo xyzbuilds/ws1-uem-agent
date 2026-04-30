@@ -21,7 +21,7 @@ func TestLoadEmbeddedDefault(t *testing.T) {
 
 func TestClassifyKnownOp(t *testing.T) {
 	p, _ := Load("")
-	e := p.Classify("mdmv4.devices.search")
+	e := p.Classify("mdmv1.devices.search")
 	if e.Synthetic {
 		t.Error("known op flagged as synthetic")
 	}
@@ -119,16 +119,21 @@ func TestLoadMissingFileFallsBack(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Load on missing file should fall back, got error: %v", err)
 	}
-	// Embedded default has these ops:
-	if !p.Has("mdmv4.devices.search") {
-		t.Error("embedded fallback should still know about devices.search")
+	// Embedded default is a copy of operations.policy.yaml at build
+	// time. Spot-check a stable read op from the real spec.
+	if !p.Has("mdmv1.devices.search") {
+		t.Error("embedded fallback should know about mdmv1.devices.search")
 	}
 }
 
 func TestEntryIdentifierPreserved(t *testing.T) {
 	p, _ := Load("")
-	e := p.Classify("mdmv4.devices.lock")
-	if e.Identifier != "device_id" {
-		t.Errorf("identifier = %q, want device_id", e.Identifier)
+	// devices.delete is DELETE /devices/{id} — heuristic identifier "id".
+	e := p.Classify("mdmv1.devices.delete")
+	if e.Identifier != "id" {
+		t.Errorf("identifier = %q, want id", e.Identifier)
+	}
+	if e.Class != ClassDestructive {
+		t.Errorf("class = %q, want destructive", e.Class)
 	}
 }

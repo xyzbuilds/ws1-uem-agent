@@ -18,36 +18,48 @@ func TestUsersSearchByEmail(t *testing.T) {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		t.Fatalf("status = %d", resp.StatusCode)
+		body, _ := io.ReadAll(resp.Body)
+		t.Fatalf("status = %d, body = %s", resp.StatusCode, body)
 	}
 	var body struct {
 		Users []User
 		Total int
 	}
-	json.NewDecoder(resp.Body).Decode(&body)
+	_ = json.NewDecoder(resp.Body).Decode(&body)
 	if body.Total != 1 || len(body.Users) != 1 {
 		t.Fatalf("expected 1 alice, got %d (Total=%d)", len(body.Users), body.Total)
 	}
 	if !strings.EqualFold(body.Users[0].Email, "alice@example.com") {
 		t.Errorf("got user %q", body.Users[0].Email)
 	}
+	if body.Users[0].Uuid == "" {
+		t.Error("user record missing Uuid")
+	}
 }
 
-func TestUsersSearchAmbiguous(t *testing.T) {
+func TestUserGetByUuid(t *testing.T) {
 	srv := New().Start()
 	defer srv.Close()
-	resp, err := http.Get(srv.URL + "/api/system/users/search?username=al")
+	resp, err := http.Get(srv.URL + "/api/system/users/alice-uuid-0000-0000-000000000001")
 	if err != nil {
 		t.Fatalf("GET: %v", err)
 	}
 	defer resp.Body.Close()
-	var body struct {
-		Total int
-		Users []User
+	if resp.StatusCode != 200 {
+		t.Errorf("status = %d", resp.StatusCode)
 	}
-	json.NewDecoder(resp.Body).Decode(&body)
-	if body.Total < 2 {
-		t.Errorf("expected >=2 matches for username=al, got %d", body.Total)
+}
+
+func TestUserGetByUuidNotFound(t *testing.T) {
+	srv := New().Start()
+	defer srv.Close()
+	resp, err := http.Get(srv.URL + "/api/system/users/nonexistent-uuid")
+	if err != nil {
+		t.Fatalf("GET: %v", err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 404 {
+		t.Errorf("status = %d", resp.StatusCode)
 	}
 }
 
@@ -63,35 +75,65 @@ func TestDevicesSearchByUser(t *testing.T) {
 		Devices []Device
 		Total   int
 	}
-	json.NewDecoder(resp.Body).Decode(&body)
+	_ = json.NewDecoder(resp.Body).Decode(&body)
 	if body.Total != 2 {
 		t.Fatalf("alice should have 2 devices, got %d", body.Total)
 	}
+	for _, d := range body.Devices {
+		if d.Uuid == "" {
+			t.Errorf("device %d missing Uuid", d.DeviceID)
+		}
+	}
 }
 
-func TestLockEndpointQueuesCommand(t *testing.T) {
+func TestDeviceGetByUuid(t *testing.T) {
+	srv := New().Start()
+	defer srv.Close()
+	resp, err := http.Get(srv.URL + "/api/mdm/devices/ip15-uuid-0000-0000-000000000001")
+	if err != nil {
+		t.Fatalf("GET: %v", err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		t.Errorf("status = %d", resp.StatusCode)
+	}
+	var d Device
+	_ = json.NewDecoder(resp.Body).Decode(&d)
+	if d.Uuid != "ip15-uuid-0000-0000-000000000001" {
+		t.Errorf("Uuid mismatch: %q", d.Uuid)
+	}
+}
+
+func TestSingleCommand(t *testing.T) {
 	s := New()
 	srv := s.Start()
 	defer srv.Close()
-	resp, err := http.Post(srv.URL+"/api/mdm/devices/12345/commands/lock", "application/json", nil)
+	resp, err := http.Post(srv.URL+"/api/mdm/devices/ip15-uuid-0000-0000-000000000001/commands/Lock",
+		"application/json", nil)
 	if err != nil {
 		t.Fatalf("POST: %v", err)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 202 {
-		t.Fatalf("status = %d", resp.StatusCode)
+		body, _ := io.ReadAll(resp.Body)
+		t.Fatalf("status = %d, body = %s", resp.StatusCode, body)
 	}
-	if len(s.Issued[12345]) != 1 {
-		t.Errorf("Issued[12345] = %v", s.Issued[12345])
+	if len(s.Issued["ip15-uuid-0000-0000-000000000001"]) != 1 {
+		t.Errorf("Issued not recorded: %v", s.Issued)
+	}
+	var body map[string]any
+	_ = json.NewDecoder(resp.Body).Decode(&body)
+	if body["status"] != "Queued" {
+		t.Errorf("status field = %v, want Queued (per dispatched-not-executed)", body["status"])
 	}
 }
 
-func TestBulkPartialSuccess(t *testing.T) {
+func TestBulkCommand_PartialSuccess(t *testing.T) {
 	s := New()
 	srv := s.Start()
 	defer srv.Close()
-	body := bytes.NewBufferString(`{"command":"Lock","device_ids":[12345,12346,12399]}`)
-	resp, err := http.Post(srv.URL+"/api/mdm/devices/commands/bulk", "application/json", body)
+	body := bytes.NewBufferString(`{"BulkValues":{"Value":["ip15-uuid-0000-0000-000000000001","mbp-uuid-0000-0000-000000000001","stale-uuid-0000-0000-000000000000"]}}`)
+	resp, err := http.Post(srv.URL+"/api/mdm/devices/commands/Lock", "application/json", body)
 	if err != nil {
 		t.Fatalf("POST: %v", err)
 	}
@@ -104,27 +146,27 @@ func TestBulkPartialSuccess(t *testing.T) {
 		Successes []map[string]any `json:"successes"`
 		Failures  []map[string]any `json:"failures"`
 	}
-	json.Unmarshal(out, &parsed)
+	_ = json.Unmarshal(out, &parsed)
 	if len(parsed.Successes) != 2 {
 		t.Errorf("Successes = %d", len(parsed.Successes))
 	}
 	if len(parsed.Failures) != 1 {
 		t.Errorf("Failures = %d", len(parsed.Failures))
 	}
-	if got := parsed.Failures[0]["DeviceID"]; got != float64(12399) {
-		t.Errorf("expected 12399 to fail, got %+v", got)
+	if got := parsed.Failures[0]["deviceUuid"]; got != "stale-uuid-0000-0000-000000000000" {
+		t.Errorf("expected stale sentinel to fail, got %+v", got)
 	}
 }
 
-func TestUserNotFound(t *testing.T) {
+func TestUnsupportedRouteIs501(t *testing.T) {
 	srv := New().Start()
 	defer srv.Close()
-	resp, err := http.Get(srv.URL + "/api/system/users/99999")
+	resp, err := http.Get(srv.URL + "/api/mam/apps/search")
 	if err != nil {
 		t.Fatalf("GET: %v", err)
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != 404 {
-		t.Errorf("status = %d", resp.StatusCode)
+	if resp.StatusCode != http.StatusNotImplemented {
+		t.Errorf("status = %d, want 501 for unmocked op", resp.StatusCode)
 	}
 }

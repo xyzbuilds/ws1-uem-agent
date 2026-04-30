@@ -236,6 +236,10 @@ func runOp(meta generated.OpMeta, args api.Args) {
 
 	pol := loadActivePolicy()
 	entry := pol.Classify(meta.Op)
+	// Runtime escalation: certain command-dispatcher ops are destructive
+	// based on argv (commandName=DeviceWipe, etc.) even though the op
+	// itself is write-class. See escalate.go.
+	entry = escalateForDangerousCommand(meta, args, entry)
 
 	switch entry.Class {
 	case policy.ClassRead:
