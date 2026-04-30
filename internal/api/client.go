@@ -160,13 +160,6 @@ func (c *Client) doOnce(ctx context.Context, op string, args Args) (*Response, e
 	if meta.HasRequestBody {
 		req.Header.Set("Content-Type", "application/json")
 	}
-	// WS1's edge gateway routes by aw-tenant-code separately from the
-	// OAuth bearer that authenticates the client. Both are required;
-	// requests without aw-tenant-code 503 at the gateway before reaching
-	// the API app.
-	if tc := c.Source.TenantCode(); tc != "" {
-		req.Header.Set("aw-tenant-code", tc)
-	}
 	// User-Agent for traceability + because some WAFs reject bare
 	// `Go-http-client/1.1`.
 	if req.Header.Get("User-Agent") == "" {

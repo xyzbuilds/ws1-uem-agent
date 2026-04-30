@@ -152,30 +152,28 @@ func newProfileUseCmd() *cobra.Command {
 
 func newProfileAddCmd() *cobra.Command {
 	var (
-		tenant, apiURL, authURL, clientID, clientSecret, region, tenantCode string
+		tenant, apiURL, authURL, clientID, clientSecret, region string
 	)
 	cmd := &cobra.Command{
 		Use:   "add <name>",
 		Short: "Configure a profile (writes secret to OS keychain)",
 		Long: `Configure a profile by name (ro / operator / admin). Stores tenant +
-client_id + tenant_code in ~/.config/ws1/profiles.yaml; client_secret
-goes to the OS keychain.
+client_id in ~/.config/ws1/profiles.yaml; client_secret goes to the OS
+keychain.
 
 Required flags:
   --tenant         tenant hostname (e.g. cn1506.awmdm.com)
   --client-id      OAuth client ID from Groups & Settings > Configurations >
                    OAuth Client Management
   --client-secret  OAuth client secret (stored in keychain)
-  --tenant-code    "API Key" / "Tenant Code" value, found in WS1 console
-                   at Groups & Settings > All Settings > System >
-                   Advanced > API > REST API. Used in the
-                   aw-tenant-code header for gateway-side tenant
-                   routing — required even with OAuth.
   --region         ` + regionCodesString() + ` (selects the region-scoped token URL)
                    OR --auth-url to specify it directly
 
 Run ` + "`ws1 profile regions`" + ` for the full data center / customer-geo /
-token-URL table.`,
+token-URL table.
+
+Note: aw-tenant-code is NOT required for OAuth. The bearer is
+sufficient identity at both the gateway and the app layer.`,
 		Args: cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			start := time.Now()
@@ -194,13 +192,10 @@ token-URL table.`,
 					WithDuration(time.Since(start)))
 				return
 			}
-			if tenant == "" || clientID == "" || clientSecret == "" || tenantCode == "" {
+			if tenant == "" || clientID == "" || clientSecret == "" {
 				emitAndExit(envelope.NewError("ws1.profile.add",
 					envelope.CodeIdentifierAmbiguous,
-					"--tenant, --client-id, --client-secret, --tenant-code are all required").
-					WithErrorDetails(map[string]any{
-						"hint": "tenant-code is the API Key in WS1 console at Groups & Settings > All Settings > System > Advanced > API > REST API",
-					}).
+					"--tenant, --client-id, --client-secret are all required").
 					WithDuration(time.Since(start)))
 				return
 			}
@@ -232,7 +227,6 @@ token-URL table.`,
 			p := auth.Profile{
 				Name: name, Tenant: tenant, APIURL: apiURL,
 				AuthURL: authURL, ClientID: clientID,
-				TenantCode: tenantCode,
 			}
 			if err := auth.SaveProfile(p); err != nil {
 				emitAndExit(envelope.NewError("ws1.profile.add",
@@ -246,13 +240,12 @@ token-URL table.`,
 			}
 			emitAndExit(envelope.New("ws1.profile.add").
 				WithData(map[string]any{
-					"name":        name,
-					"tenant":      tenant,
-					"api_url":     apiURL,
-					"auth_url":    authURL,
-					"client_id":   clientID,
-					"tenant_code": tenantCode,
-					"secret":      "stored in OS keychain",
+					"name":      name,
+					"tenant":    tenant,
+					"api_url":   apiURL,
+					"auth_url":  authURL,
+					"client_id": clientID,
+					"secret":    "stored in OS keychain",
 				}).
 				WithDuration(time.Since(start)))
 		},
@@ -263,6 +256,5 @@ token-URL table.`,
 	cmd.Flags().StringVar(&region, "region", "", "OAuth region: "+regionCodesString())
 	cmd.Flags().StringVar(&clientID, "client-id", "", "OAuth client_id")
 	cmd.Flags().StringVar(&clientSecret, "client-secret", "", "OAuth client_secret (stored in OS keychain)")
-	cmd.Flags().StringVar(&tenantCode, "tenant-code", "", "API Key / aw-tenant-code header value (required for gateway-side tenant routing)")
 	return cmd
 }

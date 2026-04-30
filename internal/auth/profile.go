@@ -46,22 +46,16 @@ func IsValidProfile(name string) bool {
 // service. The CLI does not guess the region from Tenant; the user
 // supplies AuthURL (or --region) at `profile add` time.
 //
-// TenantCode is the value WS1 calls the "API Key" or "Tenant Code".
-// Found in the WS1 console under Groups & Settings > All Settings >
-// System > Advanced > API > REST API. The edge gateway uses this for
-// tenant routing (which back-end serves the request), separately from
-// the OAuth bearer which authenticates the client. Both are required:
-// requests missing aw-tenant-code 503 at the gateway before reaching
-// the API. (An earlier version of this code believed the header was
-// only for Basic Auth; that was wrong.)
+// Note: aw-tenant-code is NOT needed for OAuth client-credentials —
+// the bearer is sufficient identity at both the gateway and the app
+// layer. (Earlier flips on this were due to misreading reference code.)
 type Profile struct {
-	Name       string `yaml:"name"`
-	Tenant     string `yaml:"tenant"`                // tenant hostname
-	APIURL     string `yaml:"api_url"`               // base URL for API calls
-	AuthURL    string `yaml:"auth_url"`              // region-scoped OAuth token endpoint
-	ClientID   string `yaml:"client_id"`             // OAuth client_id (not secret)
-	TenantCode string `yaml:"tenant_code,omitempty"` // aw-tenant-code header value
-	OG         string `yaml:"og,omitempty"`          // optional default OG
+	Name     string `yaml:"name"`
+	Tenant   string `yaml:"tenant"`       // tenant hostname
+	APIURL   string `yaml:"api_url"`      // base URL for API calls
+	AuthURL  string `yaml:"auth_url"`     // region-scoped OAuth token endpoint
+	ClientID string `yaml:"client_id"`    // OAuth client_id (not secret)
+	OG       string `yaml:"og,omitempty"` // optional default OG
 }
 
 // Capability returns the operation classes this profile is permitted to

@@ -29,9 +29,8 @@ func buildAPIClient() (*api.Client, string, *envelope.Envelope) {
 
 	if v := getenv("WS1_MOCK_TOKEN"); v != "" {
 		return api.New(&auth.MockTokenSource{
-			BaseURLValue:    getenv("WS1_BASE_URL"),
-			TokenValue:      v,
-			TenantCodeValue: getenv("WS1_TENANT_CODE"),
+			BaseURLValue: getenv("WS1_BASE_URL"),
+			TokenValue:   v,
 		}), og, nil
 	}
 
