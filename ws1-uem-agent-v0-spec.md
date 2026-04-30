@@ -8,6 +8,22 @@ This doc locks the architectural decisions reached over the design conversation 
 
 ---
 
+## 0. Operating principles (added v0.1)
+
+Four principles governing CLI behavior + skill content. They surface throughout this spec where each becomes concrete.
+
+1. **UUID/GUID over integer IDs.** WS1 is migrating identifier conventions from integer (`DeviceID`, `UserID`) to UUID (`Uuid`, `deviceUuid`, `applicationUuid`). The CLI surfaces both — every section ships UUID-flavored ops alongside legacy integer-flavored ops — and the skill teaches agents to prefer UUID when responses offer both. See concepts/02-api-surface.md § Identifiers.
+
+2. **Bulk over loop.** When N>1 targets are required, find a bulk endpoint (`<section>.commandsv*.bulkexecute`, `bulk*`, `batch*`) instead of looping per-target. Loops burn rate-limit and produce non-atomic intent. For state-changing bulks above the per-op `blast_radius_threshold` (default 50), the approval flow gates the call.
+
+3. **Honor rate limits, do not poll.** On HTTP 429 the API client retries once, honoring `Retry-After` (capped at 30 s); persistent 429 surfaces as `RATE_LIMITED` to the caller. Agents do **not** auto-poll job status to confirm completion — that's the wrong mental model for UEM (see principle 4).
+
+4. **Dispatched ≠ executed.** WS1 enqueues commands for devices to pick up on next check-in. API success means the command is in the device queue, not that the device has run it. Polling the API in a loop trying to confirm completion tells you nothing useful and burns rate limit. If verification of effect is needed, do it minutes-to-hours later via a fresh read, only when the user cares.
+
+These four are reinforced in the skill's principle stack (skills/ws1-uem/SKILL.md), the `concepts/04-safety.md` "Dispatched ≠ executed" section, and the runtime behavior in `internal/api/client.go` (rate-limit retry) + `cmd/ws1/sections.go` (no auto-watch on async ops).
+
+---
+
 ## 1. Executive summary
 
 We're building a CLI + Skill pair that lets any skill-capable agent (Claude Code, Claude Desktop in Cowork mode, claude.ai, Cursor) operate Omnissa Workspace ONE UEM safely from natural-language goals.

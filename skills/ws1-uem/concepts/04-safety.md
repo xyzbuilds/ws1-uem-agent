@@ -39,15 +39,32 @@ When you see `STALE_RESOURCE`:
 
 Do **not** auto-retry. Drift means the world changed, and the user's intent may no longer apply.
 
-## Async vs sync
+## Dispatched ≠ executed: the UEM async-nature contract
 
-`ws1 ops describe <op>` shows `sync: true | false`. Sync ops complete inline and return their result in `data`. Async ops queue a job and return `data.job_id`.
+This is the most-violated mental model in agent-driven UEM operations. Internalize it.
 
-For async, two paths:
-- **Watch**: `ws1 ... --watch` polls until the job reaches a terminal state and emits the final envelope.
-- **Hand off**: emit the envelope with `job_id` to the user and let them poll later via `ws1 jobs get --id job_x1y2z3`.
+WS1 does not run commands directly on devices. Every state-changing command flows through a **device-side queue**:
 
-Don't assume an async op succeeded because the call returned 200; the call only confirms the job was *queued*.
+1. Your `ws1` call lands at the WS1 API.
+2. The API validates the command and **enqueues** it for the target device.
+3. The API returns. Status is typically `Queued` / `Pending` / `Dispatched` — never `Executed`.
+4. **Sometime later**, the device checks in (over MDM heartbeat, push notification, or scheduled poll). It picks up the queued command.
+5. The device runs the command. This may take seconds (a `Lock`) or hours (a `DeviceWipe`, an app install on a slow connection).
+6. The device reports completion back to WS1 on its *next* check-in after execution.
+
+**What this means for an agent:**
+
+- A successful API response means **the command is in the queue**. It does not mean the device has done anything yet.
+- The right success signal is **"the API accepted my dispatch without a validation error"** — typically HTTP 200/202 with `status: Queued` and a `command_uuid` or `job_id`.
+- **Do not poll** to "confirm completion." The device's check-in cadence is unrelated to your CLI invocation. A `Lock` on a phone in someone's pocket might land in 2 seconds; an `InstallApplication` on a docked laptop overnight could be 8 hours. Polling the API every few seconds tells you nothing useful and burns rate limit.
+- If a follow-up read is genuinely needed (e.g., "did the wipe actually run?"), do it minutes-to-hours later via a fresh `devices get` — and only when the user actually needs to know.
+- For long-running operations the user cares about, hand back the `command_uuid`/`job_id` and tell them how to check later: `ws1 mdmv1 commandsv1 search --command_uuid <uuid>` or similar. Don't tie up the CLI in a polling loop.
+
+The CLI does **not** ship a `--watch` flag for this reason. If you find yourself wanting one, you're modeling UEM as if it were a synchronous API.
+
+## Async by name
+
+Some ops have `Async` in their `operationId` (e.g. `Devices_LockAsync`). That's a .NET implementation detail — every WS1 command is async in the queue-then-execute sense above. The CLI strips `Async` from the verb when generating op identifiers; treat all device-targeting ops as async-by-nature even when the name doesn't shout it.
 
 ## Bulk + partial-success
 

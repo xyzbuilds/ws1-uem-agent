@@ -16,9 +16,28 @@ The version-in-command is verbose (`ws1 mdmv4 devices lock` rather than `ws1 mdm
 
 ## Operation identifier
 
-`<section>.<tag>.<verb>` — e.g. `mdmv4.devices.search`. The CLI command is the same with dots replaced by spaces.
+`<section>.<tag>.<verb>` — e.g. `mdmv1.devices.search`. The CLI command is the same with dots replaced by spaces.
 
 `section`: the slug. `tag`: the OpenAPI tag, lowercased (e.g. `Devices` → `devices`). `verb`: the operationId suffix after the underscore, with `Async` stripped (e.g. `Devices_LockAsync` → `lock`).
+
+## Identifiers: prefer UUID
+
+Two identifier flavors live in WS1's API surface:
+
+| Flavor | Example | Status |
+|---|---|---|
+| **Integer ID** | `DeviceID: 12345`, `UserID: 10001` | Legacy. Stable but being phased out. Path params: `{id}`, `{deviceid}`. |
+| **UUID/GUID** | `Uuid: f3d4e5f6-1234-...` | Forward-compatible. Path params: `{uuid}`, `{deviceUuid}`, `{applicationUuid}`. |
+
+Many ops have both flavors as separate operations (e.g. `mdmv2.devicesv2.getbyuuid` vs older `mdmv1.devices.get`). Some ops accept either, picked via a `searchby` query param.
+
+**The principle:** when a search response gives you both fields, use the UUID for subsequent calls. Reasons:
+
+- Cross-section consistency: bulk command bodies use `device_uuids: [...]` arrays, not `device_ids`.
+- Future-proofing: the integer ID surface is being deprecated.
+- Less ambiguity: a UUID is unique across tenants and resources; an integer DeviceID could collide with an integer UserID in agent reasoning if you're not careful.
+
+When the user gives you only an integer ID (a phone Serial maps to a DeviceID via a search), it's fine to use the integer endpoint. Don't refuse to operate on legacy data.
 
 ## Envelope schema
 
