@@ -126,17 +126,8 @@ func RunSetup(ctx context.Context, opts SetupOptions, p Prompter) error {
 	}
 	opts.Tenant = tenant
 
-	// Step 2: Region.
-	//
-	// Quick mode: skip the region picker when AuthURL is already set
-	// (e.g. --auth-url flag or test harness). Otherwise prompt for
-	// region and derive AuthURL.
-	//
-	// Advanced mode: always show the region picker so the operator can
-	// confirm the datacenter. If AuthURL was pre-supplied (e.g. test
-	// harness), keep it and treat the region pick as informational only.
-	// If AuthURL is not set, derive it from the selected region.
-	if opts.AuthURL == "" || !opts.Quick {
+	// Step 2: Region (skipped if AuthURL was supplied directly).
+	if opts.AuthURL == "" {
 		if opts.Region == "" {
 			region, err := pickRegion(p)
 			if err != nil {
@@ -144,13 +135,11 @@ func RunSetup(ctx context.Context, opts SetupOptions, p Prompter) error {
 			}
 			opts.Region = region
 		}
-		if opts.AuthURL == "" {
-			url, ok := regionToAuthURL(opts.Region)
-			if !ok {
-				return fmt.Errorf("unknown region %q", opts.Region)
-			}
-			opts.AuthURL = url
+		url, ok := regionToAuthURL(opts.Region)
+		if !ok {
+			return fmt.Errorf("unknown region %q", opts.Region)
 		}
+		opts.AuthURL = url
 	}
 
 	// Step 3: Profiles to configure.
@@ -306,10 +295,14 @@ func configureOneProfile(ctx context.Context, p Prompter, opts SetupOptions, nam
 			return auth.Profile{}, perr
 		}
 		clientID = newID
-		_ = newSec // newSec passed directly to SaveClientSecret above; clientSecret not used after loop start
-		prof.ClientID = newID
-		_ = auth.SaveProfile(prof)
-		_ = auth.SaveClientSecret(name, newID, newSec)
+		clientSecret = newSec
+		prof.ClientID = clientID
+		if err := auth.SaveProfile(prof); err != nil {
+			return auth.Profile{}, fmt.Errorf("save profile on retry: %w", err)
+		}
+		if err := auth.SaveClientSecret(name, clientID, clientSecret); err != nil {
+			return auth.Profile{}, fmt.Errorf("save secret on retry: %w", err)
+		}
 	}
 	return auth.Profile{}, fmt.Errorf("auth failed after %d attempts for %s: %w", maxAttempts, name, lastErr)
 }

@@ -328,7 +328,7 @@ func TestSetupAdvancedConfiguresMultipleProfiles(t *testing.T) {
 			"Client ID for ro":       "ro-id",
 		},
 		SecretAnswers: []string{"op-sec", "ro-sec"},
-		PickIndex:     []int{2 /*region na*/, 1 /*OG*/},
+		PickIndex:     []int{1 /*OG*/},
 	}
 
 	opts := SetupOptions{AuthURL: srv.URL + "/oauth", Quick: false, SkipSmoke: true}
