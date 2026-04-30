@@ -27,8 +27,43 @@ permissions via argv.`,
 		newProfileListCmd(),
 		newProfileUseCmd(),
 		newProfileAddCmd(),
+		newProfileRegionsCmd(),
 	)
 	return cmd
+}
+
+// newProfileRegionsCmd emits the canonical region/data-center/token-URL
+// table as an envelope so an agent can discover valid --region values
+// without having to read the docs. Output is the cmd/ws1/regions.go
+// Regions slice — same source of truth `profile add` uses.
+func newProfileRegionsCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "regions",
+		Short: "List supported OAuth regions and their token URLs",
+		Long: `Print the canonical mapping of region code -> data center -> customer
+geos -> token URL, sourced from the Omnissa Workspace ONE UEM docs.
+Use the 'code' field with 'ws1 profile add --region <code>'.`,
+		Args: cobra.NoArgs,
+		Run: func(cmd *cobra.Command, args []string) {
+			start := time.Now()
+			rows := make([]map[string]any, 0, len(Regions))
+			for _, r := range Regions {
+				rows = append(rows, map[string]any{
+					"code":        r.Code,
+					"data_center": r.DataCenter,
+					"customers":   r.Customers,
+					"token_url":   r.TokenURL,
+				})
+			}
+			emitAndExit(envelope.New("ws1.profile.regions").
+				WithData(map[string]any{
+					"regions": rows,
+					"source":  "https://docs.omnissa.com/bundle/WorkspaceONE-UEM-Console-BasicsVSaaS/page/UsingUEMFunctionalityWithRESTAPI.html",
+					"note":    "legacy URLs on uemauth.vmwservices.com still work but are deprecated; new code should use the workspaceone.com domain shown here",
+				}).
+				WithDuration(time.Since(start)))
+		},
+	}
 }
 
 func newProfileCurrentCmd() *cobra.Command {
@@ -131,14 +166,11 @@ Required flags:
   --client-id      OAuth client ID from Groups & Settings > Configurations >
                    OAuth Client Management
   --client-secret  OAuth client secret (stored in keychain)
-  --region         na | eu | apac  (selects the region-scoped token URL)
+  --region         ` + regionCodesString() + ` (selects the region-scoped token URL)
                    OR --auth-url to specify it directly
 
-The token URL is region-scoped per Omnissa's UEM Auth service:
-  na     https://na.uemauth.vmwservices.com/connect/token
-  eu     https://eur.uemauth.vmwservices.com/connect/token
-  apac   https://apac.uemauth.vmwservices.com/connect/token
-See https://kb.omnissa.com/s/article/2960893 for the canonical list.
+Run ` + "`ws1 profile regions`" + ` for the full data center / customer-geo /
+token-URL table.
 
 Note: aw-tenant-code is only needed for Basic Auth; OAuth client-credentials
 relies on the bearer alone, so the CLI does not collect or send it.`,
@@ -170,7 +202,7 @@ relies on the bearer alone, so the CLI does not collect or send it.`,
 			if authURL == "" && region == "" {
 				emitAndExit(envelope.NewError("ws1.profile.add",
 					envelope.CodeIdentifierAmbiguous,
-					"either --region (na/eu/apac) or --auth-url must be set; the OAuth token URL is region-scoped, not on the tenant").
+					"either --region ("+regionCodesString()+") or --auth-url must be set; the OAuth token URL is region-scoped, not on the tenant").
 					WithDuration(time.Since(start)))
 				return
 			}
@@ -179,7 +211,11 @@ relies on the bearer alone, so the CLI does not collect or send it.`,
 				if !ok {
 					emitAndExit(envelope.NewError("ws1.profile.add",
 						envelope.CodeIdentifierAmbiguous,
-						"unknown --region "+region+"; want one of na / eu / apac, or pass --auth-url directly").
+						"unknown --region "+region+"; want one of "+regionCodesString()+", or pass --auth-url directly").
+						WithErrorDetails(map[string]any{
+							"valid_regions": regionCodes(),
+							"hint":          "run `ws1 profile regions` for the full data-center / customer-geo / URL table",
+						}).
 						WithDuration(time.Since(start)))
 					return
 				}
@@ -217,24 +253,8 @@ relies on the bearer alone, so the CLI does not collect or send it.`,
 	cmd.Flags().StringVar(&tenant, "tenant", "", "tenant hostname (e.g. cn1506.awmdm.com)")
 	cmd.Flags().StringVar(&apiURL, "api-url", "", "API base URL (default https://<tenant>)")
 	cmd.Flags().StringVar(&authURL, "auth-url", "", "OAuth token endpoint (overrides --region)")
-	cmd.Flags().StringVar(&region, "region", "", "OAuth region: na | eu | apac")
+	cmd.Flags().StringVar(&region, "region", "", "OAuth region: "+regionCodesString())
 	cmd.Flags().StringVar(&clientID, "client-id", "", "OAuth client_id")
 	cmd.Flags().StringVar(&clientSecret, "client-secret", "", "OAuth client_secret (stored in OS keychain)")
 	return cmd
-}
-
-// regionToAuthURL maps the short region names from the Omnissa KB
-// (https://kb.omnissa.com/s/article/2960893) to the canonical token URL.
-// Maintainer-extensible: add new regions here as Omnissa publishes them.
-func regionToAuthURL(region string) (string, bool) {
-	switch region {
-	case "na":
-		return "https://na.uemauth.vmwservices.com/connect/token", true
-	case "eu":
-		return "https://eur.uemauth.vmwservices.com/connect/token", true
-	case "apac":
-		return "https://apac.uemauth.vmwservices.com/connect/token", true
-	default:
-		return "", false
-	}
 }
