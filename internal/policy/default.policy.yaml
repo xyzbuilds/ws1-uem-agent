@@ -1,0 +1,71 @@
+# Operations policy for ws1.
+#
+# Source-of-truth for operation classification. Hand-curated; checked into
+# the repo; shipped inside the CLI binary at build time. Format and semantics
+# are spec section 8.
+#
+# Fail-closed: any operation in the generated index that is NOT listed here
+# is treated as `class: destructive, approval: always_required` at runtime,
+# with a UNKNOWN_OPERATION warning. Maintainers must add new ops here before
+# `make sync-specs` exits 0.
+
+version: 1
+
+# Default applied to ops not classified below. Fail-closed.
+__default__:
+  class: destructive
+  reversible: unknown
+  approval: always_required
+  warn: "Operation not classified in policy.yaml; treated as destructive."
+
+# ---------------------------------------------------------------------------
+# mdmv4 — Mobile Device Management API V4
+# ---------------------------------------------------------------------------
+
+mdmv4.devices.search:
+  class: read
+  identifier: none
+  warn_if_results_over: 1000
+  sync: true
+
+mdmv4.devices.get:
+  class: read
+  identifier: device_id
+  sync: true
+
+mdmv4.devices.lock:
+  class: write
+  reversible: full
+  identifier: device_id
+  blast_radius_threshold: 50
+  sync: true
+
+mdmv4.devices.wipe:
+  class: destructive
+  reversible: none
+  approval: always_required
+  identifier: device_id
+  sync: false # async job
+
+mdmv4.devices.bulkcommand:
+  class: write
+  reversible: depends_on_command
+  identifier: device_id_array
+  blast_radius_threshold: 50
+  approval: required_if_count_over_threshold
+  sync: true
+
+# ---------------------------------------------------------------------------
+# systemv2 — System API V2
+# ---------------------------------------------------------------------------
+
+systemv2.users.search:
+  class: read
+  identifier: none
+  warn_if_results_over: 500
+  sync: true
+
+systemv2.users.get:
+  class: read
+  identifier: user_id
+  sync: true
