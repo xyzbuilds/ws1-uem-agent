@@ -14,8 +14,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/zhangxuyang/ws1-uem-agent/internal/envelope"
-	"github.com/zhangxuyang/ws1-uem-agent/test/mockws1"
+	"github.com/xyzbuilds/ws1-uem-agent/internal/envelope"
+	"github.com/xyzbuilds/ws1-uem-agent/test/mockws1"
 )
 
 type suite struct {

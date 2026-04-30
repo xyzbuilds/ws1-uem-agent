@@ -19,7 +19,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/zhangxuyang/ws1-uem-agent/test/mockws1"
+	"github.com/xyzbuilds/ws1-uem-agent/test/mockws1"
 )
 
 func main() {

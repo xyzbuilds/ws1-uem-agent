@@ -5,8 +5,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/zhangxuyang/ws1-uem-agent/internal/auth"
-	"github.com/zhangxuyang/ws1-uem-agent/internal/envelope"
+	"github.com/xyzbuilds/ws1-uem-agent/internal/auth"
+	"github.com/xyzbuilds/ws1-uem-agent/internal/envelope"
 )
 
 func newOgCmd() *cobra.Command {

@@ -2,9 +2,9 @@
 //
 // Variables here are populated via -ldflags at link time, e.g.:
 //
-//	go build -ldflags "-X github.com/zhangxuyang/ws1-uem-agent/internal/version.Version=0.1.0 \
-//	                   -X github.com/zhangxuyang/ws1-uem-agent/internal/version.Commit=$(git rev-parse HEAD) \
-//	                   -X github.com/zhangxuyang/ws1-uem-agent/internal/version.BuildDate=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+//	go build -ldflags "-X github.com/xyzbuilds/ws1-uem-agent/internal/version.Version=0.1.0 \
+//	                   -X github.com/xyzbuilds/ws1-uem-agent/internal/version.Commit=$(git rev-parse HEAD) \
+//	                   -X github.com/xyzbuilds/ws1-uem-agent/internal/version.BuildDate=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
 //	  ./cmd/ws1
 //
 // Defaults below are intentionally generic so unstamped dev builds are

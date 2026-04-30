@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/zhangxuyang/ws1-uem-agent/internal/envelope"
+	"github.com/xyzbuilds/ws1-uem-agent/internal/envelope"
 )
 
 // buildOnce builds the ws1 binary into a temp dir for this test process.

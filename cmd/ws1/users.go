@@ -7,8 +7,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/zhangxuyang/ws1-uem-agent/internal/api"
-	"github.com/zhangxuyang/ws1-uem-agent/internal/envelope"
+	"github.com/xyzbuilds/ws1-uem-agent/internal/api"
+	"github.com/xyzbuilds/ws1-uem-agent/internal/envelope"
 )
 
 func newUsersCmd() *cobra.Command {

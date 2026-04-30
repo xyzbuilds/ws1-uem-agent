@@ -6,9 +6,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/zhangxuyang/ws1-uem-agent/internal/envelope"
-	"github.com/zhangxuyang/ws1-uem-agent/internal/generated"
-	"github.com/zhangxuyang/ws1-uem-agent/internal/policy"
+	"github.com/xyzbuilds/ws1-uem-agent/internal/envelope"
+	"github.com/xyzbuilds/ws1-uem-agent/internal/generated"
+	"github.com/xyzbuilds/ws1-uem-agent/internal/policy"
 )
 
 // loadActivePolicy resolves the operations.policy.yaml in this precedence:

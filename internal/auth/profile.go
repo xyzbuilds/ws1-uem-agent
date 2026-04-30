@@ -41,13 +41,24 @@ func IsValidProfile(name string) bool {
 // Profile is the configuration for one of the three tiers. The client_secret
 // is intentionally NOT in this struct: secrets live in the OS keychain and
 // are fetched via keychain.Get(profile.Name).
+//
+// AuthURL is region-specific (NA / EU / APAC) per Omnissa's UEM Auth
+// service; see https://kb.omnissa.com/s/article/2960893. The CLI does not
+// guess the region from Tenant; the user supplies AuthURL at `profile add`
+// time.
+//
+// TenantCode is the API key Omnissa requires in the `aw-tenant-code`
+// header on every API call; found in the WS1 console under
+// Groups & Settings > All Settings > System > Advanced > API > REST API.
+// Distinct from the tenant *hostname*.
 type Profile struct {
-	Name     string `yaml:"name"`
-	Tenant   string `yaml:"tenant"`     // tenant hostname, e.g. as1831.awmdm.com
-	APIURL   string `yaml:"api_url"`    // base URL for API calls, e.g. https://as1831.awmdm.com
-	AuthURL  string `yaml:"auth_url"`   // OAuth token endpoint
-	ClientID string `yaml:"client_id"`  // OAuth client_id (not secret)
-	OG       string `yaml:"og,omitempty"` // optional default OG, overridable at runtime
+	Name       string `yaml:"name"`
+	Tenant     string `yaml:"tenant"`               // tenant hostname, e.g. as1831.awmdm.com
+	APIURL     string `yaml:"api_url"`              // base URL for API calls
+	AuthURL    string `yaml:"auth_url"`             // region-scoped OAuth token endpoint
+	ClientID   string `yaml:"client_id"`            // OAuth client_id (not secret)
+	TenantCode string `yaml:"tenant_code,omitempty"` // aw-tenant-code header value
+	OG         string `yaml:"og,omitempty"`         // optional default OG
 }
 
 // Capability returns the operation classes this profile is permitted to

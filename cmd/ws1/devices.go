@@ -9,10 +9,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/zhangxuyang/ws1-uem-agent/internal/api"
-	"github.com/zhangxuyang/ws1-uem-agent/internal/auth"
-	"github.com/zhangxuyang/ws1-uem-agent/internal/envelope"
-	"github.com/zhangxuyang/ws1-uem-agent/internal/generated"
+	"github.com/xyzbuilds/ws1-uem-agent/internal/api"
+	"github.com/xyzbuilds/ws1-uem-agent/internal/auth"
+	"github.com/xyzbuilds/ws1-uem-agent/internal/envelope"
+	"github.com/xyzbuilds/ws1-uem-agent/internal/generated"
 )
 
 // newDevicesCmd builds the `ws1 mdmv4 devices ...` subtree. The CLI surface
@@ -174,8 +174,9 @@ func buildAPIClient() (*api.Client, string, *envelope.Envelope) {
 	// In mock-mode we bypass the profiles file entirely.
 	if v := getenv("WS1_MOCK_TOKEN"); v != "" {
 		return api.New(&auth.MockTokenSource{
-			BaseURLValue: getenv("WS1_BASE_URL"),
-			TokenValue:   v,
+			BaseURLValue:    getenv("WS1_BASE_URL"),
+			TokenValue:      v,
+			TenantCodeValue: getenv("WS1_TENANT_CODE"),
 		}), og, nil
 	}
 

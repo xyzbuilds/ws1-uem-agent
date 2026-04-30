@@ -8,8 +8,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/zhangxuyang/ws1-uem-agent/internal/envelope"
-	"github.com/zhangxuyang/ws1-uem-agent/internal/version"
+	"github.com/xyzbuilds/ws1-uem-agent/internal/envelope"
+	"github.com/xyzbuilds/ws1-uem-agent/internal/version"
 )
 
 // doctorCheck is one row in the doctor envelope's data.checks array.

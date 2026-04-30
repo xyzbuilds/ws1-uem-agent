@@ -16,12 +16,19 @@ import (
 	"go.yaml.in/yaml/v3"
 )
 
-// fetch pulls each section's OpenAPI document via Bearer auth, validates the
-// shape, pretty-prints the JSON for diff-friendliness, and writes
+// fetch pulls each section's OpenAPI document, validates the shape,
+// pretty-prints the JSON for diff-friendliness, and writes
 // spec/<slug>.json plus an updated spec/VERSION.
 //
 // Per docs/build-pipeline.md stage 2, JSON keys are NOT sorted (preserves
 // OpenAPI document order). Pretty-printing is the only normalisation.
+//
+// Auth note: WS1's `/api/help/Docs/<slug>` endpoints are publicly readable
+// — same as the index page they're linked from. The --token / WS1_TOKEN
+// is therefore optional. If supplied, it's sent as a Bearer header so
+// tenants that have locked down the explorer can still be served. If a
+// 401 is returned, fetch surfaces FETCH_AUTH_FAILED so the maintainer
+// knows to provide a token.
 func newFetchCmd() *cobra.Command {
 	var sectionsPath, token, outDir string
 	var retries int
@@ -29,9 +36,6 @@ func newFetchCmd() *cobra.Command {
 		Use:   "fetch",
 		Short: "Pull each section's OpenAPI spec into spec/",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if token == "" {
-				return fmt.Errorf("--token is required (bearer for tenant API)")
-			}
 			disc, err := loadDiscoveryResult(sectionsPath)
 			if err != nil {
 				return err
@@ -62,7 +66,7 @@ func newFetchCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&sectionsPath, "sections", ".build/sections.json", "discovery output from `ws1-build discover`")
-	cmd.Flags().StringVar(&token, "token", os.Getenv("WS1_TOKEN"), "bearer token for tenant API; defaults to $WS1_TOKEN")
+	cmd.Flags().StringVar(&token, "token", os.Getenv("WS1_TOKEN"), "optional bearer for tenants that lock down /api/help; defaults to $WS1_TOKEN")
 	cmd.Flags().StringVar(&outDir, "out", "spec/", "output directory for spec files and VERSION")
 	cmd.Flags().IntVar(&retries, "retries", 3, "max retries on transient network errors")
 	return cmd
@@ -129,7 +133,9 @@ func fetchOne(client *http.Client, specURL, token string, retries int) ([]byte, 
 		if err != nil {
 			return nil, err
 		}
-		req.Header.Set("Authorization", "Bearer "+token)
+		if token != "" {
+			req.Header.Set("Authorization", "Bearer "+token)
+		}
 		req.Header.Set("Accept", "application/json")
 		resp, err := client.Do(req)
 		if err != nil {

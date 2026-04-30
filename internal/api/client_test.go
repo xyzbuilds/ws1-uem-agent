@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/zhangxuyang/ws1-uem-agent/internal/auth"
-	"github.com/zhangxuyang/ws1-uem-agent/internal/generated"
+	"github.com/xyzbuilds/ws1-uem-agent/internal/auth"
+	"github.com/xyzbuilds/ws1-uem-agent/internal/generated"
 )
 
 func TestBuildURLPathAndQuery(t *testing.T) {

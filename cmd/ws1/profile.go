@@ -6,8 +6,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/zhangxuyang/ws1-uem-agent/internal/auth"
-	"github.com/zhangxuyang/ws1-uem-agent/internal/envelope"
+	"github.com/xyzbuilds/ws1-uem-agent/internal/auth"
+	"github.com/xyzbuilds/ws1-uem-agent/internal/envelope"
 )
 
 func newProfileCmd() *cobra.Command {
@@ -117,14 +117,30 @@ func newProfileUseCmd() *cobra.Command {
 
 func newProfileAddCmd() *cobra.Command {
 	var (
-		tenant, apiURL, authURL, clientID, clientSecret string
+		tenant, apiURL, authURL, clientID, clientSecret, tenantCode, region string
 	)
 	cmd := &cobra.Command{
 		Use:   "add <name>",
 		Short: "Configure a profile (writes secret to OS keychain)",
 		Long: `Configure a profile by name (ro / operator / admin). Stores tenant +
-client_id in ~/.config/ws1/profiles.yaml and the client_secret in the OS
-keychain (macOS Keychain, Windows wincred, Linux secret-service).`,
+client_id + tenant_code in ~/.config/ws1/profiles.yaml; client_secret goes
+to the OS keychain.
+
+Required flags:
+  --tenant         tenant hostname (e.g. cn1506.awmdm.com)
+  --client-id      OAuth client ID from Groups & Settings > Configurations >
+                   OAuth Client Management
+  --client-secret  OAuth client secret (stored in keychain)
+  --tenant-code    API key, found at Groups & Settings > All Settings >
+                   System > Advanced > API > REST API
+  --region         na | eu | apac  (selects the region-scoped token URL)
+                   OR --auth-url to specify it directly
+
+The token URL is region-scoped per Omnissa's UEM Auth service:
+  na     https://na.uemauth.vmwservices.com/connect/token
+  eu     https://eur.uemauth.vmwservices.com/connect/token
+  apac   https://apac.uemauth.vmwservices.com/connect/token
+See https://kb.omnissa.com/s/article/2960893 for the canonical list.`,
 		Args: cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			start := time.Now()
@@ -150,15 +166,30 @@ keychain (macOS Keychain, Windows wincred, Linux secret-service).`,
 					WithDuration(time.Since(start)))
 				return
 			}
+			if authURL == "" && region == "" {
+				emitAndExit(envelope.NewError("ws1.profile.add",
+					envelope.CodeIdentifierAmbiguous,
+					"either --region (na/eu/apac) or --auth-url must be set; the OAuth token URL is region-scoped, not on the tenant").
+					WithDuration(time.Since(start)))
+				return
+			}
+			if authURL == "" {
+				resolved, ok := regionToAuthURL(region)
+				if !ok {
+					emitAndExit(envelope.NewError("ws1.profile.add",
+						envelope.CodeIdentifierAmbiguous,
+						"unknown --region "+region+"; want one of na / eu / apac, or pass --auth-url directly").
+						WithDuration(time.Since(start)))
+					return
+				}
+				authURL = resolved
+			}
 			if apiURL == "" {
 				apiURL = "https://" + tenant
 			}
-			if authURL == "" {
-				authURL = "https://" + tenant + "/AirWatch/oauth2/token"
-			}
 			p := auth.Profile{
 				Name: name, Tenant: tenant, APIURL: apiURL,
-				AuthURL: authURL, ClientID: clientID,
+				AuthURL: authURL, ClientID: clientID, TenantCode: tenantCode,
 			}
 			if err := auth.SaveProfile(p); err != nil {
 				emitAndExit(envelope.NewError("ws1.profile.add",
@@ -172,18 +203,39 @@ keychain (macOS Keychain, Windows wincred, Linux secret-service).`,
 			}
 			emitAndExit(envelope.New("ws1.profile.add").
 				WithData(map[string]any{
-					"name":      name,
-					"tenant":    tenant,
-					"client_id": clientID,
-					"secret":    "stored in OS keychain",
+					"name":         name,
+					"tenant":       tenant,
+					"api_url":      apiURL,
+					"auth_url":     authURL,
+					"client_id":    clientID,
+					"tenant_code":  tenantCode,
+					"secret":       "stored in OS keychain",
 				}).
 				WithDuration(time.Since(start)))
 		},
 	}
-	cmd.Flags().StringVar(&tenant, "tenant", "", "tenant hostname (e.g. as1831.awmdm.com)")
+	cmd.Flags().StringVar(&tenant, "tenant", "", "tenant hostname (e.g. cn1506.awmdm.com)")
 	cmd.Flags().StringVar(&apiURL, "api-url", "", "API base URL (default https://<tenant>)")
-	cmd.Flags().StringVar(&authURL, "auth-url", "", "OAuth token endpoint (default https://<tenant>/AirWatch/oauth2/token)")
+	cmd.Flags().StringVar(&authURL, "auth-url", "", "OAuth token endpoint (overrides --region)")
+	cmd.Flags().StringVar(&region, "region", "", "OAuth region: na | eu | apac")
 	cmd.Flags().StringVar(&clientID, "client-id", "", "OAuth client_id")
 	cmd.Flags().StringVar(&clientSecret, "client-secret", "", "OAuth client_secret (stored in OS keychain)")
+	cmd.Flags().StringVar(&tenantCode, "tenant-code", "", "tenant API key (aw-tenant-code header)")
 	return cmd
+}
+
+// regionToAuthURL maps the short region names from the Omnissa KB
+// (https://kb.omnissa.com/s/article/2960893) to the canonical token URL.
+// Maintainer-extensible: add new regions here as Omnissa publishes them.
+func regionToAuthURL(region string) (string, bool) {
+	switch region {
+	case "na":
+		return "https://na.uemauth.vmwservices.com/connect/token", true
+	case "eu":
+		return "https://eur.uemauth.vmwservices.com/connect/token", true
+	case "apac":
+		return "https://apac.uemauth.vmwservices.com/connect/token", true
+	default:
+		return "", false
+	}
 }

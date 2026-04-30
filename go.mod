@@ -1,4 +1,4 @@
-module github.com/zhangxuyang/ws1-uem-agent
+module github.com/xyzbuilds/ws1-uem-agent
 
 go 1.25.0
 

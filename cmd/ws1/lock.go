@@ -9,12 +9,12 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/zhangxuyang/ws1-uem-agent/internal/api"
-	"github.com/zhangxuyang/ws1-uem-agent/internal/approval"
-	"github.com/zhangxuyang/ws1-uem-agent/internal/audit"
-	"github.com/zhangxuyang/ws1-uem-agent/internal/auth"
-	"github.com/zhangxuyang/ws1-uem-agent/internal/envelope"
-	"github.com/zhangxuyang/ws1-uem-agent/internal/policy"
+	"github.com/xyzbuilds/ws1-uem-agent/internal/api"
+	"github.com/xyzbuilds/ws1-uem-agent/internal/approval"
+	"github.com/xyzbuilds/ws1-uem-agent/internal/audit"
+	"github.com/xyzbuilds/ws1-uem-agent/internal/auth"
+	"github.com/xyzbuilds/ws1-uem-agent/internal/envelope"
+	"github.com/xyzbuilds/ws1-uem-agent/internal/policy"
 )
 
 // snapshotFields are the device-record fields we capture at approval time

@@ -39,6 +39,9 @@ func (t *Token) Expired() bool {
 type TokenSource interface {
 	Token(ctx context.Context) (*Token, error)
 	BaseURL() string
+	// TenantCode returns the value to send in the `aw-tenant-code` header
+	// on every API request; empty string is acceptable for tests/mock mode.
+	TenantCode() string
 }
 
 // OAuthClient implements TokenSource for the WS1 client-credentials grant.
@@ -68,6 +71,18 @@ func (c *OAuthClient) BaseURL() string {
 		return v
 	}
 	return strings.TrimRight(c.Profile.APIURL, "/")
+}
+
+// TenantCode returns the aw-tenant-code header value for this profile.
+// Empty if not set.
+func (c *OAuthClient) TenantCode() string {
+	if v := os.Getenv("WS1_TENANT_CODE"); v != "" {
+		return v
+	}
+	if c.Profile == nil {
+		return ""
+	}
+	return c.Profile.TenantCode
 }
 
 // Token returns a non-expired bearer token, fetching a new one as needed.
@@ -144,8 +159,9 @@ func truncate(s string, n int) string {
 // MockTokenSource is a TokenSource that returns the same token forever; used
 // by tests and the demo runner.
 type MockTokenSource struct {
-	BaseURLValue string
-	TokenValue   string
+	BaseURLValue    string
+	TokenValue      string
+	TenantCodeValue string
 }
 
 // Token implements TokenSource.
@@ -160,3 +176,6 @@ func (m *MockTokenSource) Token(ctx context.Context) (*Token, error) {
 
 // BaseURL implements TokenSource.
 func (m *MockTokenSource) BaseURL() string { return m.BaseURLValue }
+
+// TenantCode implements TokenSource.
+func (m *MockTokenSource) TenantCode() string { return m.TenantCodeValue }

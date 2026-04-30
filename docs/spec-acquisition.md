@@ -65,7 +65,7 @@ Display name → slug:
 | System API V1 | `systemv1` |
 | System API V2 | `systemv2` |
 
-Spec URL for each slug: `https://<tenant>/api/help/Docs/<slug>` (returns OpenAPI 3.0.1 JSON; auth required).
+Spec URL for each slug: `https://<tenant>/api/help/Docs/<slug>` (returns OpenAPI 3.0.1 JSON; **publicly readable on standard SaaS tenants** — same as the `/api/help` index page that links to it. The `--token` flag on `ws1-build fetch` is optional and only used when a tenant has explicitly locked down the explorer).
 
 ## Confirmed sample shape
 

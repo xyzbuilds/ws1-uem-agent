@@ -21,8 +21,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/zhangxuyang/ws1-uem-agent/internal/auth"
-	"github.com/zhangxuyang/ws1-uem-agent/internal/generated"
+	"github.com/xyzbuilds/ws1-uem-agent/internal/auth"
+	"github.com/xyzbuilds/ws1-uem-agent/internal/generated"
 )
 
 // Args is the binding from a parameter name (matching ParamMeta.Name) to
@@ -50,8 +50,10 @@ type Client struct {
 	Source auth.TokenSource
 	HTTP   *http.Client
 
-	// AcceptVersion is set as the api-version header WS1 expects on most
-	// MDM/MAM/MCM endpoints. Configurable so tests can leave it empty.
+	// AcceptVersion is the WS1 API version requested via the
+	// `Accept: application/json;version=<N>` content negotiation. v1 endpoints
+	// only respond when version=1; v2 endpoints want version=2. The CLI
+	// resolves this per-op by inspecting the section slug at request time.
 	AcceptVersion string
 }
 
@@ -96,9 +98,16 @@ func (c *Client) Do(ctx context.Context, op string, args Args) (*Response, error
 		return nil, err
 	}
 	req.Header.Set("Authorization", tok.TokenType+" "+tok.AccessToken)
-	req.Header.Set("Accept", "application/json")
+	// Per Omnissa REST API conventions: API version is in the Accept
+	// content-type parameter. The aw-tenant-code header carries the
+	// tenant API key (separate from the OAuth bearer).
 	if c.AcceptVersion != "" {
-		req.Header.Set("aw-tenant-code", "")
+		req.Header.Set("Accept", "application/json;version="+c.AcceptVersion)
+	} else {
+		req.Header.Set("Accept", "application/json")
+	}
+	if tc := c.Source.TenantCode(); tc != "" {
+		req.Header.Set("aw-tenant-code", tc)
 	}
 	if meta.HasRequestBody {
 		req.Header.Set("Content-Type", "application/json")

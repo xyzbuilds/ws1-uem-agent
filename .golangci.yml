@@ -42,7 +42,7 @@ linters-settings:
     check-type-assertions: false
     check-blank: false
   goimports:
-    local-prefixes: github.com/zhangxuyang/ws1-uem-agent
+    local-prefixes: github.com/xyzbuilds/ws1-uem-agent
   misspell:
     locale: US
 
