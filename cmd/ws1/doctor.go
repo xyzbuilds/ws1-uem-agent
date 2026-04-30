@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -49,6 +50,8 @@ later sessions.`,
 					break
 				}
 			}
+
+			renderDoctorChecklist(checks, ok)
 
 			env := envelope.New("ws1.doctor").
 				WithData(map[string]any{
@@ -138,4 +141,73 @@ func summariseChecks(checks []doctorCheck) map[string]int {
 		out[c.Status]++
 	}
 	return out
+}
+
+// renderDoctorChecklist writes a colored stderr-side checklist next
+// to the JSON envelope on stdout. Agents (no TTY) skip this entirely.
+// Layout matches docs/ux-mockups.html frame 4: one symbol-prefixed
+// line per check, then a green/red headline.
+func renderDoctorChecklist(checks []doctorCheck, allPassed bool) {
+	if !stderrIsTTY() {
+		return
+	}
+	out := stderrWriter
+	fmt.Fprintln(out)
+	fmt.Fprintf(out, "  %s\n", bold("ws1 doctor"))
+	fmt.Fprintln(out)
+	pass, fail, skip := 0, 0, 0
+	for _, c := range checks {
+		switch c.Status {
+		case "pass":
+			pass++
+			fmt.Fprintf(out, "  %s  %s%s\n", green("✓"), c.Name, dimMessage(c.Message))
+		case "fail":
+			fail++
+			fmt.Fprintf(out, "  %s  %s — %s\n", red("✗"), bold(c.Name), red(c.Message))
+		case "skip":
+			skip++
+			fmt.Fprintf(out, "  %s  %s%s\n", dim("·"), dim(c.Name), dimMessage(c.Message))
+		default:
+			fmt.Fprintf(out, "  %s  %s — %s\n", warn("?"), c.Name, c.Message)
+		}
+	}
+	fmt.Fprintln(out)
+	if allPassed {
+		headline := green(fmt.Sprintf("✓ %d passed", pass))
+		if skip > 0 {
+			headline += dim(fmt.Sprintf(" · %d skipped", skip))
+		}
+		fmt.Fprintf(out, "  %s\n", headline)
+	} else {
+		parts := []string{red(fmt.Sprintf("✗ %d failed", fail))}
+		if pass > 0 {
+			parts = append(parts, green(fmt.Sprintf("%d passed", pass)))
+		}
+		if skip > 0 {
+			parts = append(parts, dim(fmt.Sprintf("%d skipped", skip)))
+		}
+		fmt.Fprintf(out, "  %s\n", joinDimSep(parts))
+	}
+}
+
+// joinDimSep joins parts with a dim " · " separator. Used in the
+// doctor headline so colored counts stay distinct.
+func joinDimSep(parts []string) string {
+	if len(parts) == 0 {
+		return ""
+	}
+	out := parts[0]
+	for _, p := range parts[1:] {
+		out += dim(" · ") + p
+	}
+	return out
+}
+
+// dimMessage formats the optional trailing message after a check
+// name. Returns "" when empty so we don't print a stray separator.
+func dimMessage(msg string) string {
+	if msg == "" {
+		return ""
+	}
+	return "  " + dim(msg)
 }
