@@ -90,7 +90,8 @@ gates destructive operations behind a browser approval flow.`,
 		newOgCmd(),
 		newOpsCmd(),
 		newAuditCmd(),
-		// section commands (devices, users, ...) wired in phase G.
+		newDevicesCmd(),
+		newUsersCmd(),
 	)
 
 	return cmd
