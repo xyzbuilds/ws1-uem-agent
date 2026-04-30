@@ -1,0 +1,66 @@
+# golangci-lint config for ws1-uem-agent.
+# See https://golangci-lint.run/usage/configuration/ for a full reference.
+# Tracking the v1 schema (golangci-lint < 2.0).
+
+run:
+  timeout: 5m
+  go: "1.22"
+  tests: true
+  modules-download-mode: readonly
+
+linters:
+  disable-all: true
+  enable:
+    # Correctness — bugs.
+    - govet
+    - errcheck
+    - staticcheck
+    - ineffassign
+    - unused
+    - bodyclose       # http response bodies must be closed
+    - rowserrcheck    # database/sql Rows.Err must be checked
+    - copyloopvar     # Go 1.22 loopvar semantics: catch shadowing bugs
+    - durationcheck   # time.Duration arithmetic mistakes
+    - errorlint       # err type assertions vs errors.Is/As
+    - nilerr          # return nil despite non-nil err
+    - asciicheck
+
+    # Style — non-controversial readability.
+    - gofmt
+    - goimports
+    - gosimple
+    - misspell
+    - unconvert
+    - whitespace
+
+linters-settings:
+  govet:
+    enable-all: true
+    disable:
+      - fieldalignment  # noisy; we prioritise readability over packing
+  errcheck:
+    check-type-assertions: false
+    check-blank: false
+  goimports:
+    local-prefixes: github.com/zhangxuyang/ws1-uem-agent
+  misspell:
+    locale: US
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  exclude-rules:
+    # Generated code is not held to lint standards.
+    - path: ^internal/generated/
+      linters:
+        - gofmt
+        - goimports
+        - errcheck
+        - govet
+        - staticcheck
+        - unused
+
+    # Tests can be a bit looser around error checking on stdout/stderr.
+    - path: _test\.go
+      linters:
+        - errcheck
