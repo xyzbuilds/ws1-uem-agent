@@ -86,7 +86,9 @@ gates destructive operations behind a browser approval flow.`,
 
 	cmd.AddCommand(
 		newDoctorCmd(),
-		// ops, profile, og, audit, jobs, and the generated section commands
+		newProfileCmd(),
+		newOgCmd(),
+		// ops, audit, jobs, and the generated section commands
 		// are wired in later phases.
 	)
 
