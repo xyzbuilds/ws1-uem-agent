@@ -52,9 +52,9 @@ func newDiscoverCmd() *cobra.Command {
 
 // DiscoveryResult is the payload written to .build/sections.json.
 type DiscoveryResult struct {
-	Tenant             string             `json:"tenant"`
-	APIExplorerVersion string             `json:"api_explorer_version"`
-	DiscoveredAt       string             `json:"discovered_at"`
+	Tenant             string              `json:"tenant"`
+	APIExplorerVersion string              `json:"api_explorer_version"`
+	DiscoveredAt       string              `json:"discovered_at"`
 	Sections           []DiscoveredSection `json:"sections"`
 }
 

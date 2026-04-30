@@ -55,13 +55,13 @@ func TestExtractOpsFromMinimalSpec(t *testing.T) {
 
 func TestSlugify(t *testing.T) {
 	cases := map[string]string{
-		"MAM API V1":     "mamv1",
-		"MAM API V2":     "mamv2",
-		"MCM API":        "mcmv1",
-		"MDM API V4":     "mdmv4",
-		"MEM API":        "memv1",
-		"System API V1":  "systemv1",
-		"System API V2":  "systemv2",
+		"MAM API V1":    "mamv1",
+		"MAM API V2":    "mamv2",
+		"MCM API":       "mcmv1",
+		"MDM API V4":    "mdmv4",
+		"MEM API":       "memv1",
+		"System API V1": "systemv1",
+		"System API V2": "systemv2",
 	}
 	for in, want := range cases {
 		if got := slugify(in); got != want {
@@ -90,9 +90,9 @@ func TestParsePrimaryName(t *testing.T) {
 		ok   bool
 	}{
 		"/api/help/Docs/Explore?urls.primaryName=MAM%20API%20V1": {"MAM API V1", true},
-		"/api/help/Docs/Explore?urls.primaryName=System%20API":    {"System API", true},
-		"/something/else?foo=bar":                                 {"", false},
-		"":                                                        {"", false},
+		"/api/help/Docs/Explore?urls.primaryName=System%20API":   {"System API", true},
+		"/something/else?foo=bar":                                {"", false},
+		"":                                                       {"", false},
 	}
 	for href, want := range cases {
 		got, ok := parsePrimaryName(href)
@@ -105,8 +105,8 @@ func TestParsePrimaryName(t *testing.T) {
 func TestExtractAPIExplorerVersion(t *testing.T) {
 	cases := map[string]string{
 		"Workspace ONE UEM API Explorer 2025.11.6.68 - Terms": "2025.11.6.68",
-		"API Explorer  9.9.9":                                 "9.9.9",
-		"no version here":                                     "unknown",
+		"API Explorer  9.9.9": "9.9.9",
+		"no version here":     "unknown",
 	}
 	for in, want := range cases {
 		if got := extractAPIExplorerVersion(in); got != want {

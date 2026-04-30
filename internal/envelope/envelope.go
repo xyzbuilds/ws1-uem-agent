@@ -58,7 +58,7 @@ type Meta struct {
 // Per-target outcomes are split into successes and failures so an agent can
 // branch on meta.failure_count without rescanning data.
 type PartialResult struct {
-	Successes []any           `json:"successes"`
+	Successes []any            `json:"successes"`
 	Failures  []PartialFailure `json:"failures"`
 }
 

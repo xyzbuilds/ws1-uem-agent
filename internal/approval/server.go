@@ -88,7 +88,7 @@ func Begin(req Request) (*Pending, error) {
 }
 
 // Wait blocks until the user clicks approve/deny, the timeout fires, or
-// ctx is cancelled. Tears down the HTTP server before returning. timeout
+// ctx is canceled. Tears down the HTTP server before returning. timeout
 // of 0 falls back to DefaultTimeout.
 func (p *Pending) Wait(ctx context.Context, timeout time.Duration) (*Result, error) {
 	if timeout <= 0 {

@@ -2,6 +2,7 @@ package approval
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
 	"strings"
@@ -119,7 +120,7 @@ func TestContextCancelOutcome(t *testing.T) {
 // user has decided, a second click on the *server* must not flip the
 // outcome. We test this by issuing two POSTs in flight before Wait exits,
 // using a dedicated server with a longer-running approval loop that
-// suppresses shutdown until we drive both clicks. We synchronise via a
+// suppresses shutdown until we drive both clicks. We synchronize via a
 // channel rather than time.Sleep.
 func TestSecondClickIgnored(t *testing.T) {
 	p, _ := Begin(sampleRequest())
@@ -217,7 +218,8 @@ func TestFreshnessCheckDrift(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected drift error")
 	}
-	d, ok := err.(*DriftError)
+	d := &DriftError{}
+	ok := errors.As(err, &d)
 	if !ok {
 		t.Fatalf("type = %T", err)
 	}

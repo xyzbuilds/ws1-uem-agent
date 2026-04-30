@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -216,10 +217,14 @@ func runDeviceCommand(cmd *cobra.Command, idsFlag, command string) {
 				return
 			}
 			if err := approval.FreshnessCheck(before, now); err != nil {
-				d, _ := err.(*approval.DriftError)
+				details := map[string]any{}
+				var d *approval.DriftError
+				if errors.As(err, &d) {
+					details = d.AsDetails()
+				}
 				emitAndExit(envelope.NewError(op,
 					envelope.CodeStaleResource, err.Error()).
-					WithErrorDetails(d.AsDetails()).
+					WithErrorDetails(details).
 					WithDuration(time.Since(start)))
 				return
 			}
@@ -230,7 +235,7 @@ func runDeviceCommand(cmd *cobra.Command, idsFlag, command string) {
 	if globalFlags.dryRun {
 		emitAndExit(envelope.New(op).
 			WithData(map[string]any{
-				"dry_run":     true,
+				"dry_run":      true,
 				"would_target": ids,
 				"command":      command,
 			}).
@@ -356,9 +361,10 @@ func executeSingle(cli *api.Client, op string, id int, command, approvalID strin
 	if op == "mdmv4.devices.bulkcommand" {
 		// Single device dispatched via lock/wipe specific endpoint; pick
 		// the right one by command verb.
-		if command == deviceCmdLock {
+		switch command {
+		case deviceCmdLock:
 			commandOp = "mdmv4.devices.lock"
-		} else if command == deviceCmdWipe {
+		case deviceCmdWipe:
 			commandOp = "mdmv4.devices.wipe"
 		}
 	}
@@ -403,8 +409,8 @@ func executeBulk(cli *api.Client, op string, ids []int, command, approvalID stri
 		return
 	}
 	var parsed struct {
-		Successes []map[string]any  `json:"successes"`
-		Failures  []map[string]any  `json:"failures"`
+		Successes []map[string]any `json:"successes"`
+		Failures  []map[string]any `json:"failures"`
 	}
 	if err := resp.JSON(&parsed); err != nil {
 		emitAndExit(envelope.NewError(op,

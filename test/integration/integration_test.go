@@ -6,6 +6,7 @@ package integration
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"os"
@@ -70,7 +71,8 @@ func (s *suite) run(args ...string) (envelope.Envelope, int, string) {
 	cmd.Stderr = &errOut
 	err := cmd.Run()
 	code := 0
-	if exitErr, ok := err.(*exec.ExitError); ok {
+	exitErr := &exec.ExitError{}
+	if errors.As(err, &exitErr) {
 		code = exitErr.ExitCode()
 	}
 	stdout := strings.TrimSpace(out.String())
@@ -238,7 +240,8 @@ func TestWipeDeniedExits2(t *testing.T) {
 	stdoutBytes, _ := io.ReadAll(stdoutPipe)
 	err := cmd.Wait()
 	exit := 0
-	if exitErr, ok := err.(*exec.ExitError); ok {
+	exitErr := &exec.ExitError{}
+	if errors.As(err, &exitErr) {
 		exit = exitErr.ExitCode()
 	}
 	if exit != envelope.ExitRecoverable {

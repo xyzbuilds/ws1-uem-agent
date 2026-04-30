@@ -3,7 +3,7 @@
 // and executes the HTTP request and returns the raw response.
 //
 // The caller (cmd/ws1) is responsible for parsing the response body shape
-// and emitting the correct envelope flavour. This package stays generic so
+// and emitting the correct envelope flavor. This package stays generic so
 // new operations don't need a new wrapper function — they just need a
 // metadata row in ops_index.go.
 package api

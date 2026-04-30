@@ -15,7 +15,6 @@ package policy
 import (
 	_ "embed"
 	"fmt"
-	"strings"
 
 	"go.yaml.in/yaml/v3"
 )
@@ -40,8 +39,8 @@ const (
 type ApprovalMode string
 
 const (
-	ApprovalNone                       ApprovalMode = ""
-	ApprovalAlwaysRequired             ApprovalMode = "always_required"
+	ApprovalNone                         ApprovalMode = ""
+	ApprovalAlwaysRequired               ApprovalMode = "always_required"
 	ApprovalRequiredIfCountOverThreshold ApprovalMode = "required_if_count_over_threshold"
 )
 
@@ -50,11 +49,11 @@ const (
 type Reversibility string
 
 const (
-	ReversibleFull              Reversibility = "full"
-	ReversiblePartial           Reversibility = "partial"
-	ReversibleNone              Reversibility = "none"
-	ReversibleUnknown           Reversibility = "unknown"
-	ReversibleDependsOnCommand  Reversibility = "depends_on_command"
+	ReversibleFull             Reversibility = "full"
+	ReversiblePartial          Reversibility = "partial"
+	ReversibleNone             Reversibility = "none"
+	ReversibleUnknown          Reversibility = "unknown"
+	ReversibleDependsOnCommand Reversibility = "depends_on_command"
 )
 
 // Identifier describes the argv shape needed to target the op.
@@ -236,15 +235,4 @@ func (p *Policy) Ops() []string {
 // maintain the "embed as fallback" semantic without an os import here.
 func readPolicyFile(path string) ([]byte, error) {
 	return readFile(path)
-}
-
-// trimYAML strips a leading "---" if present so embedded files behave the
-// same whether or not a maintainer added one. Currently unused but kept as
-// a safety net for future format tweaks.
-func trimYAML(b []byte) []byte {
-	s := strings.TrimSpace(string(b))
-	if strings.HasPrefix(s, "---\n") {
-		s = s[4:]
-	}
-	return []byte(s)
 }

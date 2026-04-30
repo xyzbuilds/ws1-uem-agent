@@ -13,10 +13,10 @@ import (
 // We deliberately don't pull in a full OpenAPI library: we only need
 // servers/paths/operations/parameters, and the spec format is stable.
 type openAPIDoc struct {
-	OpenAPI string                       `json:"openapi"`
-	Info    openAPIInfo                  `json:"info"`
-	Servers []openAPIServer              `json:"servers"`
-	Paths   map[string]openAPIPathItem   `json:"paths"`
+	OpenAPI string                     `json:"openapi"`
+	Info    openAPIInfo                `json:"info"`
+	Servers []openAPIServer            `json:"servers"`
+	Paths   map[string]openAPIPathItem `json:"paths"`
 }
 
 type openAPIInfo struct {
@@ -41,11 +41,11 @@ type openAPIOperation struct {
 }
 
 type openAPIParameter struct {
-	Name     string         `json:"name"`
-	In       string         `json:"in"` // path | query | header | cookie
-	Required bool           `json:"required"`
-	Schema   openAPISchema  `json:"schema"`
-	Description string      `json:"description"`
+	Name        string        `json:"name"`
+	In          string        `json:"in"` // path | query | header | cookie
+	Required    bool          `json:"required"`
+	Schema      openAPISchema `json:"schema"`
+	Description string        `json:"description"`
 }
 
 type openAPISchema struct {
@@ -111,7 +111,7 @@ type loadedSpec struct {
 // It implements the slugification + naming rules from docs/spec-acquisition.md
 // section "Operation naming":
 //
-//   <section-slug>.<tag-lowercase>.<verb-lowercase>
+//	<section-slug>.<tag-lowercase>.<verb-lowercase>
 //
 // where <verb> is the operationId suffix after the underscore, with any
 // trailing "Async" stripped.

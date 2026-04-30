@@ -61,7 +61,7 @@ func NewOAuthClient(p *Profile) *OAuthClient {
 	}
 }
 
-// BaseURL returns the API base URL for this profile, honouring WS1_BASE_URL
+// BaseURL returns the API base URL for this profile, honoring WS1_BASE_URL
 // for tests and the demo's mock server.
 func (c *OAuthClient) BaseURL() string {
 	if v := os.Getenv("WS1_BASE_URL"); v != "" {

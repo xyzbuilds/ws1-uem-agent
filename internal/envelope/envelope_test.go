@@ -55,7 +55,7 @@ func TestReadSuccessRoundTrip(t *testing.T) {
 			{"DeviceID": 12345, "SerialNumber": "ABC123", "FriendlyName": "Alice's iPhone 15", "EnrollmentStatus": "Enrolled"},
 			{"DeviceID": 12346, "SerialNumber": "DEF456", "FriendlyName": "Alice's MacBook Pro", "EnrollmentStatus": "Enrolled"},
 		}).
-		WithDuration(312 * time.Millisecond).
+		WithDuration(312*time.Millisecond).
 		WithPagination(2, 1, 100, false)
 
 	got, err := env.JSON()
@@ -162,7 +162,7 @@ func TestPartialSuccessRoundTrip(t *testing.T) {
 				Error:  &Error{Code: CodeStaleResource, Message: "Device unenrolled since lookup."},
 			}},
 		}).
-		WithDuration(2104 * time.Millisecond).
+		WithDuration(2104*time.Millisecond).
 		WithBulkCounts(3, 2, 1).
 		WithApproval("req_b2c3d4")
 
@@ -177,15 +177,12 @@ func TestPartialSuccessRoundTrip(t *testing.T) {
 	}
 
 	// Round-trip the failure shape: the merged-key JSON must unmarshal back
-	// into a PartialFailure with both Target and Error populated.
-	var parsed Envelope
-	parsed.Data = &PartialResult{} // hint the shape so json knows the type
-	// Easier: re-parse manually because Data is `any`.
+	// into a PartialFailure with both Target and Error populated. Data is
+	// `any`, so we can't directly target it — re-parse via a typed wrap.
 	type partialDataShape struct {
 		Successes []map[string]any `json:"successes"`
 		Failures  []PartialFailure `json:"failures"`
 	}
-	parsed = Envelope{}
 	type wrap struct {
 		EnvelopeVersion int              `json:"envelope_version"`
 		OK              bool             `json:"ok"`
@@ -272,7 +269,7 @@ func TestErrorRoundTrip(t *testing.T) {
 			"required_profile_minimum": "operator",
 			"operation_class":          "destructive",
 		}).
-		WithDuration(12 * time.Millisecond).
+		WithDuration(12*time.Millisecond).
 		WithVersion("", "0.1.0")
 
 	got, _ := env.JSON()

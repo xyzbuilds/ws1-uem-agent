@@ -58,7 +58,7 @@ func New(path string) (*Logger, error) {
 }
 
 // DefaultPath returns the canonical user-config path for the audit log,
-// honouring WS1_CONFIG_DIR for tests.
+// honoring WS1_CONFIG_DIR for tests.
 func DefaultPath() (string, error) {
 	if v := os.Getenv("WS1_CONFIG_DIR"); v != "" {
 		return filepath.Join(v, "audit.log"), nil
@@ -163,7 +163,7 @@ func (l *Logger) Tail(n int) ([]Entry, error) {
 	return all[len(all)-n:], nil
 }
 
-// VerifyReport summarises a chain check.
+// VerifyReport summarizes a chain check.
 type VerifyReport struct {
 	Total    int      `json:"total"`
 	OK       bool     `json:"ok"`

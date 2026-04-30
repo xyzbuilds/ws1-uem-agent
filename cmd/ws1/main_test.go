@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io"
 	"os"
 	"os/exec"
@@ -36,7 +37,8 @@ func runCmd(t *testing.T, bin string, args ...string) (string, int) {
 	cmd.Env = append(os.Environ(), "HOME="+t.TempDir())
 	out, err := cmd.Output()
 	code := 0
-	if exitErr, ok := err.(*exec.ExitError); ok {
+	exitErr := &exec.ExitError{}
+	if errors.As(err, &exitErr) {
 		code = exitErr.ExitCode()
 	} else if err != nil {
 		t.Fatalf("exec %s %v: %v", bin, args, err)

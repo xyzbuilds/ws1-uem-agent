@@ -19,9 +19,9 @@ func TestIsValidProfile(t *testing.T) {
 
 func TestProfileCapability(t *testing.T) {
 	cases := []struct {
-		profile string
-		canRead bool
-		canWrite bool
+		profile    string
+		canRead    bool
+		canWrite   bool
 		canDestroy bool
 	}{
 		{ProfileRO, true, false, false},

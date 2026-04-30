@@ -51,14 +51,14 @@ func newCodegenSkillCmd() *cobra.Command {
 }
 
 type fullOpIndex struct {
-	Op             string         `json:"op"`
-	Section        string         `json:"section"`
-	Tag            string         `json:"tag"`
-	Verb           string         `json:"verb"`
-	HTTPMethod     string         `json:"http_method"`
-	PathTemplate   string         `json:"path_template"`
-	Summary        string         `json:"summary"`
-	HasRequestBody bool           `json:"has_request_body"`
+	Op             string `json:"op"`
+	Section        string `json:"section"`
+	Tag            string `json:"tag"`
+	Verb           string `json:"verb"`
+	HTTPMethod     string `json:"http_method"`
+	PathTemplate   string `json:"path_template"`
+	Summary        string `json:"summary"`
+	HasRequestBody bool   `json:"has_request_body"`
 }
 
 type policyEntry struct {

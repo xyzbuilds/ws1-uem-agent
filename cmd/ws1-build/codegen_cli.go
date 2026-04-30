@@ -210,15 +210,5 @@ func emitOpsIndexJSON(path string, ops []opRow) error {
 	return nil
 }
 
-// stringSliceContains is a tiny helper to keep template logic readable.
-func stringSliceContains(s []string, want string) bool {
-	for _, v := range s {
-		if v == want {
-			return true
-		}
-	}
-	return false
-}
-
 // (kept exported-style local for symmetry with future helpers)
 var _ = strings.TrimSpace

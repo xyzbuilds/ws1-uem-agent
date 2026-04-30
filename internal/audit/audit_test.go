@@ -9,13 +9,13 @@ import (
 
 func sampleEntry(op string) Entry {
 	return Entry{
-		Caller:    "test",
-		Operation: op,
-		ArgsHash:  "sha256:abc",
-		Class:     "write",
-		Profile:   "operator",
-		Tenant:    "12345",
-		Result:    "ok",
+		Caller:     "test",
+		Operation:  op,
+		ArgsHash:   "sha256:abc",
+		Class:      "write",
+		Profile:    "operator",
+		Tenant:     "12345",
+		Result:     "ok",
 		DurationMs: 42,
 	}
 }

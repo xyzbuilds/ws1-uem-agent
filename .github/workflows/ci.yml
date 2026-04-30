@@ -55,9 +55,9 @@ jobs:
       - name: Download modules (warm cache for typecheck)
         run: go mod download
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v8
         with:
-          # v1.64 is the last v1 release; supports Go up through 1.25.
-          # Earlier v1.61 fails typecheck on go.mod >= 1.23.
-          version: v1.64.8
-          args: --timeout=5m
+          # v2.x is required for go.mod >= 1.25 (v1.64 was built against
+          # Go 1.24 and fails to load configs targeting newer modules).
+          # Action v8 corresponds to golangci-lint v2.x.
+          version: v2.11.4

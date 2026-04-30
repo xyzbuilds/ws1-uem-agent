@@ -22,7 +22,7 @@ func ogFilePath() (string, error) {
 }
 
 // CurrentOG returns the active OG ID, or empty string if none is set.
-// Honours --og override at the command layer; this only reads the persisted
+// Honors --og override at the command layer; this only reads the persisted
 // default.
 func CurrentOG() (string, error) {
 	path, err := ogFilePath()

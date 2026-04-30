@@ -37,7 +37,7 @@ const (
 	OutcomeDenied
 	// OutcomeTimeout — DefaultTimeout elapsed before any interaction.
 	OutcomeTimeout
-	// OutcomeAborted — caller cancelled the context.
+	// OutcomeAborted — caller canceled the context.
 	OutcomeAborted
 )
 
@@ -68,12 +68,12 @@ type Target struct {
 // Request is everything the user needs to make an informed decision plus
 // everything the freshness check needs at execute time.
 type Request struct {
-	Operation     string  // canonical op identifier, e.g. mdmv4.devices.lock
-	OperationDesc string  // human description ("Lock device")
-	Class         string  // "destructive" | "write" | "read"
-	Reversibility string  // "full" | "partial" | "none" | "unknown"
-	Profile       string  // active profile at submission
-	Tenant        string  // OG context
+	Operation     string // canonical op identifier, e.g. mdmv4.devices.lock
+	OperationDesc string // human description ("Lock device")
+	Class         string // "destructive" | "write" | "read"
+	Reversibility string // "full" | "partial" | "none" | "unknown"
+	Profile       string // active profile at submission
+	Tenant        string // OG context
 	Targets       []Target
 
 	// Args holds the raw argv (post-binding) so we can hash it for
@@ -90,7 +90,7 @@ type Result struct {
 	Outcome    Outcome
 	Approved   bool
 	ApprovedAt time.Time
-	ArgsHash   string  // hex sha256 of normalised args
+	ArgsHash   string // hex sha256 of normalised args
 	Targets    []Target
 }
 

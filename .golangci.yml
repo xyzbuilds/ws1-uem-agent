@@ -1,16 +1,17 @@
-# golangci-lint config for ws1-uem-agent.
-# See https://golangci-lint.run/usage/configuration/ for a full reference.
-# Tracking the v1 schema (golangci-lint < 2.0).
+# golangci-lint v2 config for ws1-uem-agent.
+# See https://golangci-lint.run/usage/configuration/ for the v2 schema.
+
+version: "2"
 
 run:
   timeout: 5m
-  # Source of truth is the `go` directive in go.mod; leaving this unset
-  # lets golangci-lint pick it up automatically and avoids version skew.
+  # Source of truth is go.mod; leaving `go:` unset lets the linter pick it up
+  # automatically and avoids version skew.
   tests: true
   modules-download-mode: readonly
 
 linters:
-  disable-all: true
+  default: none
   enable:
     # Correctness — bugs.
     - govet
@@ -27,41 +28,58 @@ linters:
     - asciicheck
 
     # Style — non-controversial readability.
-    - gofmt
-    - goimports
-    - gosimple
     - misspell
     - unconvert
     - whitespace
 
-linters-settings:
-  govet:
-    enable-all: true
-    disable:
-      - fieldalignment  # noisy; we prioritise readability over packing
-  errcheck:
-    check-type-assertions: false
-    check-blank: false
-  goimports:
-    local-prefixes: github.com/xyzbuilds/ws1-uem-agent
-  misspell:
-    locale: US
+  settings:
+    govet:
+      enable-all: true
+      disable:
+        - fieldalignment  # noisy; we prioritise readability over packing
+        - shadow          # `if err := X; err != nil` shadowing outer err
+                          # is idiomatic Go; the warnings drown out real bugs
+    errcheck:
+      check-type-assertions: false
+      check-blank: false
+      # Ignore the standard idiomatic "fire and forget" calls — Body.Close
+      # in defers, fmt.Fprint to stdout/stderr, and os.RemoveAll in cleanup.
+      exclude-functions:
+        - (io.Closer).Close
+        - (*net/http.Response).Body.Close
+        - (*os.File).Close
+        - fmt.Fprint
+        - fmt.Fprintf
+        - fmt.Fprintln
+        - os.Remove
+        - os.RemoveAll
+    misspell:
+      locale: US
+
+  exclusions:
+    rules:
+      # Generated code is not held to lint standards.
+      - path: ^internal/generated/
+        linters:
+          - errcheck
+          - govet
+          - staticcheck
+          - unused
+
+      # Tests can be a bit looser around error checking on stdout/stderr.
+      - path: _test\.go
+        linters:
+          - errcheck
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/xyzbuilds/ws1-uem-agent
 
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0
-  exclude-rules:
-    # Generated code is not held to lint standards.
-    - path: ^internal/generated/
-      linters:
-        - gofmt
-        - goimports
-        - errcheck
-        - govet
-        - staticcheck
-        - unused
-
-    # Tests can be a bit looser around error checking on stdout/stderr.
-    - path: _test\.go
-      linters:
-        - errcheck
