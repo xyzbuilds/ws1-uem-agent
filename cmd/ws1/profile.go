@@ -117,22 +117,20 @@ func newProfileUseCmd() *cobra.Command {
 
 func newProfileAddCmd() *cobra.Command {
 	var (
-		tenant, apiURL, authURL, clientID, clientSecret, tenantCode, region string
+		tenant, apiURL, authURL, clientID, clientSecret, region string
 	)
 	cmd := &cobra.Command{
 		Use:   "add <name>",
 		Short: "Configure a profile (writes secret to OS keychain)",
 		Long: `Configure a profile by name (ro / operator / admin). Stores tenant +
-client_id + tenant_code in ~/.config/ws1/profiles.yaml; client_secret goes
-to the OS keychain.
+client_id in ~/.config/ws1/profiles.yaml; client_secret goes to the OS
+keychain.
 
 Required flags:
   --tenant         tenant hostname (e.g. cn1506.awmdm.com)
   --client-id      OAuth client ID from Groups & Settings > Configurations >
                    OAuth Client Management
   --client-secret  OAuth client secret (stored in keychain)
-  --tenant-code    API key, found at Groups & Settings > All Settings >
-                   System > Advanced > API > REST API
   --region         na | eu | apac  (selects the region-scoped token URL)
                    OR --auth-url to specify it directly
 
@@ -140,7 +138,10 @@ The token URL is region-scoped per Omnissa's UEM Auth service:
   na     https://na.uemauth.vmwservices.com/connect/token
   eu     https://eur.uemauth.vmwservices.com/connect/token
   apac   https://apac.uemauth.vmwservices.com/connect/token
-See https://kb.omnissa.com/s/article/2960893 for the canonical list.`,
+See https://kb.omnissa.com/s/article/2960893 for the canonical list.
+
+Note: aw-tenant-code is only needed for Basic Auth; OAuth client-credentials
+relies on the bearer alone, so the CLI does not collect or send it.`,
 		Args: cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			start := time.Now()
@@ -189,7 +190,7 @@ See https://kb.omnissa.com/s/article/2960893 for the canonical list.`,
 			}
 			p := auth.Profile{
 				Name: name, Tenant: tenant, APIURL: apiURL,
-				AuthURL: authURL, ClientID: clientID, TenantCode: tenantCode,
+				AuthURL: authURL, ClientID: clientID,
 			}
 			if err := auth.SaveProfile(p); err != nil {
 				emitAndExit(envelope.NewError("ws1.profile.add",
@@ -203,13 +204,12 @@ See https://kb.omnissa.com/s/article/2960893 for the canonical list.`,
 			}
 			emitAndExit(envelope.New("ws1.profile.add").
 				WithData(map[string]any{
-					"name":         name,
-					"tenant":       tenant,
-					"api_url":      apiURL,
-					"auth_url":     authURL,
-					"client_id":    clientID,
-					"tenant_code":  tenantCode,
-					"secret":       "stored in OS keychain",
+					"name":      name,
+					"tenant":    tenant,
+					"api_url":   apiURL,
+					"auth_url":  authURL,
+					"client_id": clientID,
+					"secret":    "stored in OS keychain",
 				}).
 				WithDuration(time.Since(start)))
 		},
@@ -220,7 +220,6 @@ See https://kb.omnissa.com/s/article/2960893 for the canonical list.`,
 	cmd.Flags().StringVar(&region, "region", "", "OAuth region: na | eu | apac")
 	cmd.Flags().StringVar(&clientID, "client-id", "", "OAuth client_id")
 	cmd.Flags().StringVar(&clientSecret, "client-secret", "", "OAuth client_secret (stored in OS keychain)")
-	cmd.Flags().StringVar(&tenantCode, "tenant-code", "", "tenant API key (aw-tenant-code header)")
 	return cmd
 }
 

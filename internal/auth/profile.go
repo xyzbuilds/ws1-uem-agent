@@ -47,18 +47,17 @@ func IsValidProfile(name string) bool {
 // guess the region from Tenant; the user supplies AuthURL at `profile add`
 // time.
 //
-// TenantCode is the API key Omnissa requires in the `aw-tenant-code`
-// header on every API call; found in the WS1 console under
-// Groups & Settings > All Settings > System > Advanced > API > REST API.
-// Distinct from the tenant *hostname*.
+// Note on aw-tenant-code: that header is only required for Basic Auth.
+// With OAuth client-credentials the bearer is sufficient identity, so the
+// CLI does not collect or send a tenant API key. Add it back here if/when
+// Basic Auth support lands.
 type Profile struct {
-	Name       string `yaml:"name"`
-	Tenant     string `yaml:"tenant"`               // tenant hostname, e.g. as1831.awmdm.com
-	APIURL     string `yaml:"api_url"`              // base URL for API calls
-	AuthURL    string `yaml:"auth_url"`             // region-scoped OAuth token endpoint
-	ClientID   string `yaml:"client_id"`            // OAuth client_id (not secret)
-	TenantCode string `yaml:"tenant_code,omitempty"` // aw-tenant-code header value
-	OG         string `yaml:"og,omitempty"`         // optional default OG
+	Name     string `yaml:"name"`
+	Tenant   string `yaml:"tenant"`       // tenant hostname, e.g. as1831.awmdm.com
+	APIURL   string `yaml:"api_url"`      // base URL for API calls
+	AuthURL  string `yaml:"auth_url"`     // region-scoped OAuth token endpoint
+	ClientID string `yaml:"client_id"`    // OAuth client_id (not secret)
+	OG       string `yaml:"og,omitempty"` // optional default OG
 }
 
 // Capability returns the operation classes this profile is permitted to

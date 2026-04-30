@@ -98,16 +98,14 @@ func (c *Client) Do(ctx context.Context, op string, args Args) (*Response, error
 		return nil, err
 	}
 	req.Header.Set("Authorization", tok.TokenType+" "+tok.AccessToken)
-	// Per Omnissa REST API conventions: API version is in the Accept
-	// content-type parameter. The aw-tenant-code header carries the
-	// tenant API key (separate from the OAuth bearer).
+	// Per Omnissa REST API conventions, API version is in the Accept
+	// content-type parameter. With OAuth client-credentials the bearer is
+	// sufficient identity — `aw-tenant-code` is only needed for Basic Auth,
+	// which v1 doesn't support.
 	if c.AcceptVersion != "" {
 		req.Header.Set("Accept", "application/json;version="+c.AcceptVersion)
 	} else {
 		req.Header.Set("Accept", "application/json")
-	}
-	if tc := c.Source.TenantCode(); tc != "" {
-		req.Header.Set("aw-tenant-code", tc)
 	}
 	if meta.HasRequestBody {
 		req.Header.Set("Content-Type", "application/json")
