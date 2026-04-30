@@ -89,8 +89,8 @@ gates destructive operations behind a browser approval flow.`,
 		newProfileCmd(),
 		newOgCmd(),
 		newOpsCmd(),
-		// audit, jobs, and the generated section commands
-		// are wired in later phases.
+		newAuditCmd(),
+		// section commands (devices, users, ...) wired in phase G.
 	)
 
 	return cmd
