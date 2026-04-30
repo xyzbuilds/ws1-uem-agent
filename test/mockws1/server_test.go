@@ -36,7 +36,10 @@ func TestUsersSearchByEmail(t *testing.T) {
 func TestUsersSearchAmbiguous(t *testing.T) {
 	srv := New().Start()
 	defer srv.Close()
-	resp, _ := http.Get(srv.URL + "/api/system/users/search?username=al")
+	resp, err := http.Get(srv.URL + "/api/system/users/search?username=al")
+	if err != nil {
+		t.Fatalf("GET: %v", err)
+	}
 	defer resp.Body.Close()
 	var body struct {
 		Total int
@@ -51,7 +54,10 @@ func TestUsersSearchAmbiguous(t *testing.T) {
 func TestDevicesSearchByUser(t *testing.T) {
 	srv := New().Start()
 	defer srv.Close()
-	resp, _ := http.Get(srv.URL + "/api/mdm/devices/search?user=alice@example.com")
+	resp, err := http.Get(srv.URL + "/api/mdm/devices/search?user=alice@example.com")
+	if err != nil {
+		t.Fatalf("GET: %v", err)
+	}
 	defer resp.Body.Close()
 	var body struct {
 		Devices []Device
@@ -67,7 +73,10 @@ func TestLockEndpointQueuesCommand(t *testing.T) {
 	s := New()
 	srv := s.Start()
 	defer srv.Close()
-	resp, _ := http.Post(srv.URL+"/api/mdm/devices/12345/commands/lock", "application/json", nil)
+	resp, err := http.Post(srv.URL+"/api/mdm/devices/12345/commands/lock", "application/json", nil)
+	if err != nil {
+		t.Fatalf("POST: %v", err)
+	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 202 {
 		t.Fatalf("status = %d", resp.StatusCode)
@@ -82,7 +91,10 @@ func TestBulkPartialSuccess(t *testing.T) {
 	srv := s.Start()
 	defer srv.Close()
 	body := bytes.NewBufferString(`{"command":"Lock","device_ids":[12345,12346,12399]}`)
-	resp, _ := http.Post(srv.URL+"/api/mdm/devices/commands/bulk", "application/json", body)
+	resp, err := http.Post(srv.URL+"/api/mdm/devices/commands/bulk", "application/json", body)
+	if err != nil {
+		t.Fatalf("POST: %v", err)
+	}
 	defer resp.Body.Close()
 	out, _ := io.ReadAll(resp.Body)
 	if resp.StatusCode != 200 {
@@ -107,7 +119,10 @@ func TestBulkPartialSuccess(t *testing.T) {
 func TestUserNotFound(t *testing.T) {
 	srv := New().Start()
 	defer srv.Close()
-	resp, _ := http.Get(srv.URL + "/api/system/users/99999")
+	resp, err := http.Get(srv.URL + "/api/system/users/99999")
+	if err != nil {
+		t.Fatalf("GET: %v", err)
+	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 404 {
 		t.Errorf("status = %d", resp.StatusCode)

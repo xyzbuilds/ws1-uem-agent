@@ -470,7 +470,10 @@ func writeAuditEntry(op, command string, ids []int, result, approvalID string, d
 		return ""
 	}
 	active, _ := auth.Active()
-	og, _ := auth.CurrentOG()
+	if globalFlags.profile != "" {
+		active = globalFlags.profile
+	}
+	og, _ := auth.ResolveOG(globalFlags.og)
 	idsStr := make([]string, len(ids))
 	for i, id := range ids {
 		idsStr[i] = strconv.Itoa(id)
