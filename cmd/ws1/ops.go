@@ -16,7 +16,16 @@ import (
 //  2. operations.policy.yaml in cwd (so a project that ships its own can
 //     override the embedded default)
 //  3. embedded default from internal/policy
+//
+// The result is memoised in cachedPolicy because the generic command
+// auto-registration calls Classify() once per op (980x); the YAML parse
+// is ~25ms so without the cache `ws1 --help` takes 25 seconds.
+var cachedPolicy *policy.Policy
+
 func loadActivePolicy() *policy.Policy {
+	if cachedPolicy != nil {
+		return cachedPolicy
+	}
 	candidates := []string{}
 	if v := envOr("WS1_POLICY_FILE", ""); v != "" {
 		candidates = append(candidates, v)
@@ -24,11 +33,12 @@ func loadActivePolicy() *policy.Policy {
 	candidates = append(candidates, "operations.policy.yaml")
 	for _, c := range candidates {
 		if p, err := policy.Load(c); err == nil {
-			return p
+			cachedPolicy = p
+			return cachedPolicy
 		}
 	}
-	p, _ := policy.Load("") // embedded fallback
-	return p
+	cachedPolicy, _ = policy.Load("") // embedded fallback
+	return cachedPolicy
 }
 
 func newOpsCmd() *cobra.Command {
