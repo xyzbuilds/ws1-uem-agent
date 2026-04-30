@@ -54,17 +54,30 @@ vet:  ## Run go vet
 generate:  ## Regenerate code from spec/* (no-op until spec is populated)
 	$(GO) generate ./...
 
-sync-specs: tools  ## Refresh specs from a tenant: TENANT=foo.awmdm.com [TOKEN=$$WS1_TOKEN] make sync-specs
+sync-specs: tools  ## Diff-driven spec sync: pulls from TENANT=foo.awmdm.com, merges new ops into policy
 	@test -n "$(TENANT)" || { echo "TENANT required (e.g. TENANT=as1831.awmdm.com)"; exit 1; }
 	@mkdir -p .build
 	$(BIN)/ws1-build discover --tenant=$(TENANT) --out=.build/sections.json
 	$(BIN)/ws1-build fetch --sections=.build/sections.json $(if $(TOKEN),--token=$(TOKEN),) --out=spec/
+	$(BIN)/ws1-build diff --baseline=HEAD --new=spec/ --out=.build/diff-report.json || true
 	$(BIN)/ws1-build codegen-cli --specs=spec/ --out=internal/generated/
+	$(BIN)/ws1-build bulk-classify --index=internal/generated/ops_index.json --out=operations.policy.yaml
 	$(BIN)/ws1-build codegen-skill --index=internal/generated/ops_index.json --policy=operations.policy.yaml --out=skills/ws1-uem/reference/
 	$(GO) build ./...
 	$(GO) test ./...
 	$(BIN)/ws1-build classify-check --index=internal/generated/ops_index.json --policy=operations.policy.yaml
-	@echo "Sync complete."
+	@echo "Sync complete. Review .build/diff-report.json + git diff operations.policy.yaml before committing."
+
+sync-specs-regenerate: tools  ## Full bootstrap: throws away manual policy overrides; rarely the right call
+	@test -n "$(TENANT)" || { echo "TENANT required"; exit 1; }
+	@mkdir -p .build
+	$(BIN)/ws1-build discover --tenant=$(TENANT) --out=.build/sections.json
+	$(BIN)/ws1-build fetch --sections=.build/sections.json $(if $(TOKEN),--token=$(TOKEN),) --out=spec/
+	$(BIN)/ws1-build codegen-cli --specs=spec/ --out=internal/generated/
+	$(BIN)/ws1-build bulk-classify --regenerate --index=internal/generated/ops_index.json --out=operations.policy.yaml
+	$(BIN)/ws1-build codegen-skill --index=internal/generated/ops_index.json --policy=operations.policy.yaml --out=skills/ws1-uem/reference/
+	$(GO) build ./... && $(GO) test ./... && $(BIN)/ws1-build classify-check
+	@echo "Regenerate complete. ALL manual overrides have been replaced by heuristic defaults."
 
 demo: build  ## Run the alice-lock end-to-end demo against a local mock tenant
 	./scripts/demo.sh

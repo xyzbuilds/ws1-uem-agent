@@ -2,6 +2,24 @@
 
 How `ws1` stays current with the WS1 UEM API surface as Omnissa ships new tenant versions.
 
+## TL;DR — incremental sync
+
+```sh
+make sync-specs TENANT=as1831.awmdm.com   # default: merge mode
+git diff operations.policy.yaml            # review heuristic adds + manual orphans
+git commit
+```
+
+Quarterly cycle: pull new specs, **merge** new ops into `operations.policy.yaml` while preserving every manual override and human-curated note already there. The merge appends a dated `# ----- merged YYYY-MM-DD -----` block at the end of the file with the new entries; reviewers diff against `HEAD` to see what was added.
+
+For a from-scratch rebuild (almost never the right move once humans have touched the policy):
+
+```sh
+make sync-specs-regenerate TENANT=as1831.awmdm.com
+```
+
+This throws away every manual override.
+
 This is a **maintainer-side workflow** — users never run it. Output (refreshed specs, regenerated code, updated skill reference, classification reports) is committed to the repo. Users consume the resulting binary; they don't rebuild.
 
 For background on the spec format and discovery surface, see `docs/spec-acquisition.md`. For locked design decisions, see `CLAUDE.md`.
