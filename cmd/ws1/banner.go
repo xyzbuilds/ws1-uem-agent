@@ -88,6 +88,41 @@ func green(s string) string {
 	return colorGreen + s + colorReset
 }
 
+func red(s string) string {
+	if !stderrIsTTY() {
+		return s
+	}
+	return colorRed + s + colorReset
+}
+
+// info is the brand "blue" — used for the write class. Matches the
+// mockup's --info (#79c0ff). 24-bit truecolor; degrades on terminals
+// without truecolor support like the other helpers.
+func info(s string) string {
+	if !stderrIsTTY() {
+		return s
+	}
+	return "\x1b[38;2;121;192;255m" + s + colorReset
+}
+
+// colorByClass returns s wrapped in the canonical class color:
+// read → green, write → info-blue, destructive → red. Anything else
+// passes through unchanged. Use this everywhere the class is shown
+// so the visual mapping stays consistent across ops list, doctor,
+// pre-flight summaries, and errors.
+func colorByClass(class, s string) string {
+	switch class {
+	case "read":
+		return green(s)
+	case "write":
+		return info(s)
+	case "destructive":
+		return red(s)
+	default:
+		return s
+	}
+}
+
 // printBanner renders the two-column mascot + info layout to stderr.
 // The mascot column is fixed-width (~7 cols + 2-space gutter); each
 // info line follows on the corresponding row. If info has fewer rows

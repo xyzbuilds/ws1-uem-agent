@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"io"
 	"sort"
 	"strings"
 	"time"
@@ -11,6 +13,155 @@ import (
 	"github.com/xyzbuilds/ws1-uem-agent/internal/generated"
 	"github.com/xyzbuilds/ws1-uem-agent/internal/policy"
 )
+
+// opsTableMaxRows caps the TTY-rendered table at a manageable height.
+// Rows beyond this trigger a "N more rows. Add --filter ..." footer.
+// Pure UX cap — the JSON envelope on stdout still carries every row.
+const opsTableMaxRows = 50
+
+// renderOpsTable writes a colored summary table of ops to stderrWriter.
+// Used by `ws1 ops list` and `ws1 ops search` whenever stderr is a TTY.
+// Agents (no TTY on stderr) get the JSON envelope on stdout unchanged
+// — this function never touches stdout.
+//
+// Layout matches docs/ux-mockups.html frame 5: header line with totals,
+// per-class count breakdown, then the table with class color and
+// approval/async markers, then a symbol legend.
+//
+// header — short label for the first line (e.g. "ws1 ops" or
+// "ws1 ops search"). Caller decides; this just renders it bold.
+// pattern — optional pattern string to mention in the header (search
+// uses this; list passes "").
+func renderOpsTable(header string, rows []map[string]any, pol *policy.Policy, pattern string, filters map[string]any) {
+	if !stderrIsTTY() {
+		return
+	}
+	out := stderrWriter
+
+	// Per-class counts.
+	counts := map[string]int{}
+	for _, r := range rows {
+		c, _ := r["class"].(string)
+		counts[c]++
+	}
+
+	// Header line.
+	fmt.Fprintln(out)
+	headerLine := fmt.Sprintf("%s — %d operation(s)", bold(header), len(rows))
+	if pattern != "" {
+		headerLine += "  " + dim(fmt.Sprintf("matching %q", pattern))
+	}
+	if filterStr := formatFilterChips(filters); filterStr != "" {
+		headerLine += "  " + dim(filterStr)
+	}
+	fmt.Fprintf(out, "  %s\n", headerLine)
+
+	// Class breakdown (only show present classes).
+	if counts["read"]+counts["write"]+counts["destructive"] > 0 {
+		fmt.Fprintln(out)
+		if n := counts["read"]; n > 0 {
+			fmt.Fprintf(out, "    %s          %d\n", green("read"), n)
+		}
+		if n := counts["write"]; n > 0 {
+			fmt.Fprintf(out, "    %s         %d\n", info("write"), n)
+		}
+		if n := counts["destructive"]; n > 0 {
+			fmt.Fprintf(out, "    %s   %d\n", red("destructive"), n)
+		}
+	}
+
+	// Empty result: skip the table entirely.
+	if len(rows) == 0 {
+		fmt.Fprintln(out)
+		fmt.Fprintf(out, "  %s\n", dim("No matching operations. Loosen filters or check `ws1 ops list --section <slug>`."))
+		return
+	}
+
+	// Table header.
+	fmt.Fprintln(out)
+	fmt.Fprintf(out, "  %s\n", dim(fmt.Sprintf("%-13s %-3s %s", "CLASS", "", "OP")))
+
+	// Rows.
+	cap := opsTableMaxRows
+	shown := rows
+	if len(rows) > cap {
+		shown = rows[:cap]
+	}
+	for _, r := range shown {
+		renderOpsRow(out, r, pol)
+	}
+
+	if len(rows) > cap {
+		fmt.Fprintln(out)
+		fmt.Fprintf(out, "  %s\n", dim(fmt.Sprintf("%d more rows. Add --filter / --section / --tag / --class to narrow.", len(rows)-cap)))
+	}
+
+	// Symbol legend — always show so users learn the vocabulary.
+	fmt.Fprintln(out)
+	fmt.Fprintf(out, "  %s  always requires approval    %s  approval at scale    %s  async dispatch\n",
+		warn("⚠"), warn("!"), warn("→"))
+}
+
+// renderOpsRow writes one row of the ops table, looking up policy
+// metadata to decide which approval/async symbols to render.
+func renderOpsRow(out io.Writer, r map[string]any, pol *policy.Policy) {
+	op, _ := r["op"].(string)
+	class, _ := r["class"].(string)
+	e := pol.Classify(op)
+
+	// Approval-at-scale marker (write-class with blast-radius threshold,
+	// not always-required). Distinct from the always-requires-approval
+	// trailing ⚠ on destructive rows.
+	marker := " "
+	if e.BlastRadiusThreshold != nil && !e.IsDestructive() {
+		marker = warn("!")
+	}
+
+	classCell := colorByClass(class, padRight(class, 13))
+
+	// Trailing annotations: ⚠ (always requires approval) and → (async).
+	annot := ""
+	if e.IsDestructive() {
+		annot += warn("⚠") + " "
+	}
+	if e.Sync != nil && !*e.Sync {
+		annot += warn("→") + " "
+	}
+
+	// Op id with no truncation. Long ids are rare and useful in full;
+	// pipe to less if your terminal is narrow.
+	fmt.Fprintf(out, "  %s %s  %s   %s\n", classCell, marker, op, strings.TrimSpace(annot))
+}
+
+// padRight pads s with spaces on the right to n cols. Used for table
+// columns where ANSI color escapes around the padded value would
+// confuse a printf width specifier.
+func padRight(s string, n int) string {
+	if len(s) >= n {
+		return s
+	}
+	return s + strings.Repeat(" ", n-len(s))
+}
+
+// formatFilterChips turns the filter map into a compact "(section=X,
+// tag=Y, class=Z)" suffix for the table header. Returns "" when no
+// filters are set.
+func formatFilterChips(filters map[string]any) string {
+	if filters == nil {
+		return ""
+	}
+	parts := []string{}
+	for _, k := range []string{"section", "tag", "class", "filter"} {
+		v, _ := filters[k].(string)
+		if v != "" {
+			parts = append(parts, fmt.Sprintf("%s=%s", k, v))
+		}
+	}
+	if len(parts) == 0 {
+		return ""
+	}
+	return "(" + strings.Join(parts, ", ") + ")"
+}
 
 // loadActivePolicy resolves the operations.policy.yaml in this precedence:
 //  1. WS1_POLICY_FILE (test override)
@@ -133,18 +284,20 @@ Examples:
 					"unclassified": e.Synthetic,
 				})
 			}
+			filters := map[string]any{
+				"section": section,
+				"tag":     tag,
+				"class":   classWant,
+				"filter":  filterWant,
+				"summary": summary,
+			}
+			renderOpsTable("ws1 ops", rows, pol, "", filters)
 			emitAndExit(envelope.New("ws1.ops.list").
 				WithData(map[string]any{
 					"ops":      rows,
 					"sections": generated.Sections(),
 					"count":    len(rows),
-					"filters": map[string]any{
-						"section": section,
-						"tag":     tag,
-						"class":   classWant,
-						"filter":  filterWant,
-						"summary": summary,
-					},
+					"filters":  filters,
 				}).
 				WithDuration(time.Since(start)))
 		},
@@ -190,6 +343,7 @@ func newOpsSearchCmd() *cobra.Command {
 					"summary": meta.Summary,
 				})
 			}
+			renderOpsTable("ws1 ops search", rows, pol, args[0], nil)
 			emitAndExit(envelope.New("ws1.ops.search").
 				WithData(map[string]any{
 					"matches": rows,
