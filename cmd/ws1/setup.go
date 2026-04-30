@@ -147,6 +147,12 @@ func RunSetup(ctx context.Context, opts SetupOptions, p Prompter) error {
 	if opts.Tenant != "" && !auth.IsInteractive() {
 		// Non-interactive: keep the value as-is, no prompt.
 	} else {
+		helpText(
+			"Your Workspace ONE UEM tenant URL — the hostname you log",
+			"into in the browser (e.g. cn1506.awmdm.com or",
+			"as1784.awmdm.com). The CLI calls https://<that-hostname>",
+			"for every API request.",
+		)
 		tenant, err := p.Ask("Tenant hostname", opts.Tenant)
 		if err != nil {
 			return err
@@ -161,6 +167,13 @@ func RunSetup(ctx context.Context, opts SetupOptions, p Prompter) error {
 			if !auth.IsInteractive() {
 				return fmt.Errorf("%w: --region or --auth-url", errNonInteractiveMissingFlag)
 			}
+			helpText(
+				"Pick the data center hosting your tenant. WS1's OAuth",
+				"token endpoint is region-scoped — the wrong region",
+				"will fail validation. (If unsure, ask your tenant admin",
+				"or check the WS1 console > Groups & Settings >",
+				"Configurations > System > Advanced > API.)",
+			)
 			region, err := pickRegion(p)
 			if err != nil {
 				return err
@@ -231,6 +244,23 @@ func selectProfilesToConfigure(p Prompter, opts SetupOptions) ([]string, error) 
 		}
 		return []string{name}, nil
 	}
+	helpText(
+		"Pick which capability profiles to configure. Profiles",
+		"control which class of operations the CLI can run; the",
+		"OAuth client you provision in the WS1 console MUST have",
+		"a matching console role/account, or the API will reject",
+		"the call regardless of CLI gating.",
+		"",
+		"  ro        Read-only (list, get, search). Safe default",
+		"            for agent sessions.",
+		"  operator  Read + write (lock, unenroll, install). Some",
+		"            destructive ops require browser approval.",
+		"  admin     Operator + tenant-level config (groups,",
+		"            policies, OAuth clients). Use sparingly.",
+		"",
+		"Comma-separated list, e.g. \"ro,operator\". Each profile",
+		"below gets its own client_id + secret prompt.",
+	)
 	answer, err := p.Ask("Profiles to configure", "operator")
 	if err != nil {
 		return nil, err
@@ -277,6 +307,16 @@ func configureOneProfile(ctx context.Context, p Prompter, opts SetupOptions, nam
 		clientSecret = ""
 	}
 	if clientID == "" {
+		helpText(
+			"OAuth client_id from your WS1 console:",
+			"  Groups & Settings > Configurations > OAuth Client",
+			"  Management > Add",
+			"The console role/account assigned to this client must",
+			"match this profile ("+name+") — e.g. a Console",
+			"Administrator role for admin, a Read-Only role for ro.",
+			"Mismatched roles will validate at OAuth but fail at the",
+			"API call.",
+		)
 		var err error
 		clientID, err = p.Ask(clientIDLabel, "")
 		if err != nil {
@@ -284,6 +324,13 @@ func configureOneProfile(ctx context.Context, p Prompter, opts SetupOptions, nam
 		}
 	}
 	if clientSecret == "" {
+		helpText(
+			"OAuth client_secret from the same console screen.",
+			"Stored in your OS keychain (or",
+			"~/.config/ws1/secrets.json if WS1_ALLOW_DISK_SECRETS",
+			"is set). You'll be re-prompted on each setup run; it",
+			"is never echoed and never logged.",
+		)
 		var err error
 		clientSecret, err = p.AskSecret(clientSecretLabel)
 		if err != nil {
@@ -396,6 +443,18 @@ func printExitSummary(profileNames []string, configured []auth.Profile, og strin
 	fmt.Fprintln(stderrWriter, summarySeparator())
 }
 
+// helpText writes a multi-line explanatory block to stderrWriter,
+// preceded by a blank line for visual separation. Used to brief the
+// user before each interactive prompt — answers "what is this asking
+// for, where do I get the value, why does it matter." Stays on
+// stderr so the stdout envelope contract is intact.
+func helpText(lines ...string) {
+	fmt.Fprintln(stderrWriter)
+	for _, l := range lines {
+		fmt.Fprintln(stderrWriter, l)
+	}
+}
+
 // summarySeparator returns the horizontal-rule line for the exit
 // summary block. Uses a Unicode rule when the locale advertises
 // UTF-8 (matches the spinner's glyph choice); falls back to ASCII
@@ -462,6 +521,12 @@ func pickOG(ctx context.Context, p Prompter, prof *auth.Profile, prefilled strin
 		return p.Ask("OG ID", "")
 	}
 	spin.Done(true, fmt.Sprintf("Found %d OGs", len(ogs)))
+	helpText(
+		"Pick the default Org Group context. Every CLI command",
+		"runs scoped to one OG; this picks the one most of your",
+		"work targets. Override per-command with --og <id>, or",
+		"change later with `ws1 og use <id>`.",
+	)
 	options := make([]PickItem, 0, len(ogs))
 	for _, og := range ogs {
 		options = append(options, PickItem{
