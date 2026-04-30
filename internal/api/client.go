@@ -46,23 +46,30 @@ func (r *Response) JSON(target any) error {
 }
 
 // Client holds the shared HTTP client + token source.
+//
+// API version negotiation is per-op: each generated.OpMeta carries an
+// AcceptVersion sourced from the spec's response content-types (e.g.
+// "application/json;version=2"). v1 endpoints want plain
+// `Accept: application/json` — the CLI must NOT send `;version=1`,
+// the WS1 edge gateway 503s on it. v2+ endpoints REQUIRE the version
+// parameter — the gateway 503s without it.
+//
+// The Client.AcceptVersionDefault field is a last-resort fallback for
+// the rare op whose meta lacks a version (test mocks, ad-hoc calls);
+// production code always has per-op metadata so this default is
+// effectively unused.
 type Client struct {
 	Source auth.TokenSource
 	HTTP   *http.Client
 
-	// AcceptVersion is the WS1 API version requested via the
-	// `Accept: application/json;version=<N>` content negotiation. v1 endpoints
-	// only respond when version=1; v2 endpoints want version=2. The CLI
-	// resolves this per-op by inspecting the section slug at request time.
-	AcceptVersion string
+	AcceptVersionDefault string
 }
 
 // New constructs a Client with a sensible default HTTP timeout.
 func New(src auth.TokenSource) *Client {
 	return &Client{
-		Source:        src,
-		HTTP:          &http.Client{Timeout: 30 * time.Second},
-		AcceptVersion: "2",
+		Source: src,
+		HTTP:   &http.Client{Timeout: 30 * time.Second},
 	}
 }
 
@@ -132,14 +139,22 @@ func (c *Client) doOnce(ctx context.Context, op string, args Args) (*Response, e
 		return nil, err
 	}
 	req.Header.Set("Authorization", tok.TokenType+" "+tok.AccessToken)
-	// Per Omnissa REST API conventions, API version is in the Accept
-	// content-type parameter. With OAuth client-credentials the bearer is
-	// sufficient identity — `aw-tenant-code` is only needed for Basic Auth,
-	// which v1 doesn't support.
-	if c.AcceptVersion != "" {
-		req.Header.Set("Accept", "application/json;version="+c.AcceptVersion)
-	} else {
+	// Accept header rules (per Omnissa REST API conventions, surfaced in
+	// each spec's response content-types):
+	//   - meta.AcceptVersion = "" or "1" -> plain `application/json`
+	//     (v1 endpoints reject `;version=1` at the edge gateway)
+	//   - meta.AcceptVersion = "N" for N>=2 -> `application/json;version=N`
+	// With OAuth client-credentials, the bearer is sufficient identity;
+	// aw-tenant-code is only required for Basic Auth, which v1 doesn't
+	// support.
+	version := meta.AcceptVersion
+	if version == "" {
+		version = c.AcceptVersionDefault
+	}
+	if version == "" || version == "1" {
 		req.Header.Set("Accept", "application/json")
+	} else {
+		req.Header.Set("Accept", "application/json;version="+version)
 	}
 	if meta.HasRequestBody {
 		req.Header.Set("Content-Type", "application/json")

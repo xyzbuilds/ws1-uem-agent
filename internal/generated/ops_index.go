@@ -31,6 +31,11 @@ type OpMeta struct {
 	Description    string
 	Parameters     []ParamMeta
 	HasRequestBody bool
+	// AcceptVersion is the value to send in the Accept content-type
+	// parameter (e.g. "2" -> "Accept: application/json;version=2").
+	// Empty string or "1" means omit the version parameter entirely;
+	// WS1 v1 endpoints respond to plain "Accept: application/json".
+	AcceptVersion string
 }
 
 // Ops is the compiled-in catalog. Key is the canonical operation identifier.
@@ -47,6 +52,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Import approved Android Enterprise apps to AirWatch",
 		Description:    "* Imports all the approved apps in admin Google account of the organization to AirWatch. This makes them available to be managed by AirWatch. Imported apps can be assigned to the smart groups to be made available to the users in the organization.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Unique Identifier for the organization group(Required)"},
 		},
@@ -63,6 +69,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Approve an app on admin Google account for the organization",
 		Description:    "* Approves the input application on admin Google account for given organization group. This has the same effect of logging into Google Work PlayStore and approving a selected application for the organization. This does not add that application automatically to AirWatch. Call to 'import' API is needed for the same.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Unique Identifier for the organization group(Required)"},
 			{Name: "bundleId", In: "query", Required: true, Type: "string", Description: "Unique Identifier for the Android application on Google PlayStore(Required)"},
@@ -80,6 +87,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Adds applications to the specified Application Group.",
 		Description:    "Performs the mandatory params check and adds the List of applications supplied to the specified Application Group.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "appgroupid", In: "path", Required: true, Type: "integer", Description: "Application Group Identifier. (Minimum value = 1) Example = 2."},
 		},
@@ -96,6 +104,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Searches for the Application Groups based on the query information provided.",
 		Description:    "Takes in query parameters to perform a search on the available Application Groups.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "appgroupname", In: "query", Required: false, Type: "string", Description: "App Group name. Example = \"Apple MDM Applications\"."},
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "string", Description: "OrganizationGroup Id. Example = \"7\"."},
@@ -119,6 +128,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Deletes Application Groups identified by Application Group Identifiers.",
 		Description:    "Takes in atleast one App Group Id to perform deletion of the corresponding record.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mamv1.appgroups.createapplicationgroup": {
@@ -133,6 +143,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Creates an Application Group.",
 		Description:    "Checks for the mandatory params in the input request body and creates an Application Group.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mamv1.appgroups.deleteapplicationsfromapplicationgroup": {
@@ -147,6 +158,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Deletes applications from the specified Application Group.",
 		Description:    "Takes in a list of application groups, checks for the Application Group Type and performs deletion.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "appgroupid", In: "path", Required: true, Type: "integer", Description: "Application Group Identifier. (Minimum value = 1) Example = 2."},
 		},
@@ -163,6 +175,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves the Application group details based on the Application Group id.",
 		Description:    "Checks if application group with passed in id exists and if its accessible and returns the application group record.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "appgroupid", In: "path", Required: true, Type: "integer", Description: "Application Group Identifier. (Minimum value = 1) Example=2."},
 		},
@@ -179,6 +192,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Updates the specified Application Group.",
 		Description:    "Performs a check for the mandatory params present in the request body and updates the specified Application Group.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "appgroupid", In: "path", Required: true, Type: "integer", Description: "The Application Group Id. (Minimum value = 1) Example=2."},
 		},
@@ -195,6 +209,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Block applications. If device_uuid is present with application, blocks at device level; otherwise resource level.",
 		Description:    "Block DSM actions for applications at device level or resource level",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mamv1.applicationdsmv1.getblockedapplications": {
@@ -209,6 +224,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get list of blocked applications for a tenant/device with optional pagination.",
 		Description:    "Query the status of blocked applications",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mamv1.applicationdsmv1.unblockapplicationactions": {
@@ -223,6 +239,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Unblock applications",
 		Description:    "Unblock application actions. If device_uuid is present in application, removes device-level override; otherwise application-level.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mamv1.applicationmetadataapi.getapplicationmetadata": {
@@ -237,6 +254,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Get application metadata.",
 		Description:    "",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "user_uuid", In: "query", Required: false, Type: "string", Description: "Unique identifier of the device enrollment user."},
 		},
@@ -253,6 +271,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the device count for the application actions",
 		Description:    "Will return the device count per application last action taken for the application",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "The uuid of the application. \r\n            Accepted formats **guid**\r\n            E.g. 3d958f38-246e-4854-a306-189d941ab073"},
 			{Name: "organizationgroupuuid", In: "query", Required: false, Type: "string", Description: "The organization group identifier where the counts need to be fetched. Will be defaulted to admin organization group identifier if not set. E.g. EF331D65-C005-4388-8E52-B1390AA171D9"},
@@ -271,6 +290,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get app config template for an application.",
 		Description:    "Get list of app configs supported for an application based on the application uuid provided.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for the application. \r\n            Accepted formats **uuid**\r\n            E.g. 3d958f38-246e-4854-a306-189d941ab073"},
 			{Name: "organization-group-uuid", In: "query", Required: false, Type: "string", Description: "Current Organization Group identifier for which admin is trying to get the template and from where assigment of the given app will happen. Accepted formats **uuid**\r\n            E.g. 3d958f38-246e-4854-a306-189d941ab073"},
@@ -288,6 +308,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the deployment counts for an internal or public app",
 		Description:    "Will return the following information for internal/public application in the provided Organization Group. 1. Total assigned devices count 2. Total installed devices count 3. Total side loaded devices count",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "The uuid of the application. \r\n            Accepted formats **guid**\r\n            E.g. 3d958f38-246e-4854-a306-189d941ab073"},
 			{Name: "organizationgroupuuid", In: "query", Required: false, Type: "string", Description: "The Organization Group identifier in which the counts need to be fetched. Will be defaulted to admin Organization Group identifier if not set. E.g. EF331D65-C005-4388-8E52-B1390AA171D9"},
@@ -306,6 +327,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves the application management status, i.e. the application bundle id passed is managedby AirWatch or not.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "managementid", In: "query", Required: false, Type: "string", Description: "Management Id."},
 			{Name: "bundleid", In: "query", Required: false, Type: "string", Description: "Bundle Id."},
@@ -323,6 +345,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the device count for the application reasons",
 		Description:    "Will return the device count per application reason for the application",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "The uuid of the application. \r\n            Accepted formats **guid**\r\n            E.g. 3d958f38-246e-4854-a306-189d941ab073"},
 			{Name: "organizationgroupuuid", In: "query", Required: false, Type: "string", Description: "The Organization Group identifier where the counts need to be fetched. Will be defaulted to admin Organization Group identifier if not set. E.g. EF331D65-C005-4388-8E52-B1390AA171D9"},
@@ -341,6 +364,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Returns removal log events for an internal application, filtered by the App bundle identifier of the application and organization group.",
 		Description:    "Search and retrieve removal logs for internal applications.\r\n            If the number of remove application commands queued in a set time interval is exceeded the commands are put in locked state\r\n            The API method returns the details of the commands that are put in locked state\r\n            The records returned take into consideration the filter criteria received in request query.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "bundleid", In: "query", Required: false, Type: "string", Description: "BundleId/PackageId.Example = \"com.test.testapp\"."},
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "string", Description: "OrganizationGroup Identifier. Example = \"890\"."},
@@ -362,6 +386,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get assignment rule for an application.",
 		Description:    "Get assignment rule which contains deployment parameters for assignments and smart group exclusions for an application.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for the application.\r\n            Accepted formats **uuid**\r\n            E.g. 3d958f38-246e-4854-a306-189d941ab073"},
 		},
@@ -378,6 +403,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets list of devices that have the specified internal or public application installed or assigned.",
 		Description:    "This endpoint provides a list of devices that have the specified internal or public application installed or assigned at the version level. A list of all the assigned devices is returned by default.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "The uuid of the application. \r\n            Accepted formats **guid**\r\n            E.g. 3d958f38-246e-4854-a306-189d941ab073"},
 			{Name: "page", In: "query", Required: true, Type: "integer", Description: "Page number which will be fetched, 0 based index. Default 0."},
@@ -408,6 +434,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets SDK analytics based on the query information provided.",
 		Description:    "Returns SDK Analytic Events within a time range and filtered by provided query parameters including Unique Device Identifiers and Application Identifiers.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "OrganizationGroup Identifier."},
 			{Name: "applicationid", In: "query", Required: false, Type: "string", Description: "Application Identifier."},
@@ -431,6 +458,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Search and retrieve details for both internal and external applications or books.",
 		Description:    "Searches for an application or book, given filters including type, name, category and organization group id. Returns a list of applications or books that match the criteria with details of each application/book.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "type", In: "query", Required: false, Type: "string", Description: "The Product Type - App or Book."},
 			{Name: "applicationtype", In: "query", Required: false, Type: "string", Description: "Type of the application. (Internal/Public)."},
@@ -466,6 +494,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Searches in App stores for the applications with the specified search string and returns the details.",
 		Description:    "Searches in the App store for applications that match a specified search string (Example: Boxer) and return the details.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "appname", In: "query", Required: true, Type: "string", Description: "Application name to be searched. Example: Boxer. (Required)."},
 		},
@@ -482,6 +511,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Sets the action (unlock or clear) executed after the threshold for the Removal Log events is reached.",
 		Description:    "Updates the action taken on the threshold.\r\n            Either unlock/clear the threshold.\r\n            On unlock the commands are sent to the device\r\n            On clear the commands are purged from the queue.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "string", Description: "LocationGroup Identifier."},
 		},
@@ -498,6 +528,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Updates assignment rule for an application and publishes the application to the devices associated with assignment rule.",
 		Description:    "Updates assignments with assignment policies and exclusions for an application. Publishes the application to the devices associated with the assignment rule.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for the application. \r\n            Accepted formats **uuid**\r\n            E.g. 3d958f38-246e-4854-a306-189d941ab073"},
 		},
@@ -514,6 +545,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves the details of the applications from the Windows App Store based on the search request.",
 		Description:    "Searches in the Windows store for applications that match a specified search string (Example: Boxer) and return the details.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "appname", In: "query", Required: true, Type: "string", Description: "Application name to be searched. Example: Boxer. (Required)."},
 			{Name: "platform", In: "query", Required: true, Type: "string", Description: "Device Platform to search the Applications for. Example: WindowsMobile. (Required)."},
@@ -531,6 +563,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Deletes a blob by ID",
 		Description:    "Deletes a blob by ID.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "blobId", In: "path", Required: true, Type: "integer", Description: "Blob ID to be deleted(Required)"},
 		},
@@ -547,6 +580,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets a blob by the ID",
 		Description:    "Returns the contents of a blob as a byte array",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "blobId", In: "path", Required: true, Type: "integer", Description: "Id of the blob to be retrieved(Required)"},
 		},
@@ -563,6 +597,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Create a new blob with attached file",
 		Description:    " - Create a new blob with attached file\r\n- Supported file types are 'ipa',\r\n  'apk', 'xap', 'appx', 'msi', 'app', 'zip', 'xml', 'pem', 'exe', 'pkg',\r\n  'dmg', 'plist', 'mpkg', 'js', 'jse', 'ps1', 'ps1xml', 'psc1', 'psd1',\r\n  'psm1', 'pssc', 'cdxml', 'vbs', 'vbe', 'wsf', 'wsc', 'msp', 'mst',\r\n  'p12', 'pfx', 'p7b', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'p7m', 'ppkg', 'cat', 'apf'\r\n- No size restrictions\r\n- Organization Group will be set to Global irrespective of value passed if the file type is of 'apf'",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "fileName", In: "query", Required: true, Type: "string", Description: "Name of the file being uploaded(Required)"},
 			{Name: "organizationGroupId", In: "query", Required: true, Type: "integer", Description: "Organization Group ID integer identifying the customer or container(Required)"},
@@ -587,6 +622,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - upload the chunks.",
 		Description:    "- Create a chunk at the specified path\r\n- Supported file types are 'ipa',\r\n 'apk', 'xap', 'appx', 'msi', 'app', 'zip', 'xml', 'pem', 'exe', 'pkg',\r\n 'dmg', 'plist', 'mpkg', 'js', 'jse', 'ps1', 'ps1xml', 'psc1', 'psd1',\r\n 'psm1', 'pssc', 'cdxml', 'vbs', 'vbe', 'wsf', 'wsc', 'msp', 'mst',\r\n 'p12', 'pfx', 'p7b', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'p7m', 'ppkg', 'cat', 'apf'.\r\n- For Targeted System Update (module_type=TargetedSystemUpdate), supported file types are 'msu', 'cab'.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "chunk_sequence_number", In: "query", Required: true, Type: "integer", Description: "chunk sequence number being uploaded.(Required)"},
 			{Name: "transaction_id", In: "query", Required: false, Type: "string", Description: "UUID of the chunk file being uploaded."},
@@ -608,6 +644,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - merge the uploaded chunks.",
 		Description:    "- Merges the chunk.\r\n- When module_type is provided it is matched case-sensitively; For TargetedSystemUpdate, additional validations apply.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mamv1.internalappsv1.activateinternalapp": {
@@ -622,6 +659,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Activates the specified internal application.",
 		Description:    "Activates all versions of the internal application specified by ID.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationid", In: "path", Required: true, Type: "integer", Description: "The Id integer of the application.(Required)."},
 		},
@@ -638,6 +676,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Adds assignments along with the flexible deployment parameters to an internal application. Removal date - 29/11/2024.",
 		Description:    "1. Adds assignments and returns a resource containing the transaction details\r\n2. Excluded Assignment Groups are only available for viewing in the GET call.\r\n   Option to edit them is not currently available through POST/PUT APIs.\r\n3. DELETE API however deletes any SG ID associated with an application, assigned or excluded.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationId", In: "path", Required: true, Type: "integer", Description: "Internal Application Id."},
 		},
@@ -654,6 +693,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Applications actions (install, remove) for bulk devices",
 		Description:    "This API performs applications actions (install, remove) for a set of devices. Set of devices will be passed as part of filter critera or it can be an individual device and app identifier combination. User needs to pass either filter criteria or individual device and app identifier combination. If user passes an individual device and app idenifier combination then filter criteria will be ignored.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "action", In: "query", Required: true, Type: "string", Description: "The bulk action that we are going to perform(Required)"},
 		},
@@ -670,6 +710,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Creates an internal application.",
 		Description:    "1. Creates an internal application using the uploaded file chunks.\r\n2. If application is added through link and downloadfilefromlink is set to true then UploadViaLink should be set to false.\r\n3. ActualFileVersion in API is same as App version on the UI; AppVersion in API is UEM Version on the UI.\r\n4. BundleId And ActualFileVersion Are required when the app is uploaded via link.\r\n5. If UploadViaLink is false, TransactionId or BlobId is required.\r\n6. Use '/internal/application' API endpoint for using 4th decimal in applications.\r\n7. If AppVersion is not passed, it is parsed from the ActualFileVersion (0 for the decimal places it cannot parse).\r\n8. For windows SFD apps of format exe and zip, admin can pass 'ActualFileVersion' even when UploadViaLink is False.\r\n9. Set value of attribute ‘CarryOverAssignments’  to ‘false’ to prevent carrying over assignments from older versions to the newer one. By default it is true.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mamv1.internalappsv1.createinternalapplicationfromblob": {
@@ -684,6 +725,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Creates an internal application.",
 		Description:    "1. Creates an internal application using the uploaded file chunks. Will return the ApplicationEntity for newly created internal application.\r\n2. If application is added through link and downloadfilefromlink is set to true then upload_via_link should be set to false.\r\n3. actual_file_version is same as App version on the UI; app_uem_Version on the API is UEM Version on the UI.\r\n4. bundle_id and actual_file_version are required when the app is uploaded via link.\r\n5. If upload_via_link is false, transaction_id or blob_id is required.\r\n6. If app_uem_version is not passed, it is parsed from the actual_file_version (0 for the decimal places it cannot parse).\r\n7. For Windows SFD apps of format exe and zip, admin can pass 'actual_file_version' even when upload_via_link is False.\r\n8. Set value of attribute ‘CarryOverAssignments’  to ‘false’ to prevent carrying over assignments from older versions to the newer one. By default it is true.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mamv1.internalappsv1.deactivateinternalapp": {
@@ -698,6 +740,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Deactivates the specified internal application.",
 		Description:    "Deactivates all versions of the Internal Application identified by the passed Application ID.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationid", In: "path", Required: true, Type: "integer", Description: "Application Id."},
 		},
@@ -714,6 +757,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Deletes Application Assignment to Smart Group(s).",
 		Description:    "1. Deletes a given smart group assignment for an internal app specified by id.\r\n2. Excluded Assignment Groups are only available for viewing in the GET call.\r\n   Option to edit them is not currently available through POST/PUT APIs.\r\n3. DELETE API however deletes any SG ID associated with an application, assigned or excluded.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationId", In: "path", Required: true, Type: "integer", Description: "The Id integer of the application.(Required)."},
 		},
@@ -730,6 +774,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Deletes the specified internal application.",
 		Description:    "Deletes the internal application version associated with the application ID provided.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationid", In: "path", Required: true, Type: "integer", Description: "The application ID (integer) of internal app version to be deleted (Required)."},
 		},
@@ -746,6 +791,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Deletes the windows dependency application specified by id.",
 		Description:    "Deletes windows dependency application specified by id.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "windowsAppDependencyId", In: "path", Required: true, Type: "integer", Description: "The Id integer of the dependency to be deleted. (Required)."},
 		},
@@ -762,6 +808,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Edits assignments along with the flexible deployment parameters associated with an internal application.",
 		Description:    "1. Updates the assignments for internal application.\r\n2. Excluded Assignment Groups are only available for viewing in the GET call.\r\n   Option to edit them is not currently available through POST/PUT APIs.\r\n3. DELETE API however deletes any SG ID associated with an application, assigned or excluded.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationId", In: "path", Required: true, Type: "integer", Description: "Internal Application Id."},
 		},
@@ -778,6 +825,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the summary of the internal application uniquely identified by the bundle id, organization group uuid, and device type.",
 		Description:    "This endpoint provides the basic details of an internal application at the application bundle identifier level.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "bundleid", In: "query", Required: true, Type: "string", Description: "The bundle identifier of the application(Required)"},
 			{Name: "apporganizationgroupuuid", In: "query", Required: true, Type: "string", Description: "Uuid of the Organization Group from where the app is uploaded(Required)"},
@@ -797,6 +845,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets list of devices that have the specified internal application installed or assigned at the application level.",
 		Description:    "This endpoint provides a list of devices that have the specified internal application installed or assigned at the application level. A list of all the assigned devices is returned by default.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "bundleid", In: "query", Required: true, Type: "string", Description: "The bundle identifier of the application. E.g. com.airwatch.androidagent(Required)"},
 			{Name: "devicetype", In: "query", Required: true, Type: "string", Description: "The platform of the application, the possible values are [ AppleTv, Apple, Android, WindowsPhone8, AppleOsX, WinRT, AppleVision ](Required)"},
@@ -831,6 +880,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Details of an internal app identified by id.",
 		Description:    " 1. Gets the details of an internal app identified by id.\r\n2. Excluded assignment groups are only available for viewing in the GET call.\r\n   Option to edit them is not currently available through POST/PUT APIs.\r\n3. DELETE API however deletes any smart group ID associated with an application, assigned or excluded.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationId", In: "path", Required: true, Type: "integer", Description: "Internal application id(Required)."},
 		},
@@ -847,6 +897,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the installation counts for an internal app across versions",
 		Description:    " Will return the following information for each version of the internal application in the provided organization group\r\n1. Total assigned count\r\n2. Total installed count\r\n3. Total side loaded count",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "bundleid", In: "query", Required: true, Type: "string", Description: "The bundle identifier of the application(Required)"},
 			{Name: "apporganizationgroupuuid", In: "query", Required: true, Type: "string", Description: "The organization group identifer where application has been uploaded.(Required)"},
@@ -867,6 +918,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets list of devices that have the specified internal application installed or assigned.",
 		Description:    "Provides a list of devices that have the specified internal application installed or assigned. Provides a list of assigned devices by default when the status is not specified.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationid", In: "path", Required: true, Type: "integer", Description: "The Id integer of the application.(Required)."},
 			{Name: "status", In: "query", Required: false, Type: "string", Description: "Status of the given application on the device - installed/assigned."},
@@ -887,6 +939,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the device count for the application reasons",
 		Description:    "Will return the device count per application reason for all the versions of the app",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "bundleid", In: "query", Required: true, Type: "string", Description: "The bundle identifier of the application(Required)"},
 			{Name: "apporganizationgroupuuid", In: "query", Required: true, Type: "string", Description: "The Organization Group identifier where application has been uploaded.(Required)"},
@@ -907,6 +960,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Status of the specified internal application on a device.",
 		Description:    "Indicates the status of the specified internal application on a device.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationid", In: "path", Required: true, Type: "integer", Description: "The integer id of the application.(Required)."},
 			{Name: "deviceid", In: "query", Required: false, Type: "string", Description: "Device Identifier, for example - 0dfe4a6f25647b8297c15b6a995fa985."},
@@ -927,6 +981,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets the list of saved windows app dependency files for current OG and child OGs.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupId", In: "path", Required: true, Type: "integer", Description: "Organization Group Id."},
 		},
@@ -943,6 +998,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets the details of an windows app dependency identified by id.",
 		Description:    "Loads Dependency Application Details and deployment options set in an application.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "windowsAppDependencyId", In: "path", Required: true, Type: "integer", Description: "Windows app dependency id."},
 		},
@@ -959,6 +1015,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Uploads the chunk data.",
 		Description:    "Uploads the chunk data of an internal application into the server. A chunk of the application will contain the size of the chunk, sequence number, and the byte data.\r\nThe transaction ID should be null during the initial call to the API and the subsequent calls to the API should be made using the transaction ID from the response of the previous call\r\nFor uploading an application above 2 Gigabyte in size, File Storage needs to be configured.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mamv1.internalappsv1.installinternalappondevice": {
@@ -973,6 +1030,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Installs the specified internal application on a device.",
 		Description:    "Installs the specified Internal application on a particular device.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationid", In: "path", Required: true, Type: "string", Description: "The Id of the Application to be installed."},
 		},
@@ -989,6 +1047,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Uninstalls the specified internal application from a device.",
 		Description:    "Uninstalls the internal application specified by given id from a device.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationid", In: "path", Required: true, Type: "integer", Description: "The application Id.(Required)."},
 		},
@@ -1005,6 +1064,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retires the specified Internal application.",
 		Description:    "Retires the Internal application identified by the application ID. Only the current version of the app would be retired and be removed from devices. If a lower version is assigned, it will be deployed to the devices.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationid", In: "path", Required: true, Type: "integer", Description: "The Id integer of the application.(Required)."},
 		},
@@ -1021,6 +1081,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Retrieves the versions of this app assigned at this Organization Group.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "bundleId", In: "path", Required: true, Type: "string", Description: "Bundle Identifier of application that corresponds with the App ID.(Required)"},
 			{Name: "deviceType", In: "path", Required: true, Type: "string", Description: "Device platform(Required)"},
@@ -1039,6 +1100,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Retrieves the versions of this app assigned at this Organization Group.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "packageSource", In: "path", Required: true, Type: "string", Description: "Package Source of the application like winget, zypper etc.(Required)"},
 			{Name: "deviceType", In: "path", Required: true, Type: "string", Description: "The platform of the application(Required)"},
@@ -1057,6 +1119,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Unretires the specified internal application.",
 		Description:    "Unretires the internal application.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationid", In: "path", Required: true, Type: "integer", Description: "The Id integer of the application.(Required)."},
 			{Name: "retirepreviousversion", In: "query", Required: false, Type: "string", Description: "Whether to retire previous versions of the application - Yes/No."},
@@ -1074,6 +1137,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Updates the internal application.",
 		Description:    "Updates the internal application identified by applicationid.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationId", In: "path", Required: true, Type: "integer", Description: "Application Id to be updated."},
 		},
@@ -1090,6 +1154,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Creates a new macOS application with provided metadata for distribution on macOS Devices",
 		Description:    "Creates a new macOS application with provided metadata for distribution on macOS Devices",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Unique identifier of the organization group to perform the operation.(Required)."},
 		},
@@ -1106,6 +1171,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Download xml macOS application metadata",
 		Description:    "Download xml macOS application metadata",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the organization group to perform the operation.(Required)."},
 			{Name: "applicationUuid", In: "path", Required: true, Type: "string", Description: "Application Uuid to perform the operation on.(Required)."},
@@ -1123,6 +1189,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Updates a macOS application with provided metadata for distribution on macOS Devices",
 		Description:    "Updates a macOS application with provided metadata for distribution on macOS Devices",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Unique identifier of the organization group to perform the operation.(Required)."},
 			{Name: "applicationId", In: "path", Required: true, Type: "string", Description: "Application ID to perform the operation on.(Required)."},
@@ -1140,6 +1207,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Activates the specified public application.",
 		Description:    "Activates the public application identified by the passed in Application ID, and re-installs the app on devices based on existing assignments.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationid", In: "path", Required: true, Type: "integer", Description: "The application Id."},
 		},
@@ -1156,6 +1224,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Deactivates the specified public application.",
 		Description:    "Deactivates the public application identified by the passed in Application ID, and removes the app from devices.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationid", In: "path", Required: true, Type: "integer", Description: "The Application Id."},
 		},
@@ -1172,6 +1241,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Deletes the specified public application.",
 		Description:    "Deletes the public application identified by the Application Id passed.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationid", In: "path", Required: true, Type: "integer", Description: "Unique identifier of the app to be deleted."},
 		},
@@ -1188,6 +1258,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets the details of a public app identified by id.",
 		Description:    "Gets the details of the public application identified by the application Id.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Public App Id is the unique identifier for Public Applications in AirWatch. (Required)."},
 		},
@@ -1204,6 +1275,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Provides a list of devices that have the specified public application installed or assigned.",
 		Description:    "Returns the list of devices associated(installed/assigned) with the public application identified by the application Id. If the status is unspecified, all the assigned devices are returned.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationid", In: "path", Required: true, Type: "integer", Description: "The application Id."},
 			{Name: "status", In: "query", Required: false, Type: "string", Description: "status - installed/assigned."},
@@ -1224,6 +1296,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Inserts the public application selected by searching for the bundle ID (Android) or external ID (iOS) in the app market.",
 		Description:    "External Id or ApplicationUrl is required in case of Ios apps and for other platforms, Bundle Id or ApplicationUrl is required.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mamv1.publicapps.installpublicappondevice": {
@@ -1238,6 +1311,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Installs the specified public application on a device.",
 		Description:    "Installs the public application identified by the passed in Application Id on a particular device.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationid", In: "path", Required: true, Type: "string", Description: "The Id of the Application to be installed."},
 		},
@@ -1254,6 +1328,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Uninstalls the specified public application from a device.",
 		Description:    "Uninstalls the public application identified by the application Id from the passed in device.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationid", In: "path", Required: true, Type: "integer", Description: "The application Id."},
 		},
@@ -1270,6 +1345,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - SendApplicationConfiguration to a given device assigned to a Public App.",
 		Description:    "",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mamv1.publicapps.updatepublicapp": {
@@ -1284,6 +1360,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Updates the public application selected by searching for the bundle ID (Android) or external ID (iOS) in the app market.",
 		Description:    "Updates the public application details such as name, categories etc for the public app identified by the unique identifier applicationid.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationid", In: "path", Required: true, Type: "integer", Description: "Application id to be updated."},
 		},
@@ -1300,6 +1377,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Sends vpp invitation to the users.",
 		Description:    "For user based purchased app, user needs to accept the invitation and log into app store to install app. This api will send invitations to the users.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationid", In: "path", Required: true, Type: "integer", Description: "The Application Identifier."},
 		},
@@ -1316,6 +1394,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Create new assignments of a VPP licensed application.",
 		Description:    "Create new assignments of a purchased application with licenses to smart groups, application only with redemption codes\r\ncannot be assigned through this api.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationid", In: "path", Required: true, Type: "integer", Description: "Application Identifier."},
 		},
@@ -1332,6 +1411,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Deletes the specified purchased app.",
 		Description:    "Deletes the specified purchased app and revoke the licenses claimed.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationid", In: "path", Required: true, Type: "integer", Description: "Application Identifier."},
 		},
@@ -1348,6 +1428,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Convert Purchased applications from user based licensing to device based licensing in bulk.",
 		Description:    "Converts VPP applications from user based licensing to device based in an organization group (including child OGs) based on action type and an optional application list.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Organization Group UUID in which to enable device based VPP for applications.(Required)"},
 			{Name: "action", In: "query", Required: true, Type: "string", Description: "Action to either include or exclude the app UUIDs specified in the request body. Example - Include action with a list of UUIDs passed in the request will enable DBL for those apps. Exclude action with a list of app UUIDs will enable DBl for all apps in the OG except the ones specified in the list. Exclude action without any app list in the request will enable DBL for all apps in the OG.(Required)"},
@@ -1367,6 +1448,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Enables device-based assignment for the passed app.",
 		Description:    "Device-based VPP assignment allows you to distribute apps directly to a device without requiring an Apple ID. This will enable device-based assignment for the application.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "appId", In: "path", Required: true, Type: "integer", Description: "Application id for which device based assignment needs to be enabled (Required)."},
 		},
@@ -1383,6 +1465,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Provides a list of devices that have the specified purchased application installed or assigned.",
 		Description:    "Gets list of devices matching on the input query parameters values.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationid", In: "path", Required: true, Type: "integer", Description: "The application ID."},
 			{Name: "status", In: "query", Required: true, Type: "string", Description: "status - installed/assigned (Required)."},
@@ -1403,6 +1486,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Indicates the status of the specified purchased application on a device.",
 		Description:    "Gets the status if the app is installed/Removed/Pending Install.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationid", In: "path", Required: true, Type: "integer", Description: "The application Id."},
 			{Name: "deviceid", In: "query", Required: false, Type: "string", Description: "Device Identifier, for example - 0dfe4a6f25647b8297c15b6a995fa985."},
@@ -1423,6 +1507,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets user's vpp invitation status.",
 		Description:    "For user based purchased app, user needs to accept the invitation and log into app store to install app. This api will get the user's invitation status for the vpp account containing the application id.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationid", In: "path", Required: true, Type: "integer", Description: "Vpp Application Identifier."},
 			{Name: "deviceid", In: "path", Required: true, Type: "integer", Description: "Device Identifier."},
@@ -1440,6 +1525,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Get the status and details for the VPP Sync Assets job at the given organization group.",
 		Description:    "Vpp sync assets job will take time to sync applications on the apple server to the airwatch console. This will get the current status of the job.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "locationGroupId", In: "path", Required: true, Type: "integer", Description: "Location group id also known as the organization group identifier (Required)."},
 		},
@@ -1456,6 +1542,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Install the purchased application on the device.",
 		Description:    "Install the specified purchased application on the device.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationid", In: "path", Required: true, Type: "string", Description: "Id of the Application to be installed, for example - 123."},
 		},
@@ -1472,6 +1559,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Returns VPP licensed Application allocation details by AppId.",
 		Description:    "Returns VPP licensed Application allocation details including info about orders and licenses, assignment, and deployment\r\nparameters. Not valid for apps implementing flexible assignment. Should use new version of api.\r\ncannot be updated through this api.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationid", In: "path", Required: true, Type: "integer", Description: "Application Id."},
 		},
@@ -1488,6 +1576,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Remove the purchased application from the device.",
 		Description:    "Remove the specified purchased application from the device.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationid", In: "path", Required: true, Type: "integer", Description: "The application ID, for example - 123."},
 		},
@@ -1504,6 +1593,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Resets the client context for the account at passed LG.",
 		Description:    "Client context contains info about the product that manages vpp account. This will reset the client context to let others able to claim the vpp account.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "locationGroupId", In: "path", Required: true, Type: "integer", Description: "Location group id also known as the organization group identifier (Required)."},
 		},
@@ -1520,6 +1610,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Save vpp settings to create vpp account",
 		Description:    "Save vpp settings to create vpp account at a given organization group.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mamv1.purchasedappsv1.updateautoupdateflagforapplication": {
@@ -1534,6 +1625,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Sets the value of the auto update flag for a device based VPP application.",
 		Description:    "Updates the auto update flag for a device based VPP application. If enabled, the update will be automatically\r\ninstalled on devices having the application.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "appId", In: "path", Required: true, Type: "integer", Description: "The application id (Required)."},
 		},
@@ -1550,6 +1642,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Updates the application on devices.",
 		Description:    "Updates the application on devices having device based licenses for the application if an update is available.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "appId", In: "path", Required: true, Type: "integer", Description: "The application id (Required)."},
 		},
@@ -1566,6 +1659,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Update assignments of a VPP licensed application.",
 		Description:    "Update assignments of a purchased application with licenses, application only with redemption codes or redemption based assignment\r\ncannot be updated through this api.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationid", In: "path", Required: true, Type: "integer", Description: "Vpp Licensed Application Id."},
 		},
@@ -1582,6 +1676,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Search and retrieve details for purchased applications.",
 		Description:    "Application details, its assignments, deployment parameters are displayed.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationname", In: "query", Required: false, Type: "string", Description: "Application name to search for."},
 			{Name: "isassigned", In: "query", Required: false, Type: "boolean", Description: "Flag to filter apps by assignment status. true = assigned apps only, false = unassigned apps only."},
@@ -1608,6 +1703,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Queues up sync assets job for apple vpp applications at the given organization group.",
 		Description:    "Queues up sync assets job at the given organization group to get info about the number of total licenses, licenses assigned to each application.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "locationGroupId", In: "path", Required: true, Type: "integer", Description: "Location group id also known as the organization group identifier (Required)."},
 		},
@@ -1624,6 +1720,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get a list of applications based on search criteria that is available for an organization group.",
 		Description:    "Get a list of applications based on search criteria that is available for an organization group that could potentially remediate a vulnerability.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mamv1.smartgroup.addinternalapptosmartgroup": {
@@ -1638,6 +1735,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Assigns a Smart Group to an Internal Application.",
 		Description:    "Assigns the smart group identified by the smartgroup id to the internal application.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationid", In: "path", Required: true, Type: "integer", Description: "Application Id."},
 			{Name: "smartgroupid", In: "path", Required: true, Type: "integer", Description: "SmartGroup Id."},
@@ -1655,6 +1753,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Assigns a Smart Group to an Public Application.",
 		Description:    "Assigns the smart group identified by the smartgroup id to the public application.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationId", In: "path", Required: true, Type: "integer", Description: "Application Id."},
 			{Name: "smartGroupId", In: "path", Required: true, Type: "integer", Description: "SmartGroup Id."},
@@ -1672,6 +1771,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Deletes smartgroup Assignment from a purchased application.",
 		Description:    "Deletes the smart group assignment identified by the smartgroup id of the VPP application.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationid", In: "path", Required: true, Type: "integer", Description: "Application Identifier."},
 			{Name: "smartgroupid", In: "path", Required: true, Type: "integer", Description: "SmartGroup Identifier."},
@@ -1689,6 +1789,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Removes the Smart Group Assignment from an Internal Application.",
 		Description:    "Removes the assignment identified by the smartgroup id for the internal application.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationid", In: "path", Required: true, Type: "integer", Description: "Application Id."},
 			{Name: "smartgroupid", In: "path", Required: true, Type: "integer", Description: "SmartGroup Id."},
@@ -1706,6 +1807,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Removes the Smart Group Assignment from a Public Application.",
 		Description:    "1. Removes the assignment identified by the smartgroup id for the public application\r\n2. Excluded Assignment Groups are only available for viewing in the GET call.\r\n   Option to edit them is not currently available through POST/PUT APIs.\r\n3. DELETE API however deletes any SG ID associated with an application, assigned or excluded.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "applicationid", In: "path", Required: true, Type: "integer", Description: "Application Id."},
 			{Name: "smartgroupid", In: "path", Required: true, Type: "integer", Description: "SmartGroup Id."},
@@ -1723,6 +1825,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get app config template for an application.",
 		Description:    "Get list of app configs supported for an application based on the application uuid provided.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "applicationUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for the application.\r\n            Accepted formats **uuid**\r\n            example: 3d958f38-246e-4854-a306-189d941ab073(Required)."},
 			{Name: "organization_group_uuid", In: "query", Required: false, Type: "string", Description: "Current Organization Group identifier for which admin is trying to get the template and from where assigment of the given app will happen. Accepted formats **uuid**\r\n            example: 3d958f38-246e-4854-a306-189d941ab073"},
@@ -1740,6 +1843,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get assignment rule for an application.",
 		Description:    "Get assignment rule which contains deployment parameters for assignments and smart group exclusions for an application.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "applicationUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for the application.\r\n            Accepted formats **uuid**\r\n            E.g. 3d958f38-246e-4854-a306-189d941ab073(Required)"},
 		},
@@ -1756,6 +1860,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Updates assignment rule for an application and publishes the application to the devices associated with assignment rule.",
 		Description:    "Updates assignments with assignment policies and exclusions for an application. Publishes the application to the devices associated with the assignment rule.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "applicationUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for the application.\r\n            Accepted formats **uuid**\r\n            E.g. 3d958f38-246e-4854-a306-189d941ab073(Required)"},
 		},
@@ -1772,6 +1877,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Deletes a blob by Guid",
 		Description:    "Deletes a blob by Guid.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "blobId", In: "path", Required: true, Type: "string", Description: "Identifier of the blob to be deleted(Required)"},
 		},
@@ -1788,6 +1894,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets a blob stream by UUID",
 		Description:    "Returns the contents of a blob as a byte array using UUID.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Identifier of the blob to be retrieved, specified as a UUID.(Required)"},
 		},
@@ -1804,6 +1911,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets a blob contents information by the Guid",
 		Description:    "Returns the information for blob contents",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "blobId", In: "path", Required: true, Type: "string", Description: "Identifier of the blob to be retrieved(Required)"},
 		},
@@ -1820,6 +1928,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Create a new blob with attached file",
 		Description:    " - Create a new blob with attached file\r\n- Supported file types are 'ipa',\r\n  'apk', 'xap', 'appx', 'msi', 'app', 'zip', 'xml', 'pem', 'exe', 'pkg',\r\n  'dmg', 'plist', 'mpkg', 'js', 'jse', 'ps1', 'ps1xml', 'psc1', 'psd1',\r\n  'psm1', 'pssc', 'cdxml', 'vbs', 'vbe', 'wsf', 'wsc', 'msp', 'mst',\r\n  'p12', 'pfx', 'p7b', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'p7m', 'ppkg', 'cat', 'apf'\r\n- No size restrictions\r\n- Organization Group will be set to Global irrespective of value passed if the file type is of 'apf'",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "fileName", In: "query", Required: true, Type: "string", Description: "Name of the file being uploaded(Required)"},
 			{Name: "organizationGroupId", In: "query", Required: true, Type: "integer", Description: "Organization Group ID integer identifying the customer or container(Required)"},
@@ -1845,6 +1954,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Bulk search applications endpoint",
 		Description:    "Search for multiple applications by a list of PackageIdentifiers. This endpoint allows efficient retrieval of multiple applications in a single request, with support for platform filtering and localization. Returns both found applications and a list of PackageIdentifiers that were not found.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters:     []ParamMeta{},
 	},
 	"mamv2.enterpriseapprepositoryv2.getapplicationsdetails": {
@@ -1859,6 +1969,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get applications details for the version",
 		Description:    " Retrieve comprehensive information about a specific application package and version. \r\nThis endpoint provides detailed metadata, installer information, dependencies, and version history \r\nfor enterprise application management and deployment planning.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "packageId", In: "query", Required: true, Type: "string", Description: "Unique package identifier that distinguishes the application package within the enterprise repository. This is typically in reverse domain notation format (e.g., 'Microsoft.VisualStudioCode').(Required)"},
 			{Name: "version", In: "query", Required: true, Type: "string", Description: "Specific version string of the package to retrieve. The version must match exactly as stored in the repository.(Required)"},
@@ -1876,6 +1987,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Imports the specified application with default settings into UEM.",
 		Description:    "Imports the specified application into UEM by retrieving download URL from Enterprise App Repository.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters:     []ParamMeta{},
 	},
 	"mamv2.enterpriseapprepositoryv2.importapplicationpackage": {
@@ -1890,6 +2002,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Uploads the specified package into UEM.",
 		Description:    "Uploads the specified package into UEM by retrieving download URL from Enterprise App Repository.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters:     []ParamMeta{},
 	},
 	"mamv2.enterpriseapprepositoryv2.searchapplications": {
@@ -1904,6 +2017,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Search applications endpoint",
 		Description:    "An endpoint that gets application details which includes application name, identifier, description, etc... supports both searching applications (when 'app' parameter is provided) and listing all applications (when no 'app' parameter). Supports pagination, platform filtering, and localization.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "app", In: "query", Required: false, Type: "string", Description: "Search query string for filtering applications by package name, package identifier, publisher name, tags, or moniker. If this parameter is omitted, the endpoint returns a paginated list of all available applications."},
 			{Name: "pageSize", In: "query", Required: false, Type: "integer", Description: "Maximum number of applications to return per page. Must be between 1 and 100. Default is 50 for listing operations and 20 for search operations."},
@@ -1924,6 +2038,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the BranchCache statistics for the application bundle identifier.",
 		Description:    "Gets the BranchCache statistics for application deployments for the application bundle.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "bundleid", In: "path", Required: true, Type: "string", Description: "The application bundle identifier to query BranchCache statistics.(Required)"},
 			{Name: "summary_only", In: "query", Required: false, Type: "boolean", Description: "Only the summary of the BranchCache statistics for the application deployments is returned. This is the default behavior if not specified."},
@@ -1945,6 +2060,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Details of an internal app identified by UUID.",
 		Description:    "Gets the details of an internal app identified by UUID.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Application UUID(Required)"},
 		},
@@ -1961,6 +2077,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Renew the provisioning profile of all the applications using the given provisioning profile.",
 		Description:    "Renews the provisioning profile all the applications using the given provisioning profile.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "The UUID of the ptovisioning profile which has to be renewed.(Required)"},
 		},
@@ -1977,6 +2094,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get purchased application and assignment details",
 		Description:    "Retrieve the details of a license-based purchased application and its assignments.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Purchased application's UUID(Required)."},
 		},
@@ -1993,6 +2111,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Install the specified purchased application on the device.",
 		Description:    "Install the specified purchased application on the device.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "applicationUuid", In: "path", Required: true, Type: "string", Description: "Unique Identifier for the purchased app to be installed on the device.(Required)."},
 		},
@@ -2009,6 +2128,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Remove the specified purchased application from the device.",
 		Description:    "Remove the specified purchased application from the device.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "applicationUuid", In: "path", Required: true, Type: "string", Description: "Unique Identifier for the purchased app to be removed from the device.(Required)."},
 		},
@@ -2025,6 +2145,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Assigns Smart Groups to an BSP Application.",
 		Description:    "Assigns smartgroup identified by the smartgroup id to the BSP application.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "applicationId", In: "path", Required: true, Type: "integer", Description: "Application Id."},
 			{Name: "offlinesmartgroupid", In: "query", Required: false, Type: "string", Description: "Offline smart group Identifier."},
@@ -2044,6 +2165,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Delete a Managed content.",
 		Description:    "Delete a file.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "string", Description: "Unique identifier of the file.(Required)."},
 		},
@@ -2060,6 +2182,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Download a Managed content.",
 		Description:    "Download a file.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "string", Description: "Unique identifier of the file.(Required)."},
 		},
@@ -2076,6 +2199,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get metadata for a Managed content.",
 		Description:    "Get metadata for the specified managed content.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "string", Description: "Unique identifier of the file.(Required)."},
 		},
@@ -2092,6 +2216,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Search managed content.",
 		Description:    "Search managed content for the specified parameters.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "locationgroupcode", In: "query", Required: false, Type: "string", Description: "Organization group code."},
 			{Name: "locationgroupid", In: "query", Required: false, Type: "integer", Description: "Organization group id."},
@@ -2117,6 +2242,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Update metadata for a Managed content.",
 		Description:    "Update metadata for the specified managed content.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "string", Description: "Unique identifier of the file.(Required)."},
 		},
@@ -2133,6 +2259,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Upload a Managed content.",
 		Description:    "Uploads a file to specified OG.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "fileName", In: "query", Required: true, Type: "string", Description: "File name for the uploaded file.(Required)"},
 			{Name: "categoryId", In: "query", Required: true, Type: "string", Description: "The category for the file.(Required)"},
@@ -2153,6 +2280,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Queues the deletion of multiple files",
 		Description:    "Queues the Deletion of multiple managed content files selected.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mcmv1.awcontentv2.getcontentstatuscounts": {
@@ -2167,6 +2295,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get content status counts.",
 		Description:    "It returns the count of content status like installed, uninstalled, assigned, viewed, and acknowledged.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "contentUuid", In: "path", Required: true, Type: "string", Description: "Content Uuid.(Required)"},
 		},
@@ -2183,6 +2312,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Create new category under OG specified.",
 		Description:    "",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mcmv1.category.deletecategory": {
@@ -2197,6 +2327,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Endpoint to delete a category specified by the Id.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "string", Description: "CategoryId."},
 		},
@@ -2213,6 +2344,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Get all cateogries available for this OG.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "locationgroupcode", In: "query", Required: false, Type: "string", Description: "Location group code."},
 			{Name: "locationgroupid", In: "query", Required: false, Type: "integer", Description: "Location group id."},
@@ -2230,6 +2362,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Update the category metadata.",
 		Description:    "",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "string", Description: "Category Id."},
 		},
@@ -2246,6 +2379,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Creates a Content Gateway Configuration",
 		Description:    "It creates a content gateway configuration for the specific platform for which content gateway needs to be configured",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mcmv1.contentgatewayv2.contentgatewayconfigurationbulkdelete": {
@@ -2260,6 +2394,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Deletes Content Gateway configurations.",
 		Description:    "Deletes content gateway configuration in bulk for the provided configuration uuids.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mcmv1.contentgatewayv2.contentgatewayconfigurationdelete": {
@@ -2274,6 +2409,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Deletes a Content Gateway configuration.",
 		Description:    "It deletes a content gateway configuration for the provided content gateway configuration uuid.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "contentGatewayConfigurationUuid", In: "path", Required: true, Type: "string", Description: "Content gateway configuration uuid to be deleted.(Required)"},
 		},
@@ -2290,6 +2426,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Creates a Content Gateway Configuration",
 		Description:    "It creates a content gateway configuration for the specific platform for which content gateway needs to be configured",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mcmv1.contentgatewayv2.getcontentgatewayconfigurationcustomsettingsbyid": {
@@ -2304,6 +2441,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the content gateway configurations and the certificate details with custom settings.",
 		Description:    "It returns content gateway configurations along with the custom settings.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "contentGatewayConfigurationId", In: "path", Required: true, Type: "string", Description: "Content gateway configuration id for which content gateway configurations are needed(Required)"},
 		},
@@ -2320,6 +2458,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the content gateway configurations",
 		Description:    "It returns all the content gateway configurations such as the platform in which the content gateway is configured and the ports to which requests are to be forwarded.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "groupId", In: "path", Required: true, Type: "string", Description: "Location group id for which content gateway configurations are needed(Required)"},
 		},
@@ -2336,6 +2475,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - gets the content gateway configurations and the certificate details",
 		Description:    "It returns a content gateway configuration such as the platform in which the content gateway is configured and the port to which requests are to be forwarded.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "contentGatewayConfigurationUuid", In: "path", Required: true, Type: "string", Description: "Content gateway configuration uuid for which content gateway configurations are needed.(Required)"},
 		},
@@ -2352,6 +2492,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Bulk deletes Content Gateway configurations.",
 		Description:    "Deletes content gateway configurations in bulk for the provided configuration uuids.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mcmv1.contentgatewayv3.contentgatewayconfigurationdelete": {
@@ -2366,6 +2507,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Deletes a Content Gateway configuration.",
 		Description:    "It deletes a content gateway configuration for the provided content gateway configuration uuid.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "content-gateway-configuration-uuid", In: "query", Required: true, Type: "string", Description: "Content gateway configuration uuid to be deleted.(Required)"},
 		},
@@ -2382,6 +2524,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Creates a Content Gateway Configuration.",
 		Description:    "It creates a content gateway configuration for the specific platform for which content gateway needs to be configured.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mcmv1.contentgatewayv3.getcontentgatewayconfigurationcustomsettingsbyid": {
@@ -2396,6 +2539,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - gets the content gateway configurations and the certificate details with custom settings.",
 		Description:    "It returns content gateway configurations along with the custom settings.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "contentGatewayConfigurationUuid", In: "path", Required: true, Type: "string", Description: "Content gateway configuration id for which content gateway configurations are needed.(Required)"},
 		},
@@ -2412,6 +2556,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets all content gateway configurations of provider Organization Group.",
 		Description:    "It returns all the content gateway configurations such as the platform in which the content gateway is configured and the ports to which requests are to be forwarded.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Organization Group id for which content gateway configurations are needed.(Required)"},
 		},
@@ -2428,6 +2573,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the content gateway configurations and the certificate details by provided export password.",
 		Description:    "It returns a content gateway configuration such as the platform in which the content gateway is configured and the port to which requests are to be forwarded.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "content-gateway-configuration-uuid", In: "query", Required: true, Type: "string", Description: "Content gateway configuration uuid for which content gateway configurations are needed.(Required)"},
 		},
@@ -2444,6 +2590,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the content gateway configurations and the certificate details with custom settings.",
 		Description:    "It returns content gateway configurations along with the custom settings.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "contentGatewayConfigurationUuid", In: "path", Required: true, Type: "string", Description: "Content gateway configuration id for which content gateway configurations are needed.(Required)."},
 		},
@@ -2460,6 +2607,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Bulk delete content repositories.",
 		Description:    "Deletes the content repository for multiple content repository uuids.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mcmv1.contentrepositoryv2.contentrepositorydelete": {
@@ -2474,6 +2622,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Deletes a content repository.",
 		Description:    "Deletes the content repository for a content repository uuid.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "contentRepositoryUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the content repository to be deleted(Required)"},
 		},
@@ -2490,6 +2639,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Creates an Admin Content Repository.",
 		Description:    "It creates an admin content repository and has options for adding assignment, deployment, and security.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mcmv1.contentrepositoryv2.personalcontentrepositorybulkdelete": {
@@ -2504,6 +2654,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Deletes personal content related metadata.",
 		Description:    "Deletes all personal content repository for the provided Organization Group and its children Organization Group.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Organization Group Uuid.(Required)"},
 		},
@@ -2520,6 +2671,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get metadata for a Managed content.",
 		Description:    "Get metadata for the specified managed content.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "contentUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier of the file.(Required)."},
 		},
@@ -2536,6 +2688,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Update metadata for a Managed content.",
 		Description:    "Update metadata for the specified managed content.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "contentUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier of the file.(Required)."},
 		},
@@ -2552,6 +2705,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Bulk delete content repository templates.",
 		Description:    "Deletes the content repository template for multiple content repository template ids.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mcmv1.repositorytemplatesv2.contentrepositorytemplatedelete": {
@@ -2566,6 +2720,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Deletes a content repository template.",
 		Description:    "Deletes the content repository template for a content repository template id.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "contentRepositoryTemplateUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the content repository template to be deleted(Required)"},
 		},
@@ -2582,6 +2737,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Creates a Repository template.",
 		Description:    "It creates a repository template and has option for adding assignment, deployment, and security.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mcmv1.storage.getadminstorage": {
@@ -2596,6 +2752,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Returns Admin storage information of that OG.",
 		Description:    "Returns the admin storage information like content capacity.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.adminactionv1.bulkadminaction": {
@@ -2610,6 +2767,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Executes the admin action for the set of devices after performing necessary checks like command accessibility, device enrollment status, support for command on device etc.",
 		Description:    "Execute Admin Action for specified set of devices",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "adminAction", In: "path", Required: true, Type: "string", Description: "The command to execute [ENTERPRISE_WIPE, DEVICE_WIPE, REBOOT, SUSPEND, WAKEUP,SYNC_DEVICE,SHUTDOWN, DEVICE_INFORMATION,SEND_MESSAGE,REQUEST_DEVICE_LOG].(Required)."},
 		},
@@ -2626,6 +2784,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Add a destination for Remote View.",
 		Description:    "iOS device can be remotely viewed by using software like AirServer or Reflector. It is required to save the details of the destination device like mac address, ip address, pk, pi. This endpoint is used to save the destination details for the organization group.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.applev1.deleteremoteviewdestinationbyid": {
@@ -2640,6 +2799,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Delete a Remote View destination for the device.",
 		Description:    "This api is used to delete the destination details for the organization group, destination details like mac address, ip address, pk, pi  are required for remote viewing the iOS device.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Id of Remote View destination device to be deleted."},
 		},
@@ -2656,6 +2816,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets Remote View destination details for the device.",
 		Description:    "This api is used to get the details of the specified destination. Destination details like mac address, ip address, pk, pi  are required for remote viewing the iOS device.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Id of the Remote View destination device."},
 		},
@@ -2672,6 +2833,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the list of Remote View destinations configured in the organization group.",
 		Description:    "This api is used to get list of destinations for the organization group. Destination details like mac address, ip address, pk, pi  are required for remote viewing the iOS device.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "groupId", In: "query", Required: true, Type: "integer", Description: "Id of organization group."},
 		},
@@ -2688,6 +2850,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Update the destination details of a previously configured Remote View destination.",
 		Description:    "iOS device can be remotely viewed by using software like AirServer or Reflector, it is required to save the details of the destination device like mac address, ip address, pk, pi. This endpoint is used to edit the details of a previously configured destination for the organization group.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.apps.adminappdetails": {
@@ -2702,6 +2865,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves Admin applications details for passed DeviceID.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The device ID."},
 		},
@@ -2718,6 +2882,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves application details of the device identified by alternate id.",
 		Description:    "Fetches all application details for the device identified by alternate ID other than device ID.\r\nAlternate device identifiers can be MAC address, IMEI, Serial number or UDID.\r\nExample : IMEI-BCG84753GH, Serial Number-573489754.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchBy", In: "query", Required: false, Type: "string", Description: "The alternate id type [Macaddress, Udid, Serialnumber, ImeiNumber]."},
 			{Name: "id", In: "query", Required: false, Type: "string", Description: "Device alternate id."},
@@ -2737,6 +2902,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves application details of the device identified by device ID.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The device ID (Required)."},
 			{Name: "page", In: "query", Required: false, Type: "integer", Description: "The specific page number to get."},
@@ -2755,6 +2921,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Returns details for the specified app installed/assigned to the device.",
 		Description:    "This endpoint returns the details of specified app which is assigned or installed on the device.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "The uuid of the device.\r\n            Accepted formats **guid**\r\n            E.g. 3d958f38-246e-4854-a306-189d941ab073(Required)."},
 			{Name: "bundleid", In: "query", Required: true, Type: "string", Description: "The bundle id of the application.\r\n            E.g. com.tencent.ig(Required)"},
@@ -2772,6 +2939,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Returns the apps which are applicable to the device.",
 		Description:    "This endpoint returns the details of apps which are assigned or installed on the device matching the search text. Following special characters are not allowed in query params ('[', ']', '(', ')', '{', '}', '&amp;lt;', '&amp;gt;', '\\\"').",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "The uuid of the device.\r\n            Accepted formats **guid**\r\n            E.g. 3d958f38-246e-4854-a306-189d941ab073(Required)."},
 			{Name: "page", In: "query", Required: false, Type: "integer", Description: "Page number which will be fetched, 0 based index. Default 0."},
@@ -2792,6 +2960,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the asset metadata for the specified asset uuid.",
 		Description:    "Gets the asset general information and payload details as a metadata JSON string.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for organization group.(Required)."},
 			{Name: "assetUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for asset.(Required)."},
@@ -2811,6 +2980,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get a summary of assignment preview devices for the given asset.",
 		Description:    "Get a summary of assigned preview devices for the given asset.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.assetsv1.save": {
@@ -2825,6 +2995,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Save asset metadata and payloads.",
 		Description:    "Save asset general information, assignment and payload details as a metadata JSON string.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for organization group.(Required)."},
 			{Name: "platform", In: "path", Required: true, Type: "string", Description: "(Required)."},
@@ -2842,6 +3013,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Searches for devices assigned to the specified profiles.",
 		Description:    "Devices assigned to the specified profiles as last evaluated during device check-in.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.assetsv1.searchassets": {
@@ -2856,6 +3028,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the list of latest version of assets by applying the search criteria.",
 		Description:    "Gets the list of latest version of assets by applying the search criteria.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organization-group-uuid", In: "query", Required: true, Type: "string", Description: "Unique identifier for organization group.(Required)"},
 			{Name: "payload-key", In: "query", Required: false, Type: "string", Description: "payload key."},
@@ -2874,6 +3047,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Returns a list of Assignment Groups matching the search criteria",
 		Description:    "Get List of Assignment Groups based on the Organization Group, Search Text, AssignmentType.\r\nSearch text should not be more than 255 characters.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "groupId", In: "path", Required: true, Type: "integer", Description: "Unique Identifier for the Organization Group(Required)"},
 			{Name: "assignmentType", In: "query", Required: true, Type: "integer", Description: "Type of Assignment Group to search\r\n             0 - All types of Assignment Groups (Smart Group, User Group, Organization Group) \r\n             1 - Smart Group \r\n             2 - User Group \r\n             3 - Organization Group(Required)"},
@@ -2893,6 +3067,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Returns a list of Organizational Units matching the search criteria.",
 		Description:    "Gets a list of Organizational Units based on the passed  organization group identifier and optional OU name filter search text. Search text should not be more than 255 characters.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique Identifier for the Organization Group(Required)."},
 			{Name: "name", In: "query", Required: false, Type: "string", Description: "Name of the Organizational Unit by which result will be filtered (Optional). When not passed, all Organizational Units present in that organization will be returned."},
@@ -2910,6 +3085,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Returns the Bit Locker drive level information for the device.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for the device(Required)."},
 		},
@@ -2926,6 +3102,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Returns the Bit Locker protector information for the device.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for the device(Required)."},
 			{Name: "volumeIdentifier", In: "path", Required: true, Type: "string", Description: "Drive volume identifier(Required)."},
@@ -2943,6 +3120,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Returns the decrypted Bit Locker recovery key using the recovery key id within the device.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for the device(Required)."},
 			{Name: "recoveryKeyID", In: "path", Required: true, Type: "string", Description: "recovery key Identifier(Required)."},
@@ -2960,6 +3138,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Search policies in the Policy catalog of a specific version",
 		Description:    "Returns all or matching policies from the requested catalog version",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "osVersionUUID", In: "path", Required: true, Type: "string", Description: "The operating system version identifier(Required)."},
 			{Name: "q", In: "query", Required: false, Type: "string", Description: "The search text"},
@@ -2980,6 +3159,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Fetch a policy with it's options",
 		Description:    "Returns a policy with it's options localized for a selected language",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "policyUUID", In: "path", Required: true, Type: "string", Description: "The policy identifier(Required)."},
 			{Name: "language", In: "query", Required: false, Type: "string", Description: "The language code (Default en-US)"},
@@ -2997,6 +3177,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Fetch policy catalog for the given operating system version.",
 		Description:    "Returns the policy catalog for the given operating system version.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "osVersionUUID", In: "path", Required: true, Type: "string", Description: "The operating system version identifier(Required)."},
 			{Name: "language", In: "query", Required: false, Type: "string", Description: "The language code (Default en-US)"},
@@ -3014,6 +3195,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves certificate details of the device identified by the alternate Id's.",
 		Description:    "Certficate details contains information like the sampling period, error details, name, expiration, issued date and the status. This API allows searching a device using alternate Id's specified in the searchby parameter.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchby", In: "query", Required: true, Type: "string", Description: "The alternate id type; possible values: [Macaddress, Udid, Serialnumber, ImeiNumber] (Required)."},
 			{Name: "id", In: "query", Required: true, Type: "string", Description: "Device alternate id (Example: Macaddress: 848506B900BA, Udid: 6bf0f04c73681fbecfc3eb4f13cbf05b, SerialNumber: LGH871c18f631a, ImeiNumber: 354833052322837) (Required)."},
@@ -3033,6 +3215,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves certificate details of the device identified by device Id.",
 		Description:    "Certificate details contains information like the sampling period, error details, name, expiration, issued date and the status.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Device identifier (Example: 3010055)."},
 			{Name: "page", In: "query", Required: false, Type: "integer", Description: "Specific page number to get. 0 based index."},
@@ -3051,6 +3234,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Create a new Device Policy profile for the given organization Group",
 		Description:    "Device Policy profile will have customized settings that can be applied on a Chrome device. These settings include auto-Launched Kiosk App,device Heartbeat monitor rate,application Settings for specifying list of apps that can be force-installed on a device,Email/SMS deviceStatus Alert Delivery settings etc.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "groupId", In: "path", Required: true, Type: "string", Description: "Organization group Identifier where the devicePolicy profile needs to be created.(Required)"},
 		},
@@ -3067,6 +3251,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Creates or Updates user policy for all the users in usergroups",
 		Description:    "User Policy profile will have customized settings that can be pushed to users on a Chrome device. These settings include incognito mode restrictions,application blacklisting,network settings,vpn etc.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "groupId", In: "path", Required: true, Type: "string", Description: "Organization group Identifier where the User Policy profile needs to be created.(Required)"},
 		},
@@ -3083,6 +3268,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Deletes the ChromeBook Configuration Settings for a Organization Group",
 		Description:    "Deletes the ChromeBook Configuration settings of an Organization Group",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "groupId", In: "path", Required: true, Type: "string", Description: "The customer code of the organization group whose configuration will be deleted.(Required)"},
 		},
@@ -3099,6 +3285,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Deletes the Chrome OS Profile",
 		Description:    "Deletes the Specified Chrome OS Profile by passing Device profile Id.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "profileId", In: "path", Required: true, Type: "integer", Description: "Defines the profile that needs to be deleted(Required)"},
 		},
@@ -3115,6 +3302,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Edit the existing Device Policy profile by creating a version of the settings",
 		Description:    "Device Policy profile will have customized settings (key/value pairs with pre-defined airwatch specific keys) that can be applied on a Chrome device.These settings include auto-Launched Kiosk App,device Heartbeat monitor rate,applicationSettings for specifying list of apps that can be force-installed on a device,Email/SMS deviceStatus Alert Delivery settings etc. *On editing a cloud policy, new version of the settings will be created.*",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "groupId", In: "path", Required: true, Type: "string", Description: "Organization group Identifier where the devicePolicy profile needs to be updated.(Required)"},
 			{Name: "policyId", In: "path", Required: true, Type: "string", Description: "AW internal devicePolicy profile identifier(Required)"},
@@ -3133,6 +3321,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - loads the ChromeBook Configuration Settings for an Organization Group",
 		Description:    "Loads the ChromeBook Configuration of a Domain for an Organization Group",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "groupId", In: "path", Required: true, Type: "string", Description: "The customer code of the organization group whose configuration will be returned.(Required)"},
 		},
@@ -3149,6 +3338,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Retrieve the existing Policy profile",
 		Description:    "Device/User Policy profile will have customized settings (key/value pairs with pre-defined airwatch specific keys) that can be applied on a Chrome device.These settings include auto-Launched Kiosk App,device Heartbeat monitor rate,application Settings for specifying list of apps that can be force-installed on a device,Email/SMS deviceStatus Alert Delivery settings etc. *On editing a cloud policy, new version of the settings will be created.*",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "groupId", In: "path", Required: true, Type: "string", Description: "The identifier for the organization group where the policy is being requested.(Required)"},
 			{Name: "policyId", In: "path", Required: true, Type: "string", Description: "AW internal devicePolicy profile identifier(Required)"},
@@ -3166,6 +3356,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get Metadata for loading device Policy cloud profile UI",
 		Description:    "Device or User Policy profile will have customized settings (key/value pairs with pre-defined airwatch specific keys) that can be applied on a Chrome device.These settings include network, VPN, URL Access control, Sign In, auto-Launched Kiosk App,device Heartbeat monitor rate,application Settings for specifying list of apps that can be force-installed on a device,Email/SMS deviceStatus Alert Delivery settings etc. *On editing a cloud profile, new version of the settings will be created.*",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "groupId", In: "path", Required: true, Type: "string", Description: "The identifier for the organization group where the metadata is being requested.(Required)"},
 			{Name: "profileId", In: "path", Required: true, Type: "string", Description: "AW internal devicePolicy profile identifier(Required)"},
@@ -3185,6 +3376,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get the status of the update by returning the policy on the device",
 		Description:    "Get the list of policies applied to a device",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceId", In: "path", Required: true, Type: "string", Description: "Google-assigned device identifier whose policy is updated(Required)"},
 		},
@@ -3201,6 +3393,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Saves the ChromeBook Configuration Settings for an Organization Group",
 		Description:    "Saves the ChromeBook Configuration of a Domain for an Organization Group",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "groupId", In: "path", Required: true, Type: "string", Description: "The customer code of the organization group where configuration needs to be added.(Required)"},
 		},
@@ -3217,6 +3410,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Enable or disable the device lost mode.",
 		Description:    "Enable or disable the device lost mode, device will be locked when it is in the lost mode.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceId", In: "path", Required: true, Type: "string", Description: "Defines the device id.(Required)"},
 			{Name: "isEnabled", In: "path", Required: true, Type: "boolean", Description: "Flag to indicate enable or disable lost mode.(Required)"},
@@ -3234,6 +3428,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Executes device sync command for the given organization group.",
 		Description:    "Saves all devices enrolled on or after the specified date from Google Cloud into AirWatch.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "groupId", In: "path", Required: true, Type: "string", Description: "The customer code of the organization group that the devices belong to.(Required)"},
 			{Name: "enrollmentDate", In: "query", Required: false, Type: "string", Description: "Retrieve all devices enrolled on or after this date in YYYY-MM-DDTHH:MM:SSZ format(Example - \"2013-03-23T14:23:05\")."},
@@ -3251,6 +3446,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Executes command for multiple devices identified by alternate ID type.",
 		Description:    "Processes the bulk commands mentioned by command type.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "command", In: "query", Required: true, Type: "string", Description: "The command to execute [EnterpriseWipe, LockDevice, ScheduleOsUpdate, SoftReset, Shutdown].(Required)."},
 			{Name: "searchby", In: "query", Required: true, Type: "string", Description: "The alternate id type [Macaddress, Udid, Serialnumber, ImeiNumber].(Required)."},
@@ -3268,6 +3464,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Executes Schedule OS Update command for devices in bulk.",
 		Description:    "This API will execute schedule OS Update command for multiple devices. For iOS 10.3 and later, devices must be supervised. Prior to iOS 10.3, devices must be supervised and DEP enrolled. (iOS only)",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchby", In: "query", Required: true, Type: "string", Description: "Search by alternate id type. Possible values = [Macaddress, Udid, Serialnumber, ImeiNumber] {Formats= Macaddress - 848506B900BA, Udid - 6bf0f04c73681fbecfc3eb4f13cbf05b, SerialNumber - LGH871c18f631a, ImeiNumber - 354833052322837}(Required)"},
 			{Name: "installaction", In: "query", Required: true, Type: "string", Description: "Install action type for OS update. Possible Values = [Default, DownloadOnly, InstallASAP](Required)"},
@@ -3285,6 +3482,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Changes the organization group to which the device is assigned.",
 		Description:    "Processes the command to change organization group for the specific device. It will also check if device can be accessed or not.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The AirWatch device ID. (Required)."},
 			{Name: "organizationgroupid", In: "path", Required: true, Type: "integer", Description: "The new organization group ID. (Required)."},
@@ -3302,6 +3500,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Changes the organization group to which the device is assigned via UUID.",
 		Description:    "Processes the command to change organization group for the specific device using UUID. It will also check if device can be accessed or not.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "The AirWatch device UUID. (Required).(Required)."},
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "The new organization group UUID. (Required).(Required)."},
@@ -3319,6 +3518,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Changes the organization group to which the device identified by the alternate ID is assigned.",
 		Description:    "Processes the command to change the organization group of the device. Performs additional checks on device to find by alternate IDs like udid, imei.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchBy", In: "query", Required: true, Type: "string", Description: "The alternate ID type [Macaddress, Udid, Serialnumber, ImeiNumber](Required)"},
 			{Name: "id", In: "query", Required: true, Type: "string", Description: "Device alternate ID [Formats = {Macaddress - 848506B900BA, Udid - 6bf0f04c73681fbecfc3eb4f13cbf05b, SerialNumber - LGH871c18f631a, ImeiNumber - 354833052322837}](Required)"},
@@ -3337,6 +3537,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Executes commands for the specified device.",
 		Description:    "Executes the command for the device after performing necessary checks like command accessibility, device enrollment status, support for command on device etc. Supported commands are Lock, EnterpriseWipe, DeviceWipe, DeviceQuery, ClearPasscode, SyncDevice, StopAirPlay, ScheduleOsUpdate, CustomMdmCommand (iOS, macOS, and tvOS only), InstallPackagedMacOSXAgent (macOS only), SoftReset, Shutdown, EnterpriseReset, SyncSensors (macOS only), OsUpdateStatus (iOS and macOS only), RotateFileVaultKey (macOS only), RotateDEPAdminPassword (macOS only), ResetBiosPassword (WinRT only), UserList (iOS only), SyncWorkflows (macOS and WinRT only), InstallSeededScepProfile (Windows only), PauseWindowsUpdates/PauseQualityUpdates/PauseRollbackUpdates (WindowsOnly).",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceid", In: "path", Required: true, Type: "integer", Description: "Id of the device on which command is to be executed.(Required)."},
 			{Name: "command", In: "query", Required: true, Type: "string", Description: "The command to execute [Lock, EnterpriseWipe, DeviceWipe, DeviceQuery, ClearPasscode, SyncDevice, StopAirPlay, ScheduleOsUpdate, CustomMdmCommand, InstallPackagedMacOSXAgent, SoftReset, Shutdown, EnterpriseReset, SyncSensors, OsUpdateStatus, RotateFileVaultKey, RotateDEPAdminPassword, ResetBiosPassword, UserList, SyncWorkflows, InstallSeededScepProfile].(Required)"},
@@ -3357,6 +3558,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Requests WinRT device to upload the last deployment log of a managed app.",
 		Description:    "Queues a command to a WinRT device to upload the last deployment log for a managed application, identified by its Build Version and Install Context.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceid", In: "path", Required: true, Type: "integer", Description: "Id of the device on which command is to be executed.(Required)"},
 		},
@@ -3373,6 +3575,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Executes a command for device by alternate ID.",
 		Description:    "Executes command for the specific device identified using an alternate ID [Macaddress, Udid, Serialnumber, ImeiNumber]. Supported commands are Lock, EnterpriseWipe, DeviceWipe, DeviceQuery, ClearPasscode, SyncDevice, StopAirPlay, ScheduleOsUpdate, CustomMdmCommand (iOS, macOS, and tvOS only), InstallPackagedMacOSXAgent (macOS only), SoftReset, Shutdown, EnterpriseReset, SyncSensors (macOS only), OsUpdateStatus (iOS and macOS only), RotateFileVaultKey (macOS only), RotateDEPAdminPassword (macOS only), InstallSeededScepProfile (Windows Only), ResetBiosPassword (WinRT only).",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchby", In: "query", Required: true, Type: "string", Description: "Search by alternate id type(Required)"},
 			{Name: "id", In: "query", Required: true, Type: "string", Description: "Device id(Required)"},
@@ -3392,6 +3595,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Executes change passcode command for container device matching the filter criteria.",
 		Description:    "This will change the knox container passcode with the provided new passcode for the device matching the device criteria.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchby", In: "query", Required: true, Type: "string", Description: "Search by alternate id type(Required)"},
 			{Name: "id", In: "query", Required: true, Type: "string", Description: "Device id(Required)"},
@@ -3409,6 +3613,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Executes change passcode command for device ID.",
 		Description:    "Processes change passcode command for the specific device with passcode provided. Performs necessary checks regarding device ID and its enrollment.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The device ID (Required)."},
 		},
@@ -3425,6 +3630,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Executes command for change passcode of device by alternate ID.",
 		Description:    "Processes command for change passcode with device alternate ID. It also performs additional checks if device is enrolled or not.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchBy", In: "query", Required: true, Type: "string", Description: "The alternate id type; possible values: [Macaddress, Udid, Serialnumber, ImeiNumber]. (Formats: Macaddress: 848506B900BA, Udid: 6bf0f04c73681fbecfc3eb4f13cbf05b, SerialNumber: LGH871c18f631a, ImeiNumber: 354833052322837) (Required)."},
 			{Name: "id", In: "query", Required: true, Type: "string", Description: "The alternate ID of the device. (Formats: Macaddress: 848506B900BA, Udid: 6bf0f04c73681fbecfc3eb4f13cbf05b, SerialNumber: LGH871c18f631a, ImeiNumber: 354833052322837)(Required)."},
@@ -3442,6 +3648,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Executes find device command for device by device id.",
 		Description:    "v1.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceId", In: "path", Required: true, Type: "integer", Description: "The AirWatch Device Id."},
 		},
@@ -3458,6 +3665,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Executes finddevice command for device by alternate id.",
 		Description:    "API to Executes finddevice command for device by alternate id as [Macaddress, Udid, Serialnumber, ImeiNumber].",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchBy", In: "query", Required: false, Type: "string", Description: "The alternate id type; possible values: [Macaddress, Udid, Serialnumber, ImeiNumber]. (Formats: Macaddress: 848506B900BA, Udid: 6bf0f04c73681fbecfc3eb4f13cbf05b, SerialNumber: LGH871c18f631a, ImeiNumber: 354833052322837)."},
 			{Name: "id", In: "query", Required: false, Type: "string", Description: "The alternate id."},
@@ -3475,6 +3683,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Executes device log request command for device matching the filter criteria.",
 		Description:    "This api will execute deviceLog command on the device matching the filter criteria. The logs will become available to an admin on AirWatch Console.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchby", In: "query", Required: true, Type: "string", Description: "Search by alternate id type. Possible values = [Macaddress, Udid, Serialnumber, ImeiNumber] {Formats= Macaddress - 848506B900BA, Udid - 6bf0f04c73681fbecfc3eb4f13cbf05b, SerialNumber - LGH871c18f631a, ImeiNumber - 354833052322837}(Required)"},
 			{Name: "id", In: "query", Required: true, Type: "string", Description: "Device id(Required)"},
@@ -3492,6 +3701,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Schedule OS Update for supervised DEP devices",
 		Description:    "Executes the Schedule OS Update command on the specified device. For iOS 10.3 and later, devices must be supervised. Prior to iOS 10.3, devices must be supervised and DEP enrolled. For macOS, the device must be DEP enrolled.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchby", In: "query", Required: true, Type: "string", Description: "Search by alternate id type. Possible values = [Macaddress, Udid, Serialnumber, ImeiNumber, Uuid] {Formats= Macaddress - 848506B900BA, Udid - 6bf0f04c73681fbecfc3eb4f13cbf05b, SerialNumber - LGH871c18f631a, ImeiNumber - 354833052322837, Uuid - EFA9E128-DE1B-404A-A3F4-E5824A666681}(Required)"},
 			{Name: "id", In: "query", Required: true, Type: "string", Description: "Device alternate ID(Required)"},
@@ -3511,6 +3721,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Executes start airplay for a specific device.",
 		Description:    "AirPlay on specified destination device.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceid", In: "path", Required: true, Type: "integer", Description: "Device id."},
 		},
@@ -3527,6 +3738,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Executes start remoteview command for device matching the filter criteria.",
 		Description:    "This api will execute remoteview command in device and user can remoteview the device in the destination device.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchby", In: "query", Required: true, Type: "string", Description: "Search by alternate id type. Possible values = [Macaddress, Udid, Serialnumber, ImeiNumber] {Formats= Macaddress - 848506B900BA, Udid - 6bf0f04c73681fbecfc3eb4f13cbf05b, SerialNumber - LGH871c18f631a, ImeiNumber - 354833052322837}(Required)"},
 			{Name: "id", In: "query", Required: true, Type: "string", Description: "Device id(Required)"},
@@ -3545,6 +3757,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Executes stop device log request command for device.",
 		Description:    "This api will execute StopDeviceLog command on the device matching the filter criteria. The logs collected till that time will become available to an admin on AirWatch Console.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchby", In: "query", Required: true, Type: "string", Description: "Search by alternate id type. Possible values = [Macaddress, Udid, Serialnumber, ImeiNumber] {Formats= Macaddress - 848506B900BA, Udid - 6bf0f04c73681fbecfc3eb4f13cbf05b, SerialNumber - LGH871c18f631a, ImeiNumber - 354833052322837}(Required)"},
 			{Name: "id", In: "query", Required: true, Type: "string", Description: "Device id(Required)"},
@@ -3562,6 +3775,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Retrieve Conditional Access device registration information",
 		Description:    "Retrieve Conditional Access device registration information by the device UUID",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "Unique internal identifier for the device(Required)."},
 		},
@@ -3578,6 +3792,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Returns a collection of Compliance Policies based on the search criteria.",
 		Description:    "Returns a collection of Compliance Policies based on the search criteria specified. The search parameters can be organization group id, page, and the pagesize. this end point supports json only.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupuuid", In: "query", Required: false, Type: "string", Description: "Organization Group UUID."},
 			{Name: "page", In: "query", Required: false, Type: "integer", Description: "Page number"},
@@ -3598,6 +3813,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Searches for the CompliancePolicies with the search parameters passed.",
 		Description:    "Searches for a compliance policy in airwatch based on the search parameters passed.\r\nThe search parameters can be organization group id, page, and the pagesize.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "Organization group id which is similar to selected organization group selected in console."},
 			{Name: "page", In: "query", Required: false, Type: "integer", Description: "page number."},
@@ -3616,6 +3832,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves compliance details of the device identified by the alternate id.",
 		Description:    "Processes the alternate ID for the device to get compliance details of this specific device. It also facilitates to search by different types of alternate IDs.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchBy", In: "query", Required: true, Type: "string", Description: "The alternate id type [Macaddress, Udid, Serialnumber, ImeiNumber] (Required)."},
 			{Name: "id", In: "query", Required: true, Type: "string", Description: "Device alternate id (Formats: Macaddress: 848506B900BA, Udid: 6bf0f04c73681fbecfc3eb4f13cbf05b, SerialNumber: LGH871c18f631a, ImeiNumber: 354833052322837) (Required)."},
@@ -3635,6 +3852,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves compliance details of the device identified by device ID.",
 		Description:    "Processes the device ID to get compliance policy details for specified device. It also checks if device is compromised or not.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceId", In: "path", Required: true, Type: "integer", Description: "Identifier of the device(Required)."},
 			{Name: "page", In: "query", Required: false, Type: "integer", Description: "Specific page number to get. 0 based index."},
@@ -3653,6 +3871,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves the content details of the device identified by alternate ID.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchBy", In: "query", Required: false, Type: "string", Description: "The alternate id type [Macaddress, Udid, Serialnumber, ImeiNumber]."},
 			{Name: "id", In: "query", Required: false, Type: "string", Description: "Device alternate id."},
@@ -3672,6 +3891,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves the content details of the device identified by device ID.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The device ID."},
 			{Name: "page", In: "query", Required: false, Type: "integer", Description: "The specific page number to get."},
@@ -3690,6 +3910,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get DEEM Configuration for a device",
 		Description:    "Returns DEEM configuration metadata assigned to a specific device for a given resourceUuid.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Device Uuid."},
 			{Name: "resourceUuid", In: "path", Required: true, Type: "string", Description: "Deem profile Uuid."},
@@ -3707,6 +3928,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the deployment status summary for a given update policy.",
 		Description:    "Fetches the deployment statuses summary w.r.t devices for a given update policy",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for organization group.(Required)"},
 			{Name: "updatePolicyUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for an update policy.(Required)"},
@@ -3724,6 +3946,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Performs search on the device statuses for a given update policy.",
 		Description:    "Performs search on the device statuses for a given update policy along with the given search and filter criteria.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for organization group.(Required)"},
 			{Name: "updatePolicyUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for an update policy.(Required)"},
@@ -3741,6 +3964,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Performs pending evaluation search on the device statuses for a given update policy.",
 		Description:    "Performs search on the device statuses for a given update policy along with the given search and filter criteria.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for organization group.(Required)"},
 			{Name: "updatePolicyUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for an update policy.(Required)"},
@@ -3758,6 +3982,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Load device model details for given device manufacturers.",
 		Description:    "Return the list of device models available in UEM for the given device manufacturers.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.devicecustomattributes.bulkupdatedevicecustomattributes": {
@@ -3772,6 +3997,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Bulk update of device custom attributes.",
 		Description:    "Device custom attributes of multiple devices are updated in a single call. This API will not add new custom attributes to device, but update existing custom attributes by assigning new values to them. Custom attributes for 500 devices can be updated at a time with this API. Device custom attributes can be updated using device uuid or serial number. Optionally user name can be used with serial number to uniquely identify the device.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.devicecustomattributes.deletecustomattributesbyserialnr": {
@@ -3786,6 +4012,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Delete device custom attributes by serial number.",
 		Description:    "Deletes one or more custom attributes from the device matching the serial number.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "serialnumber", In: "path", Required: true, Type: "string", Description: "Device Serial Number (Required).(Required)"},
 		},
@@ -3802,6 +4029,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Delete device custom attributes by device identifier.",
 		Description:    "Deletes one or more custom attributes from the device identified by the given id.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Device identifier (Required).(Required)"},
 		},
@@ -3818,6 +4046,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Searches for changes made to device custom attributes.",
 		Description:    "Searches for changes made to device custom attributes based on the input device id, custom attribute name, source, application group and other filtering attributes.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "Organization group id to be searched, user's OG is considered if not sent."},
 			{Name: "deviceid", In: "query", Required: false, Type: "integer", Description: "Device id to search."},
@@ -3842,6 +4071,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Searches for device custom attributes.",
 		Description:    "Searches for device custom attributes based on the input Device ID, Custom Attribute Name, Source, Application Group and other filtering attributes.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "Organization group id to be searched, user's OG is considered if not sent."},
 			{Name: "deviceid", In: "query", Required: false, Type: "integer", Description: "Device id to search."},
@@ -3867,6 +4097,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Update device custom attributes by asset number.",
 		Description:    "Updates the device custom attribute value if already present for a device, else adds the same to the device. The request body maps to the Custom Attributes UI as: Application → applicationGroup, Attributes → name, Value → value.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "assetnumber", In: "path", Required: true, Type: "string", Description: "Device Asset Number (Required).(Required)"},
 		},
@@ -3883,6 +4114,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Update device custom attributes by device identifier.",
 		Description:    "Updates the device custom attribute value if already present for a device, else adds the same to the device. The request body maps to the Custom Attributes UI as: Application → applicationGroup, Attributes → name, Value → value.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Device identifier (Required).(Required)"},
 		},
@@ -3899,6 +4131,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Update device custom attributes by serial number.",
 		Description:    "Updates the device custom attribute value if already present for a device, else adds the same to the device. The request body maps to: Application → applicationGroup, Attribute → name, Value → value.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "serialnumber", In: "path", Required: true, Type: "string", Description: "Device Serial Number (Required).(Required)"},
 		},
@@ -3915,6 +4148,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Add a new Automated Device Enrollment profile.",
 		Description:    "Creates a new Automated Device Enrollment profile.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.deviceenrollmentprogramv1.deletedepauthenticationentity": {
@@ -3929,6 +4163,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Deletes DEP and associated DEP profiles for the given organization group.",
 		Description:    "Deletes the device enrollment program account present at the given organization group. This will delete all associated profiles from AirWatch and it will also delete all the registered profiles from the Device Enrollment Program Apple server.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupId", In: "path", Required: true, Type: "integer", Description: "This is the organization group identifier also known as GroupID. Typically used during enrollment.(Required)."},
 		},
@@ -3945,6 +4180,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Delete Device Enrollment Program profile based on the profile unique identifier.",
 		Description:    "Deletes the given Device Enrollment Program Profile based on the profile unique identifier. This profile will also be deleted from the Apple server.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "profileUuid", In: "path", Required: true, Type: "string", Description: "The unique identifier for the device enrollment program profile. (Required)."},
 		},
@@ -3961,6 +4197,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Assign or unassign a Automated Device Enrollment profile from device.",
 		Description:    "Assigns or unassigns the Automated Device Enrollment profile to the device identified by the provided serial number based on the action flag.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "profileUuid", In: "path", Required: true, Type: "string", Description: "The unique identifier of the Automated Device Enrollment profile."},
 			{Name: "serialNumber", In: "path", Required: true, Type: "string", Description: "The serial number of the device."},
@@ -3979,6 +4216,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Edit an existing Automated Device Enrollment profile.",
 		Description:    "Updates the details of an existing Automated Device Enrollment profile.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "profileUuid", In: "path", Required: true, Type: "string", Description: "The unique identifier of the Automated Device Enrollment profile to be updated.(Required)."},
 		},
@@ -3995,6 +4233,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get Device Enrollment Program certificate to upload in the Device Enrollment Program portal.",
 		Description:    "Gets the generated .pem certificate for the provided certificate ID. This certificate needs to be uploaded in the Device Enrollment Program Apple portal to continue setting up Device Enrollment Program in the organization group.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "certId", In: "path", Required: true, Type: "integer", Description: "The certificate id of the certificate being requested. (Required)."},
 		},
@@ -4011,6 +4250,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets all Apple Automated Device Enrollment devices belonging to the organization group.",
 		Description:    "Returns all the Apple Automated Device Enrollment devices that have been synced into AirWatch for the given organization group.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "groupUuid", In: "path", Required: true, Type: "string", Description: "Organization group UUID to perform the operation on.(Required)."},
 		},
@@ -4027,6 +4267,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets all Apple Automated Device Enrollment devices assigned to the profile.",
 		Description:    "Returns all the Apple Automated Device Enrollment devices that have been synced into AirWatch and assigned to the given profile unique key.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "profileUuid", In: "path", Required: true, Type: "string", Description: "Automated Device Enrollment profile unique key to get the device list for."},
 			{Name: "Page", In: "query", Required: false, Type: "integer", Description: "Specific page number to get. 0 based index"},
@@ -4045,6 +4286,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Fetches or syncs Apple Automated Device Enrollment devices belonging to the organization group.",
 		Description:    "Fetches or syncs devices from the Apple server associated with the token uploaded in the given organization group based on the action flag.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "groupUuid", In: "path", Required: true, Type: "string", Description: "Organization group UUID to perform the operation on."},
 			{Name: "action", In: "query", Required: true, Type: "string", Description: "Action flag is used to determine if the fetch or sync action must be performed for the devices. Valid values are Sync and Fetch. Sync will only get the changed devices from the Apple server while fetch will get all devices associated with the token from the Apple server."},
@@ -4062,6 +4304,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Create a new DEP account for the organization group.",
 		Description:    "Creates a new Device Enrollment Program account for the given organization group ID based on the provided token and certificate. This account will be used to make all subsequent requests to the Apple server.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupId", In: "path", Required: true, Type: "integer", Description: "This is the organization group identifier also known as GroupID. Typically used during enrollment.(Required)."},
 		},
@@ -4078,6 +4321,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Generate a new Device Enrollment Program certificate.",
 		Description:    "Generates a new .pem certificate for the provided organization group ID. This certificate needs to be uploaded in the Device Enrollment Program Apple portal to continue setting up Device Enrollment Program in the organization group.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupId", In: "path", Required: true, Type: "integer", Description: "This is the organization group identifier also known as GroupID. Typically used during enrollment.(Required)."},
 		},
@@ -4094,6 +4338,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Returns a collection of Automated Device Enrollment profiles based on the search criteria.",
 		Description:    "Returns a collection of Automated Device Enrollment profiles based on the search criteria specified. The search parameters can be organization group ID, page, and the pagesize.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "OrganizationGroupUuid", In: "query", Required: false, Type: "string", Description: "Organization Group UUID. (Example:FFD1521E-70D7-4673-A0EF-62938079C0E8, FFD1521E-70D7-4673-A0EF-62938079C0E8)"},
 			{Name: "SearchText", In: "query", Required: false, Type: "string", Description: "Profile name."},
@@ -4115,6 +4360,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "View shared MDM profile data.",
 		Description:    "Retrieves the shared MDM profile data for the specified Automated Device Enrollment profile UUID.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "profileUuid", In: "path", Required: true, Type: "string", Description: "The unique identifier of the Automated Device Enrollment profile.(Required)."},
 		},
@@ -4131,6 +4377,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the logs associated with particular source from device.",
 		Description:    "Get the logs of device that belong to each source Id.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "Unique Identifier for the device.."},
 			{Name: "sourceUuid", In: "path", Required: true, Type: "string", Description: "Unique Identifier for the source associated with log."},
@@ -4153,6 +4400,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Enrolls an existing Printers and IoT device by marking its enrollment as complete.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Organization group uuid associated with the device to be enrolled."},
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "Device uuid to be enrolled."},
@@ -4170,6 +4418,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Creates a new Printers and IoT device with the specified configuration.",
 		Description:    "",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Organization group uuid associated with the device to be created."},
 		},
@@ -4186,6 +4435,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Deletes a device provisioning context for a Printers and IoT device using the Iot service.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Organization group uuid associated with the device provisioning context to be deleted."},
 			{Name: "deviceProvisioningContextUuid", In: "path", Required: true, Type: "string", Description: "The unique identifier of the device provisioning context to be deleted."},
@@ -4203,6 +4453,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Downloads the provisioning file for the specified context.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the Organization group to fetch the device provisioning contexts for."},
 			{Name: "deviceProvisioningContextUuid", In: "path", Required: true, Type: "string", Description: "The unique identifier of the device provisioning context."},
@@ -4220,6 +4471,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Returns a paginated list of device provisioning contexts satisfying the search criteria by querying the Iot service.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the Organization group to fetch the device provisioning contexts for."},
 			{Name: "page", In: "query", Required: false, Type: "integer", Description: "Page number for pagination. Must be greater than 0. Defaults to 1."},
@@ -4238,6 +4490,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Creates a new provisioning context for a Printers and IoT device using the Iot service.",
 		Description:    "",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Organization group uuid associated with the device to be provisioned."},
 		},
@@ -4254,6 +4507,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Updates an existing provisioning context for a Printers and IoT device using the Iot service.",
 		Description:    "",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Organization group uuid associated with the device provisioning context to be updated."},
 			{Name: "deviceProvisioningContextUuid", In: "path", Required: true, Type: "string", Description: "The unique identifier of the device provisioning context to be updated."},
@@ -4271,6 +4525,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Validates if IoT setting is configured for the specified IoT type by querying the IoT service.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the Organization group to validate the IoT setting for."},
 			{Name: "iotType", In: "path", Required: true, Type: "string", Description: "The IoT type to validate configuration for."},
@@ -4288,6 +4543,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Associates tag with a device",
 		Description:    "Associates a tag with the device specified by the device UUID.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "device_uuid", In: "path", Required: true, Type: "string", Description: "Identifier for a device. Ex. 153B4D9D-24DC-416B-91F9-94253D623611(Required)."},
 			{Name: "tag_uuid", In: "path", Required: true, Type: "string", Description: "Identifier for a tag. Ex. 153B4D9D-24DC-416B-91F9-94253D623611(Required)."},
@@ -4305,6 +4561,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Deletes multiple devices identified by device id or alternate id.",
 		Description:    " Deletes multiple multiple devices by an alternate id which can be any one of the following ids:\r\n1. Macaddress, 2. Udid, 3. Serialnumber, 4. ImeiNumber, 5. EasId, 6. DeviceId.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchby", In: "query", Required: false, Type: "string", Description: "The alternate id type; possible values: [Macaddress, Udid, Serialnumber, ImeiNumber, EasId, DeviceId]. If not included, device id is used. (Formats: Macaddress: 848506B900BA, Udid: 6bf0f04c73681fbecfc3eb4f13cbf05b, SerialNumber: LGH871c18f631a, ImeiNumber: 354833052322837, EasId: 1234, DeviceId: 1234)."},
 		},
@@ -4321,6 +4578,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Retrieves information about multiple devices identified by the specified id type.",
 		Description:    " Retrieves the device details for multiple devices by an alternate id which can be any one of the following ids:\r\n1. Macaddress, 2. Udid, 3. Serialnumber, 4. ImeiNumber, 5. EasId, 6. DeviceId.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchby", In: "query", Required: true, Type: "string", Description: "The alternate id type; possible values: [Macaddress, Udid, Serialnumber, ImeiNumber, EasId, DeviceId]. (Formats: Macaddress: 848506B900BA, Udid: 6bf0f04c73681fbecfc3eb4f13cbf05b, SerialNumber: LGH871c18f631a, ImeiNumber: 354833052322837, EasId: 1234, DeviceId: 1234).(Required)"},
 		},
@@ -4337,6 +4595,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Bulk updates Computer SID attribute identified by device id or device uuid.",
 		Description:    "Updates the ComputerSID for multiple devices in a single request (max 100). Supports both device UUID and device ID. Supports partial updates - only provided fields will be updated.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchby", In: "query", Required: false, Type: "string", Description: "The id type; possible values: [Uuid, DeviceId]. If not included, device uuid is used."},
 		},
@@ -4353,6 +4612,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Delete Device details by Device id.",
 		Description:    "Delete Device details by Device id.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Device id of the Device.(Required)."},
 		},
@@ -4369,6 +4629,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Deletes Device details by alternate id for Device.",
 		Description:    " Deletes the device details by an alternate id which can be any one of the following ids:\r\n1. Macaddress, 2. Udid, 3. Serialnumber, 4. ImeiNumber, 5. EasId, 6. DeviceId.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "query", Required: true, Type: "integer", Description: "Device alternate id.(Required)"},
 			{Name: "searchby", In: "query", Required: true, Type: "string", Description: "The alternate id type; possible values: [Macaddress, Udid, Serialnumber, ImeiNumber, EasId, DeviceId]. (Formats: Macaddress: 848506B900BA, Udid: 6bf0f04c73681fbecfc3eb4f13cbf05b, SerialNumber: LGH871c18f631a, ImeiNumber: 354833052322837, EasId: 1234, DeviceId: 1234).(Required)"},
@@ -4386,6 +4647,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Extensive search of device details.",
 		Description:    "This API returns device details, summarized product compliance details, smart groups, and custom attributes for enrolled devices. For unenrolled devices, only the device details are returned in the response.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "OrganizationGroup to be searched. Admin's OG is considered if this is not sent."},
 			{Name: "platform", In: "query", Required: false, Type: "integer", Description: "Device platform."},
@@ -4413,6 +4675,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Searches devices and its custom attributes.",
 		Description:    "Searches devices and its custom attributes using the query information provided. A list of custom attributes to search can be given as a query parameter. The search results are limited to the requested custom attributes.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "OrganizationGroup to be searched. Admin's OG is considered if this is not sent."},
 			{Name: "platform", In: "query", Required: false, Type: "string", Description: "Device Platform [Android, Apple, AppleOsX, AppleTv, Athena, AveryDennisonPrinter, ChromeBook, ChromeOS, Epson, Motorola, Qnx, Symbian, ToshibaPrinter, WindowsMobile, WindowsPc, WindowsPhone8, WinRT, ZebraPrinter]."},
@@ -4436,6 +4699,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Edit the device details identified by Device id.",
 		Description:    "Edit the device details identified by Device id.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Device id of the Device.(Required)."},
 		},
@@ -4452,6 +4716,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Edit the device details identified by alternate id for Device.",
 		Description:    " Updates the device details by an alternate id which can be any one of the following ids:\r\n1. Macaddress, 2. Udid, 3. Serialnumber, 4. ImeiNumber, 5. EasId, 6. DeviceId.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "query", Required: true, Type: "integer", Description: "Device alternate id.(Required)"},
 			{Name: "searchby", In: "query", Required: true, Type: "string", Description: "The alternate id type; possible values: [Macaddress, Udid, Serialnumber, ImeiNumber, EasId, DeviceId]. (Formats: Macaddress: 848506B900BA, Udid: 6bf0f04c73681fbecfc3eb4f13cbf05b, SerialNumber: LGH871c18f631a, ImeiNumber: 354833052322837, EasId: 1234, DeviceId: 1234).(Required)"},
@@ -4469,6 +4734,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves Count of all enrolled devices based on any or all of the following OG id, Tag Name,and devices registered after 'SeenSince' datetime until the 'SeenTill' datetime.",
 		Description:    "",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "request", In: "query", Required: true, Type: "object", Description: "Http Request."},
 		},
@@ -4485,6 +4751,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets App Status for a combination of input elements.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchBy", In: "query", Required: true, Type: "string", Description: "The alternate id type [Macaddress, Udid, Serialnumber, ImeiNumber etc].(Required)."},
 			{Name: "id", In: "query", Required: true, Type: "string", Description: "The alternate id for the provided type.(Required)."},
@@ -4506,6 +4773,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieve limits for bulk actions.",
 		Description:    "Gets the limit for bulk action as below:\r\n1. Max Devices allowed for bulk SendMessage\r\n2. Max Devices allowed for bulk EnterpriseWipe\r\n3. Max Devices allowed for bulk DeleteDevice\r\n4. Max Devices allowed for bulk GPS\r\n5. Max Devices allowed for bulk RemoveFSecure.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.devices.getbyalternateid": {
@@ -4520,6 +4788,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get Device details by Alternate id.",
 		Description:    " Get the device details by an alternate id which can be any one of the following ids:\r\n1. Macaddress, 2. Udid, 3. Serialnumber, 4. ImeiNumber, 5. EasId, 6. DeviceId.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchby", In: "query", Required: true, Type: "string", Description: "The alternate id type; possible values: [Macaddress, Udid, Serialnumber, ImeiNumber, EasId, DeviceId]. (Formats: Macaddress: 848506B900BA, Udid: 6bf0f04c73681fbecfc3eb4f13cbf05b, SerialNumber: LGH871c18f631a, ImeiNumber: 354833052322837, EasId: 1234, DeviceId: 1234).(Required)"},
 			{Name: "id", In: "query", Required: true, Type: "string", Description: "Device alternate id.(Required)"},
@@ -4537,6 +4806,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get Device details by Device id.",
 		Description:    "Get Device details by Device id.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Device id of the Device.(Required)."},
 		},
@@ -4553,6 +4823,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get device info based on UDID.",
 		Description:    "Get device info based on UDID. The API returns a 404 - NotFound if the device is not available.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "udid", In: "path", Required: true, Type: "string", Description: "UDID of the device.(Required)."},
 		},
@@ -4569,6 +4840,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves Device Count Information which are Categorized by Device Info like Platform, EnrollmentStatus, Ownership etc..",
 		Description:    "Retrieves the device count for the following information.\r\n1. Total number of devices deployed in an OG.\r\n2. Device count breakdown by Security Info.\r\n3. Device count breakdown by Ownership Info.\r\n4. Device count breakdown by Platform Info.\r\n5. Device count breakdown by EnrollmentStatus Info.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "OrganizationGroup to be searched, user's OG is considered if not sent."},
 		},
@@ -4585,6 +4857,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves Device status based on the device identifier(UDID).",
 		Description:    "Retrieves information about the device such as:\r\n1. Device Enrollment Status 2. Device Managed By 3. User name 4. Domain.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "udid", In: "path", Required: true, Type: "string", Description: "Unique device identifier."},
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "DeviceUDID."},
@@ -4602,6 +4875,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Retrieves information about multiple devices identified by device id.",
 		Description:    "Gets the details about multiple devices based on a list of device ids supplied.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.devices.getdevicetags": {
@@ -4616,6 +4890,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Retrieves associated tags for a device",
 		Description:    "Retrieves a list of all associated tags for the device specified by the device UUID.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Identifier for a device. Ex. 153B4D9D-24DC-416B-91F9-94253D623611(Required)."},
 		},
@@ -4632,6 +4907,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets Event Actions by Device UUID.",
 		Description:    "Retrieves the event actions assigned for specified device.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier of the device whose assigned Event Actions we are requesting.(Required)."},
 		},
@@ -4648,6 +4924,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets FilesActions by Device UUID.",
 		Description:    "Retrieves the FilesActions assigned for specified device.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier of the device whose assigned FilesActions we are requesting.(Required)."},
 		},
@@ -4664,6 +4941,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets all logged in users on the device.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceId", In: "path", Required: true, Type: "integer", Description: "The device id."},
 		},
@@ -4680,6 +4958,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get the associated Models by Manufacturer (OEM).",
 		Description:    "Fetches the device models corresponding to given Manufacturer.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "manufacturerId", In: "path", Required: true, Type: "integer", Description: "The Manufacturer identifier for which the device models will be returned.(Required)."},
 			{Name: "search", In: "query", Required: false, Type: "string", Description: "The filter text to search."},
@@ -4699,6 +4978,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get the associated Manufacturers (OEM) by platforms.",
 		Description:    "Fetches Manufacturers corresponding to given platform.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceType", In: "path", Required: true, Type: "string", Description: "The device type of which the manufacturers will be returned.(Required)."},
 			{Name: "search", In: "query", Required: false, Type: "string", Description: "The filter text to search."},
@@ -4718,6 +4998,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Returns the device audit history for a device.",
 		Description:    "The query parameters startdate and enddate accepts the below DateTime formats :\r\n<br>yyyy/MM/dd, yyyy-MM-dd, MM/dd/yyyy, MM-dd-yyyy, yyyy/MM/dd HH:mm:ss.fff, yyyy-MM-dd HH:mm:ss.fff, MM/dd/yyyy HH:mm:ss.fff, MM-dd-yyyy HH:mm:ss.fff,</br>\r\nyyyy/MM/ddTHH:mm:ss.fff, yyyy-MM-ddTHH:mm:ss.fff, MM/dd/yyyyTHH:mm:ss.fff, MM-dd-yyyyTHH:mm:ss.fff, yyyy-MM-dd HH-mm-ss-tt, yyyy-MM-ddTHH-mm-ss-tt.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "og_id", In: "path", Required: true, Type: "string", Description: "organization Group code."},
 			{Name: "serialnumber", In: "query", Required: false, Type: "string", Description: "The device serial number (Example : SerialNumber123)."},
@@ -4741,6 +5022,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Sets the managed settings for an iOS device based on alternate id.",
 		Description:    "v1.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchBy", In: "query", Required: false, Type: "string", Description: "The alternate id type [DeviceId, Macaddress, Udid, Serialnumber, ImeiNumber, EasId]."},
 			{Name: "id", In: "query", Required: false, Type: "string", Description: "The alternate id of the device."},
@@ -4758,6 +5040,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Dissociate tag from a device",
 		Description:    "Dissociate a tag from the device specified by the device UUID.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "device_uuid", In: "path", Required: true, Type: "string", Description: "Identifier for a device. Ex. 153B4D9D-24DC-416B-91F9-94253D623611(Required)."},
 			{Name: "tag_uuid", In: "path", Required: true, Type: "string", Description: "Identifier for a tag. Ex. 153B4D9D-24DC-416B-91F9-94253D623611(Required)."},
@@ -4775,6 +5058,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Find relevant devices using various criteria.",
 		Description:    " Returns details of relevant devices belonging to an enrollment user matching specified criteria, where results are ranked/sorted using the specified orderby criteria with maximum pagesize limit of 500.\r\nIf page size is greater than the maximum limit, it will return the first 500 records.\r\nseensince and lastseen fields accept the following Valid DateTime formats :\r\nyyyy/MM/dd, yyyy-MM-dd, MM/dd/yyyy, MM-dd-yyyy, yyyy/MM/dd HH:mm:ss.fff,\r\nyyyy-MM-dd HH:mm:ss.fff, MM/dd/yyyy HH:mm:ss.fff, MM-dd-yyyy HH:mm:ss.fff, yyyy/MM/ddTHH:mm:ss.fff,\r\nyyyy-MM-ddTHH:mm:ss.fff, MM/dd/yyyyTHH:mm:ss.fff, MM-dd-yyyyTHH:mm:ss.fff, yyyy-MM-dd HH-mm-ss-tt,\r\nyyyy-MM-ddTHH-mm-ss-tt.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "user", In: "query", Required: false, Type: "string", Description: "Filters devices based on enrolled username."},
 			{Name: "model", In: "query", Required: false, Type: "string", Description: "Filters devices based on model. For example iPhone."},
@@ -4802,6 +5086,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Sends a push notification to the device identified by serial number. If not enrolled, sends an SMS message instead.",
 		Description:    "v1.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "serialnumber", In: "path", Required: true, Type: "string", Description: "The serial number of the device."},
 		},
@@ -4818,6 +5103,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Saves the device samples",
 		Description:    "Saves the device samples",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.devicesensors.getdevicesensorsbydeviceuuid": {
@@ -4832,6 +5118,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Returns the list of sensors reported by the specified device.",
 		Description:    "Gets the list of sensors reported by the specified device.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "The unique identifier of the device.\r\n            Accepted formats **guid**.\r\n            E.g. 3d958f38-246e-4854-a306-189d941ab073.(Required)"},
 			{Name: "search_text", In: "query", Required: false, Type: "string", Description: "Filter records based on the sensor name and value. Pattern search will be performed."},
@@ -4853,6 +5140,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Assign device sensors to smart groups.",
 		Description:    "Device sensor to smart group assignment map.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.devicesensorsv1.bulkdeletedevicesensors": {
@@ -4867,6 +5155,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Deletes the list of device sensors based on the identifiers provided.",
 		Description:    "This API is used to delete the list of device sensors attribute and attribute details along with the associated assignments.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.devicesensorsv1.createdevicesensor": {
@@ -4881,6 +5170,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Create a device sensor.",
 		Description:    "Create a device sensor which includes sensor name, description, organization group identifier, platform, query type, trigger type, execution context, timeout, script data, script blob identifier, event trigger, and schedule trigger.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.devicesensorsv1.getdevicesensor": {
@@ -4895,6 +5185,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the device sensor information.",
 		Description:    "Get a device sensor which includes sensor name, description, organization group identifier, platform, query type, trigger type, execution context, timeout, script data, script blob identifier, event trigger, and schedule trigger.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "sensorUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the device sensor.(Required)"},
 		},
@@ -4911,6 +5202,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the list of all the device sensors for the Organization Group.",
 		Description:    "Returns a list of device sensor(s) with sensor details for the Organization Group.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Identifier of the Organization Group(Required)"},
 			{Name: "page", In: "query", Required: false, Type: "integer", Description: "Specific page number to get. 0 based index"},
@@ -4929,6 +5221,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Update the device sensor.",
 		Description:    "Update the device sensor which includes description, platform, query type, trigger type, execution context, timeout, script data, script blob identifier, event trigger, and schedule trigger.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "sensorUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the device sensor.(Required)"},
 		},
@@ -4945,6 +5238,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves all the smart groups associated with the device.",
 		Description:    "Retrieves all the smart groups with their respective ID and Name associated to the device identfied by the device identifier.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Device Identifier (Required)."},
 		},
@@ -4961,6 +5255,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Query smart groups for devices using device uuid.",
 		Description:    "Query the smart groups associated to each device in the list of devices.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.devicesmartgroupsv1.querysmartgroupsfordevices": {
@@ -4975,6 +5270,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Query the smart groups for devices.",
 		Description:    "Query the smart groups associated to each device in the list of devices.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.devicestatemetadatav1.getdevicestatemetadata": {
@@ -4989,6 +5285,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get device state attribute metadata for an Organization Group.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the Organization Group.(Required)"},
 		},
@@ -5005,6 +5302,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the workflows for the device.",
 		Description:    "Retrieves the workflows for a device.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.deviceworkflowv1.getworkflowmetadata": {
@@ -5019,6 +5317,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the metadata for the workflows assigned to the device.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "device_uuid", In: "query", Required: true, Type: "string", Description: "Uuid of the device.(Required)"},
 		},
@@ -5035,6 +5334,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Creates a new system override to save direct enrollment settings for Workspace ONE",
 		Description:    "Saves direct enrollment settings for Workspace ONE devices by enabling it for iOS, Legacy Android, and Android Enterprise devices and then assigns them to a specific user group.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Organization Group code at which the direct enrollment settings will be returned(Required)."},
 		},
@@ -5051,6 +5351,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get direct enrollment settings for Workspace ONE",
 		Description:    "Get admin configured direct enrollment settings for Workspace ONE devices at a location group.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Organization Group code at which the direct enrollment settings will be returned(Required)."},
 		},
@@ -5067,6 +5368,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Sync devices for given organization group.",
 		Description:    "Sync devices from OEM Provisioning Service for given organization group UUID.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "ogUuid", In: "path", Required: true, Type: "string", Description: "Organization group UUID to perform the operation on.(Required)."},
 		},
@@ -5083,6 +5385,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Overrides the resource behaviour on the specified device.",
 		Description:    "",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "userUuid", In: "path", Required: true, Type: "string", Description: "user id."},
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "device id."},
@@ -5100,6 +5403,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Delete the enrollment tokens.",
 		Description:    "Perform the deletion on list of enrollment tokens.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.enrollmenttokenactionsv1.getenrollmenttokens": {
@@ -5114,6 +5418,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get the enrollment tokens.",
 		Description:    "Perform the post operation and get the list of enrollment tokens.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.enrollmenttokenactionsv1.updateenrollmenttokencompliancestatus": {
@@ -5128,6 +5433,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Perform update on the compliance status on the enrollment token.",
 		Description:    "Update the compliance status on the enrollment token. The update action will either reset the token (Compliance status is set to registration active.) or revoke the token (Compliance status is set to registration expired.)",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "enrollmentTokenUuid", In: "path", Required: true, Type: "string", Description: "Enrollment token uuid to update the compliance status.(Required)."},
 			{Name: "ogUuid", In: "path", Required: true, Type: "string", Description: "Organization group UUID(Required)."},
@@ -5145,6 +5451,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Update the token's compliance status either reseting or revoking the token.",
 		Description:    "Update the compliance status on the enrollment tokens. If the action is RESET then it will reset the token and set the token status to Registration Active and if the action is REVOKE then it will revoke the token and set the token status to Registration Expired.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "action", In: "query", Required: true, Type: "string", Description: "Action which is going to be perform on the token which can be RESET the token or REVOKE the token. Action can be RESET or REVOKE.(Required)"},
 		},
@@ -5161,6 +5468,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Creates device enrollment token based on registration type",
 		Description:    "Creates enrollment token for devices with specific registration type like Blacklist or Whitelist",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "ogUuid", In: "path", Required: true, Type: "string", Description: "Organization group UUID(Required)"},
 		},
@@ -5177,6 +5485,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Delete device enrollment token",
 		Description:    "Delete device enrollment token for provided enrollment token UUID",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "tokenUuid", In: "path", Required: true, Type: "string", Description: "Enrollment token UUID(Required)"},
 			{Name: "ogUuid", In: "path", Required: true, Type: "string", Description: "Organization group UUID(Required)"},
@@ -5194,6 +5503,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Returns a list of enrollment tokens that match the search criteria",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "ogUuid", In: "path", Required: true, Type: "string", Description: "Organization group UUID.(Required)"},
 			{Name: "serial_number", In: "query", Required: false, Type: "string", Description: "Serial number of the device."},
@@ -5217,6 +5527,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get device enrollment token details",
 		Description:    "Retrieves device enrollment token for provided enrollment token UUID",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "tokenUuid", In: "path", Required: true, Type: "string", Description: "Enrollment token UUID(Required)"},
 			{Name: "ogUuid", In: "path", Required: true, Type: "string", Description: "Organization group UUID(Required)"},
@@ -5234,6 +5545,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves events corresponding to the device identified by alternate Id's.",
 		Description:    "Event log contains information like the severity, timestamp, source, actual event details and the account corresponding to the event. This API allows searching a device using alternate Id's specified in the searchby parameter.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchBy", In: "query", Required: true, Type: "string", Description: "The alternate id type; possible values: [Macaddress, Udid, Serialnumber, ImeiNumber] (Required)."},
 			{Name: "id", In: "query", Required: true, Type: "string", Description: "Device alternate id (Example: Macaddress: 848506B900BA, Udid: 6bf0f04c73681fbecfc3eb4f13cbf05b, SerialNumber: LGH871c18f631a, ImeiNumber: 354833052322837) (Required)."},
@@ -5255,6 +5567,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves events corresponding to the device identified by device Id.",
 		Description:    "Event log contains information like the severity, timestamp, source, actual event details and the account corresponding to the event.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Device identifier (Example: 3010055)."},
 			{Name: "page", In: "query", Required: false, Type: "integer", Description: "Specific page number to get. 0 based index."},
@@ -5275,6 +5588,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves the GPS coordinates of multiple devices within the specified day range.",
 		Description:    "Retrieves last reported or latest gps co-ordinates of the device in latitude and longitude decimal degree format(i.e. D.D) for specified date range for given searchby query param value type(i.e Macaddress/UDID/Serialnumber/deviceID).\r\n<br />\r\nstartdatetime and enddatetime fields accept the following\r\nValid DateTime formats : yyyy/MM/dd, yyyy-MM-dd, MM/dd/yyyy, MM-dd-yyyy, yyyy/MM/dd HH:mm:ss.fff,\r\nyyyy-MM-dd HH:mm:ss.fff, MM/dd/yyyy HH:mm:ss.fff, MM-dd-yyyy HH:mm:ss.fff, yyyy/MM/ddTHH:mm:ss.fff,\r\nyyyy-MM-ddTHH:mm:ss.fff, MM/dd/yyyyTHH:mm:ss.fff, MM-dd-yyyyTHH:mm:ss.fff, yyyy-MM-dd HH-mm-ss-tt, yyyy-MM-ddTHH-mm-ss-tt.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchBy", In: "query", Required: false, Type: "string", Description: "The alternate id type; possible values: [Macaddress, Udid, Serialnumber, ImeiNumber]. (Formats: Macaddress: 848506B900BA, Udid: 6bf0f04c73681fbecfc3eb4f13cbf05b, SerialNumber: LGH871c18f631a, ImeiNumber: 354833052322837)."},
 			{Name: "startdatetime", In: "query", Required: false, Type: "string", Description: "Start Date time."},
@@ -5294,6 +5608,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Executes bulk gps coordinates by device and alternate id.",
 		Description:    "Retrieves gps co-ordinates in latitude and longitude decimal degree format(i.e. D.D) for specified bulk input values.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchBy", In: "query", Required: false, Type: "string", Description: "The alternate id type; possible values: [Macaddress, Udid, Serialnumber, ImeiNumber]. (Formats: Macaddress: 848506B900BA, Udid: 6bf0f04c73681fbecfc3eb4f13cbf05b, SerialNumber: LGH871c18f631a, ImeiNumber: 354833052322837)."},
 		},
@@ -5310,6 +5625,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves the GPS coordinates of the device identified by alternate id.",
 		Description:    "Retrieves gps co-ordinates in latitude and longitude decimal degree format(i.e. D.D) for specified dayrange and searchBy type(i.e Macaddress/UDID/Serialnumber) but not deviceID.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchBy", In: "query", Required: true, Type: "string", Description: "The alternate id type; possible values: [Macaddress, Udid, Serialnumber, ImeiNumber]. (Formats: Macaddress: 848506B900BA, Udid: 6bf0f04c73681fbecfc3eb4f13cbf05b, SerialNumber: LGH871c18f631a, ImeiNumber: 354833052322837) (Required)."},
 			{Name: "id", In: "query", Required: false, Type: "string", Description: "Device alternate id."},
@@ -5328,6 +5644,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves the GPS coordinates of the device identified by device ID.",
 		Description:    "Retrieves gps co-ordinates in latitude and longitude decimal degree format(i.e. D.D) for specified dayrange and device ID.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The device ID.(Required)."},
 			{Name: "dayRange", In: "query", Required: false, Type: "integer", Description: "The number of days for which to retrieve GPS coordinates."},
@@ -5345,6 +5662,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Search Airwatch Agent/Hub Packages based on the query information provided",
 		Description:    "Search Airwatch Agent/Hub Packages based on the query parameters like organization group uuid, device type and search text.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organization_group_uuid", In: "query", Required: false, Type: "string", Description: "organization group to search Airwatch Agent/Hub Packages"},
 			{Name: "device_type", In: "query", Required: false, Type: "", Description: "device type such as Android"},
@@ -5363,6 +5681,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Executes the command ExitAdminMode for a device by the device uuid.",
 		Description:    "Executes a command for a device by device uuid. Queues the command ExitAdminMode related to launcher device operation.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "The Device unique identifier.\r\n            Accepted format is **guid**\r\n            E.g. 0258902A-9E0C-4DC5-A997-9E079559F75E(Required)."},
 		},
@@ -5379,6 +5698,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Executes the command ExitAirWatchLauncher for a device by the device uuid.",
 		Description:    "Executes a command for a device by device uuid. Queues the command ExitAirWatchLauncher related to launcher device operation.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "The Device unique identifier.\r\n            Accepted format is **guid**\r\n            E.g. 0258902A-9E0C-4DC5-A997-9E079559F75E(Required)."},
 		},
@@ -5395,6 +5715,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Executes the command ExitAdminMode for a device by the device uuid.",
 		Description:    "Executes a command for a device by device uuid. Queues the command ExitAdminMode related to launcher device operation.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "The Device unique identifier.\r\n            Accepted format is **guid**\r\n            E.g. 0258902A-9E0C-4DC5-A997-9E079559F75E(Required)."},
 		},
@@ -5411,6 +5732,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Updates the lost mode of device.",
 		Description:    "Disable or enable Lost Mode for iOS devices.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for device.  E.g. 3d958f38-246e-4854-a306-189d941ab073(Required)."},
 			{Name: "enableLostMode", In: "path", Required: true, Type: "boolean", Description: "Flag to indicate whether to enable or disable Lost Mode. If true enable Lost Mode. If false disable Lost Mode.(Required)."},
@@ -5428,6 +5750,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Sends an email to the users of multiple devices.",
 		Description:    "Sends an email to the users of multiple devices identified by their alternate ID.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchby", In: "query", Required: true, Type: "string", Description: "The alternate id type [DeviceId, Macaddress, Udid, Serialnumber, ImeiNumber] (Required)"},
 		},
@@ -5444,6 +5767,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Sends an SMS message to multiple devices.",
 		Description:    "Sends an SMS message to multiple devices identified by their alternate ID.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchby", In: "query", Required: true, Type: "string", Description: "The alternate id type of the devices [DeviceId, Macaddress, Udid, Serialnumber, ImeiNumber] (Required)"},
 		},
@@ -5460,6 +5784,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Sends a push message to multiple devices.",
 		Description:    "Sends a push message to multiple devices identified by their alternate ID.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchBy", In: "query", Required: true, Type: "string", Description: "The alternate id type [DeviceId, Macaddress, Udid, Serialnumber, ImeiNumber] (Required)"},
 		},
@@ -5476,6 +5801,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Sends an email to the user of the device.",
 		Description:    "Sends an email message to the user of the device specified by the device id.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The device ID of the recipient device (Required)."},
 		},
@@ -5492,6 +5818,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Sends an email to the user of the device.",
 		Description:    "Sends an email to the user of the device identified by alternate id.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchby", In: "query", Required: true, Type: "string", Description: "The alternate id type [DeviceId, Macaddress, Udid, Serialnumber, ImeiNumber] (Required)"},
 			{Name: "id", In: "query", Required: true, Type: "string", Description: "The alternate id of the device (Required)"},
@@ -5509,6 +5836,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Sends a message to the device.",
 		Description:    "Sends a push notification to the device identified by device ID. If the device is not enrolled, an SMS message will be sent instead.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The device ID of the recipient device (Required)."},
 		},
@@ -5525,6 +5853,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Sends a message to the device.",
 		Description:    "Sends a push notification to the device identified by alternate ID. If the device is not enrolled, an SMS message will be sent instead.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchby", In: "query", Required: true, Type: "string", Description: "The alternate id type to search by [DeviceId, Macaddress, Udid, Serialnumber] (Required)"},
 			{Name: "id", In: "query", Required: true, Type: "string", Description: "The alternate id of the device (Required)"},
@@ -5542,6 +5871,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Sends a push message to the device.",
 		Description:    "Sends a push message to the device specified by the device id.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The device ID of the recipient device (Required)."},
 		},
@@ -5558,6 +5888,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Sends a push message to the device.",
 		Description:    "Sends a push notification message to the device identified by alternate id.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchby", In: "query", Required: true, Type: "string", Description: "The alternate id type [DeviceId, Macaddress, Udid, Serialnumber, ImeiNumber] (Required)"},
 			{Name: "id", In: "query", Required: true, Type: "string", Description: "The alternate id of the device (Required)"},
@@ -5575,6 +5906,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Sends an SMS message to the device.",
 		Description:    "Sends an SMS message to the device identified by the device ID in the URL.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The device ID of the recipient device (Required)."},
 		},
@@ -5591,6 +5923,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Sends an SMS message to the device.",
 		Description:    "Sends an SMS message to the device identified by alternate id.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchby", In: "query", Required: true, Type: "string", Description: "The alternate id type [DeviceId, Macaddress, Udid, Serialnumber, ImeiNumber] (Required)"},
 			{Name: "id", In: "query", Required: true, Type: "string", Description: "The alternate id of the device (Required)"},
@@ -5608,6 +5941,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Returns network information of single device from alternate device identifier.",
 		Description:    "Returns network information including voice and data roamingstatus, IP address, WiFi details for a device based on alternate ID like MAC address, UUID, Serial number, IMEI number.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchBy", In: "query", Required: true, Type: "string", Description: "Alternate device identifier type. One of Macaddress, Udid, Serialnumber or ImeiNumber (Formats: Macaddress: 848506B900BA, Udid: 6bf0f04c73681fbecfc3eb4f13cbf05b, SerialNumber: LGH871c18f631a, ImeiNumber: 354833052322837) (Required)."},
 			{Name: "id", In: "query", Required: true, Type: "string", Description: "Device alternate ID (Required)."},
@@ -5625,6 +5959,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Returns network information of single device specified by id parameter.",
 		Description:    "Returns network information including voice and data roamingstatus, IP address and WiFi details for a device identified by the ID provided.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The device ID for which network info is to be retrieved.(Required)."},
 		},
@@ -5641,6 +5976,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Finds device network information matching specified criteria.",
 		Description:    "Returns network information like device IP address along with corresponding device id which satisfies given criteria.\r\n<br />\r\nseensince and lastseen fields accept the following Valid DateTime formats :\r\nyyyy/MM/dd, yyyy-MM-dd, MM/dd/yyyy, MM-dd-yyyy, yyyy/MM/dd HH:mm:ss.fff,\r\nyyyy-MM-dd HH:mm:ss.fff, MM/dd/yyyy HH:mm:ss.fff, MM-dd-yyyy HH:mm:ss.fff, yyyy/MM/ddTHH:mm:ss.fff,\r\nyyyy-MM-ddTHH:mm:ss.fff, MM/dd/yyyyTHH:mm:ss.fff, MM-dd-yyyyTHH:mm:ss.fff, yyyy-MM-dd HH-mm-ss-tt,\r\nyyyy-MM-ddTHH-mm-ss-tt.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "user", In: "query", Required: false, Type: "string", Description: "Filters results based on Enrolled username."},
 			{Name: "model", In: "query", Required: false, Type: "string", Description: "Filters results based on Device model. For example iPhone."},
@@ -5667,6 +6003,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Creates a new note for the device identified by device ID.",
 		Description:    "Creates a new note for the specified device identified by device ID.\r\n<br />\r\n Notes can help better device management within deployment by specifying these against devices.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceId", In: "path", Required: true, Type: "integer", Description: "Unique identifier used to identify device. (Required)."},
 		},
@@ -5683,6 +6020,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Creates DeviceNotes by AlternateId.",
 		Description:    "This API is used to Create the Notes for a device.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchby", In: "query", Required: true, Type: "string", Description: "Search by alternate id type. Possible values = [Macaddress, Udid, Serialnumber, ImeiNumber] {Formats= Macaddress - 848506B900BA, Udid - 6bf0f04c73681fbecfc3eb4f13cbf05b, SerialNumber - LGH871c18f631a, ImeiNumber - 354833052322837}(Required)"},
 			{Name: "id", In: "query", Required: true, Type: "string", Description: "Device alternate id.(Required)"},
@@ -5700,6 +6038,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Deletes a note identified by note ID for the device identified by device ID.",
 		Description:    "Deletes the existing note identified by note ID for the specified device identified by device ID.\r\n<br />\r\nNotes can help better device management within deployment by specifying these against devices.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceId", In: "path", Required: true, Type: "integer", Description: "Unique identifier used to identify device. (Required)."},
 			{Name: "noteId", In: "path", Required: true, Type: "integer", Description: "Unique identifier used to identify device note. (Required)."},
@@ -5717,6 +6056,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Deletes a note for the device identified by alternate ID.",
 		Description:    "This API is used to get the Notes of a device.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "noteid", In: "path", Required: true, Type: "integer", Description: "Note id.(Required)."},
 			{Name: "searchby", In: "query", Required: true, Type: "string", Description: "Search by alternate id type. Possible values = [Macaddress, Udid, Serialnumber, ImeiNumber] {Formats= Macaddress - 848506B900BA, Udid - 6bf0f04c73681fbecfc3eb4f13cbf05b, SerialNumber - LGH871c18f631a, ImeiNumber - 354833052322837}(Required)"},
@@ -5735,6 +6075,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves a particular note identified by note ID for the device identified by device ID.",
 		Description:    "Retrieves the particular note identified by note ID added for specified device identified by device ID.\r\n<br />\r\nNotes can help better device management within deployment by specifying these against devices.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceId", In: "path", Required: true, Type: "integer", Description: "Unique identifier used to identify device. (Required)."},
 			{Name: "noteId", In: "path", Required: true, Type: "integer", Description: "Unique identifier used to identify device note. (Required)."},
@@ -5752,6 +6093,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets DeviceNotes by AlternateId.",
 		Description:    "This API is used to get the Notes of a device.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "noteid", In: "path", Required: true, Type: "integer", Description: "Note id.(Required)."},
 			{Name: "searchby", In: "query", Required: true, Type: "string", Description: "Search by alternate id type. Possible values = [Macaddress, Udid, Serialnumber, ImeiNumber] {Formats= Macaddress - 848506B900BA, Udid - 6bf0f04c73681fbecfc3eb4f13cbf05b, SerialNumber - LGH871c18f631a, ImeiNumber - 354833052322837}(Required)"},
@@ -5770,6 +6112,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets DeviceNotes by AlternateId.",
 		Description:    "This API is used to get the Notes of a device.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchBy", In: "query", Required: true, Type: "string", Description: "Search by alternate id type. Possible values = [Macaddress, Udid, Serialnumber, ImeiNumber] {Formats= Macaddress - 848506B900BA, Udid - 6bf0f04c73681fbecfc3eb4f13cbf05b, SerialNumber - LGH871c18f631a, ImeiNumber - 354833052322837}(Required)"},
 			{Name: "id", In: "query", Required: true, Type: "string", Description: "Device alternate id.(Required)"},
@@ -5787,6 +6130,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves the notes for the device identified by device ID.",
 		Description:    "Retrieves the notes which are added for the specified device identified by device ID.\r\n<br />\r\nNotes can help better device management within deployment by specifying these against devices.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Unique identifier used to identify device. (Required)."},
 		},
@@ -5803,6 +6147,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Updates a note identified by note ID for the device identified by device ID.",
 		Description:    "Updates the existing note identified by note ID for the specified device identified by device ID.\r\n<br />\r\nNotes can help better device management within deployment by specifying these against devices.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceId", In: "path", Required: true, Type: "integer", Description: "Unique identifier used to identify device. (Required)."},
 			{Name: "noteId", In: "path", Required: true, Type: "integer", Description: "Unique identifier used to identify device note. (Required)."},
@@ -5820,6 +6165,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Updates a note identified by note ID for the device identified by device ID.",
 		Description:    "This API is used to edit the Notes of a device.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "noteid", In: "path", Required: true, Type: "integer", Description: "Note id.(Required)."},
 			{Name: "searchby", In: "query", Required: true, Type: "string", Description: "Search by alternate id type. Possible values = [Macaddress, Udid, Serialnumber, ImeiNumber] {Formats= Macaddress - 848506B900BA, Udid - 6bf0f04c73681fbecfc3eb4f13cbf05b, SerialNumber - LGH871c18f631a, ImeiNumber - 354833052322837}(Required)"},
@@ -5838,6 +6184,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Retrieves the enrollment token for the tenant.",
 		Description:    "Gets the enrollment token and its expiration time for the given tenant.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier of organization group.(Required)."},
 		},
@@ -5854,6 +6201,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Getting OEM updates for a device.",
 		Description:    "Getting OEM updates for a device of a given device Uuid.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Organization group UUID to perform the operation on.(Required)."},
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "Device UUID to perform the operation on.(Required)."},
@@ -5877,6 +6225,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the devices where OEM Update Summary is installed(status would be either failed or success).",
 		Description:    "Returns the devices where the OEM Update is installed(status would be either failed or success).",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Organization group UUID to perform the operation on.(Required)."},
 			{Name: "release_id", In: "query", Required: true, Type: "string", Description: "Release identifier of the OEM update.(Required)"},
@@ -5901,6 +6250,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the count of OemUpdate Summary installed in devices for a given release_id + version.",
 		Description:    "It will return the summary with installed success and failed count.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Organization group UUID to perform the operation on.(Required)."},
 			{Name: "release_id", In: "query", Required: true, Type: "string", Description: "Release identifier of the OEM update.(Required)"},
@@ -5919,6 +6269,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Returns a collection of OemUpdateSummary details based on the search criteria.",
 		Description:    "Returns a collection of OemUpdate summary details based on the search criteria specified.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Organization group UUID to perform the operation on.(Required)."},
 			{Name: "search_text", In: "query", Required: false, Type: "string", Description: "OemUpdate is searched on Name, Message, Criticality, Category and UpdateType"},
@@ -5940,6 +6291,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets all OEM Update Summary details of a given organization group UUID.",
 		Description:    "Returns all OEM Update Summary details of a given organization group id and its children.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Organization group UUID to perform the operation on.(Required)"},
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "Device UUID to perform the operation on.(Required)"},
@@ -5957,6 +6309,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets all OEM Update Summary details of a given organization group UUID.",
 		Description:    "Returns all OEM Update Summary details of a given organization group id and its children.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Organization group UUID to perform the operation on.(Required)"},
 			{Name: "page", In: "query", Required: false, Type: "integer", Description: "Specific page number to get. 0 based index"},
@@ -5975,6 +6328,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the devices where OEM Update Summary is installed(status would be either failed or success).",
 		Description:    "Returns the devices where the OEM Update is installed(status would be either failed or success).",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Organization group UUID to perform the operation on.(Required)"},
 			{Name: "summaryUuid", In: "path", Required: true, Type: "string", Description: "Unique value of the OEM Update Summary detail to perform the operation on.(Required)"},
@@ -5994,6 +6348,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the count of OemUpdate Summary installed in devices for a given summaryID.",
 		Description:    "It will return the summary with installed success and failed count.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Organization group UUID to perform the operation on.(Required)"},
 			{Name: "summaryUuid", In: "path", Required: true, Type: "string", Description: "Unique value of the OEM Update Summary detail to perform the operation on.(Required)"},
@@ -6011,6 +6366,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Returns a collection of OemUpdateSummary details based on the search criteria.",
 		Description:    "Returns a collection of OemUpdate summary details based on the search criteria specified. The search parameters can be Name, Criticality, UpdateType, Category and the pagesize.\r\n searchcriteria =&gt; /{ce3f9d78-c411-4f02-af77-2a85bad7c262}/summary/search?searchText={intel}&amp;page={1}&amp;pageSize={20}&amp;orderBy={Asc}&amp;sortOrder={name}\")]",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Organization group UUID to perform the operation on.(Required)"},
 			{Name: "searchText", In: "query", Required: true, Type: "string", Description: "OemUpdate is searched on Name, Message, Criticality, Category and UpdateType(Required)"},
@@ -6032,6 +6388,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the mapping of all Rules Engine Operator values against types defined in the Schema Registry.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "ogUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the Organization Group.(Required)."},
 		},
@@ -6048,6 +6405,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the supported Operator values in Rules Engine for a particular type defined in the Schema Registry.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "ogUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the Organization Group.(Required)."},
 			{Name: "type", In: "path", Required: true, Type: "string", Description: "Type for which operator map is needed.(Required)."},
@@ -6065,6 +6423,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get OPS device last sync details for the given organization group.",
 		Description:    "Get OPS device last sync details for the given organization group UUID.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "ogUuid", In: "path", Required: true, Type: "string", Description: "Organization group UUID to perform the operation on.(Required)."},
 		},
@@ -6081,6 +6440,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Retrieves a list of active os versions",
 		Description:    "Fetch a list of active os versions",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.osversionsv1.getactiveosversionsforplatform": {
@@ -6095,6 +6455,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Retrieves a list of active os versions for a platform",
 		Description:    "Fetch a list of active os versions for a platform",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "platformUUID", In: "path", Required: true, Type: "string", Description: "(Required)."},
 		},
@@ -6111,6 +6472,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets the printer by identifier.",
 		Description:    "Gets the printer properties by printer identifier.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceID", In: "path", Required: true, Type: "integer", Description: "The device identifier. (Required)."},
 		},
@@ -6127,6 +6489,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets the printer by organization group identifier.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupID", In: "path", Required: true, Type: "integer", Description: "The organization group identifier. (Required)."},
 		},
@@ -6143,6 +6506,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Patch a specific phase in a phased deployment.",
 		Description:    "",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "The UUID of the organization group in which the phased deployment exists."},
 			{Name: "phasedDeploymentUuid", In: "path", Required: true, Type: "string", Description: "UUID of the phased deployment containing the phase."},
@@ -6161,6 +6525,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Patch a phased deployment.",
 		Description:    "",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "The UUID of the organization group in which the phased deployment exists."},
 			{Name: "phasedDeploymentUuid", In: "path", Required: true, Type: "string", Description: "UUID of the phased deployment to update."},
@@ -6178,6 +6543,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Search phase events for a phased deployment.",
 		Description:    "",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "The UUID of the organization group."},
 			{Name: "phasedDeploymentUuid", In: "path", Required: true, Type: "string", Description: "The UUID of the phased deployment."},
@@ -6195,6 +6561,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Geo Fencing Areas by Og Id.",
 		Description:    "Method to load area entities for a given location group.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "ogid", In: "path", Required: true, Type: "integer", Description: "Og Id (Required)."},
 		},
@@ -6211,6 +6578,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Allowed Time Fencing Schedules by Og Id.",
 		Description:    "Method to load Schedule entities for a given location group.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "ogid", In: "path", Required: true, Type: "integer", Description: "Og Id (Required)."},
 		},
@@ -6227,6 +6595,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets the list of Certificate Authorities (CA) for an organization group.",
 		Description:    "Retrieves the list of Certificate Authority (CA) for an organization group.\r\nIn cryptography, a certificate authority is an entity that issues digital certificates. A digital certificate certifies the ownership of a public key by the named subject of the certificate.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "ogid", In: "path", Required: true, Type: "integer", Description: "Organization Group Id."},
 		},
@@ -6243,6 +6612,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Certificate Store for WindowsMobile.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getcertificatetemplateslistforcertificateauthority": {
@@ -6257,6 +6627,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets the list of Certificate Templates for a Certificate Authority (CA).",
 		Description:    "Retrieves the list of Certificate templates for an organization group.\r\nA Certificate template is a preconfigured list of certificate settings that allows users and computers to enroll for certificates without having to create complex certificate requests.\r\nEnterprise certification authorities (CAs) use certificate templates to define the format and content of certificates, to specify which users and computers can enroll for which types of certificates,\r\nand to define the enrollment process, such as autoenrollment, enrollment only with authorized signatures, and manual enrollment.\r\nAssociated with each certificate template is a discretionary access control list (DACL) that defines which security principals have permissions to read and configure the template,\r\nas well as to enroll or autoenroll for certificates based on the template. The certificate templates and their permissions are defined in Active Directory® Domain Services (AD DS) and are valid within the forest.\r\nIf more than one enterprise CA is running in the Active Directory forest, permission changes will affect all enterprise CAs.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "ogid", In: "path", Required: true, Type: "integer", Description: "Organization Group Id."},
 			{Name: "certificateAuthorityId", In: "path", Required: true, Type: "integer", Description: "Certificate Authority Id."},
@@ -6274,6 +6645,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Returns Crdential Certificate Store for Windows PC platform.",
 		Description:    "Gets a list of supported credential certificate store for credentials profile.\r\nExample : Personal, Trusted Root certificate authorities, Trusted publishers, untrusted publishers, Trusted people, Intermediate.\r\ndefault is Personal.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getcredentialsmimeforapple": {
@@ -6288,6 +6660,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets the values that can be configured for the Credential Smime(Smime) for Apple Credentials profile.",
 		Description:    "Smime detetrmines the encryption and signing requirements for email.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getcredentialsourceforandroid": {
@@ -6302,6 +6675,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Credential Source for Android.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getcredentialsourceforapple": {
@@ -6316,6 +6690,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets the values that can be configured for Credential Source(CertificateSource) for Apple Credentials profile.",
 		Description:    "CertificateSource determines the source of the certificate.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getcredentialsourceforappleosx": {
@@ -6330,6 +6705,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets valid CredentialSources(CertificateSource) for Apple macOS platform.",
 		Description:    "CertificateSource determines the source of the certificate.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getcredentialsourceforwindowsmobile": {
@@ -6344,6 +6720,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Credential Source for WindowsMobile.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getcredentialsourceforwindowspc": {
@@ -6358,6 +6735,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Returns Crdential Source for Windows PC platform.",
 		Description:    "Gets a list of supported credential source for credentials profile.\r\nExample : DefinedCertificateAuthority.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getcredentialstorelocationforwindowspc": {
@@ -6372,6 +6750,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Returns Crdential Store Location for Windows PC platform.",
 		Description:    "Gets a list of supported credential store locations for credentials profile.\r\nExample : User Account, System Account.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getdevicecategorylist": {
@@ -6386,6 +6765,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets device category list.",
 		Description:    "Gets the list of all the available device categories from the picklist Eg.Apple.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getdevicemodelfamilylist": {
@@ -6400,6 +6780,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets device model family list.",
 		Description:    "Gets the list of all the available device models loaded from the picklist for the specified platform.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "platform", In: "path", Required: true, Type: "string", Description: "device platform name Eg:APPLE, APPLEOSX, APPLETV, WINRT etc. (Required)."},
 		},
@@ -6416,6 +6797,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets device model list.",
 		Description:    "Gets the list of all the available device models loaded from the picklist for the specified platform.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "platform", In: "path", Required: true, Type: "string", Description: "device platform name Eg:APPLE (Required)."},
 		},
@@ -6432,6 +6814,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets device type list.",
 		Description:    "Gets the list of all the available device types from the picklist Eg.Apple, Android.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.geteasauthenticationtypeforandroid": {
@@ -6446,6 +6829,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Eas Authentication Type for Android.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.geteasautolockforandroid": {
@@ -6460,6 +6844,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Eas Auto Lock for Android.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.geteasawemailclientcomplexityforapple": {
@@ -6474,6 +6859,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets EAS AW Email Client Passcode Complexity for Apple.",
 		Description:    "Returns the expected passcode complexity for Email account of EAS profile.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.geteasawemailclientemailnotificationsforapple": {
@@ -6488,6 +6874,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets EAS AW Email Client Email Notifications(Notifications) for Apple AirWatch EAS profile.",
 		Description:    "Notifications determines the emaiil client notifications for the email.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.geteasawemailclienthistoryforapple": {
@@ -6502,6 +6889,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets EAS AW Email Client Passcode History for Apple.",
 		Description:    "Returns passcode history for email account of EAS profile.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.geteasawemailclientmaxnumberoffailedattemptsforapple": {
@@ -6516,6 +6904,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets EAS AW Email Client Maximum Failed Attempts for Apple.",
 		Description:    "Returns valid value for max failed attempts for email account of EAS profile.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.geteasawemailclientpasscodetypeforapple": {
@@ -6530,6 +6919,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets EAS AW Email Client Passcode Type for Apple.",
 		Description:    "Returns valid values for the Authentication type which can be used for EAS AW Email Client.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.geteasawemailclientpastdaysofcalendartosyncforapple": {
@@ -6544,6 +6934,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets the number of days' calendar to sync.",
 		Description:    "returns values that can be configured for EAS AW Email Client Past Days of Calendar to Sync for Apple.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.geteasawemailclientpastdaysofmailtosyncforapple": {
@@ -6558,6 +6949,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets the number of days' mail to sync.",
 		Description:    "Values that can be configured for the EAS AW Email Client Past Days of Mail to Sync(MaxEmailAge) for Apple.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.geteasawemailclientsyncintervalforapple": {
@@ -6572,6 +6964,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "SyncInterval determines the sync interval for the email.",
 		Description:    "Gets the values that can be configured for EAS AW Email Client Sync Interval(SyncInterval) for Apple AirWatch EAS profile.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.geteascalendarapplicationforandroid": {
@@ -6586,6 +6979,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Eas Calendar Application for Android.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.geteascontactsapplicationforandroid": {
@@ -6600,6 +6994,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Eas Contacts Application for Android.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.geteasmailclientforandroid": {
@@ -6614,6 +7009,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Eas Mail Client for Android.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.geteasmaximumpasscodeageforandroid": {
@@ -6628,6 +7024,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Eas Maximum Passcode Age for Android.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.geteasminimumpasscodelengthforandroid": {
@@ -6642,6 +7039,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Eas Minimum Passcode length for Android.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.geteaspasscodecomplexityforandroid": {
@@ -6656,6 +7054,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Eas Passcode Complexity for Android.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.geteaspastdaysofcalendartosyncforandroid": {
@@ -6670,6 +7069,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Eas past days of calendar to sync for Android.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.geteaspastdaysofmailtosyncforandroid": {
@@ -6684,6 +7084,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Eas past days of mail to sync for Android.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.geteaspastdaysofmailtosyncforapple": {
@@ -6698,6 +7099,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets the the number of days' mail to be synced.",
 		Description:    "MailNumberOfPastDaysToSync specifies values that can be configured for Eas Past Days of Mail to Sync(MailNumberOfPastDaysToSync) for Apple EAS profile.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.geteaspeaktimeforandroid": {
@@ -6712,6 +7114,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Eas Peak Time for Android.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.geteasrestrictiontypeforandroid": {
@@ -6726,6 +7129,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Eas Restriction Type for Android.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.geteassyncintervalforandroid": {
@@ -6740,6 +7144,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Eas Sync Interval for Android.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.geteassyncscheduleforandroid": {
@@ -6754,6 +7159,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Eas Sync Schedule for Android.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getemailaccounttypeforapple": {
@@ -6768,6 +7174,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets the values that can be configured for Email Account Type(EmailAccountType).",
 		Description:    "EmailAccountType determines the type of email (POP, IMAP) in Apple Email profile.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getemailaccounttypeforappleosx": {
@@ -6782,6 +7189,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets valid Email Account types for Apple macOS Platform.",
 		Description:    "Supported Account types for Email Profile.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getemailauthenticationtypeforappleosx": {
@@ -6796,6 +7204,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets valid Email Authentication Types for Apple macOS Platform.",
 		Description:    "Server authentication types for Email Profile.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getemailsyncintervalforandroid": {
@@ -6810,6 +7219,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets E-Mail Sync Intervals for android.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getencryptedvolumeforwindowspc": {
@@ -6824,6 +7234,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Returns Encrypted volume for Windows PC platform.",
 		Description:    "Gets a list of encrypted volumes for encryption profile.\r\nExample : Complete Hard Disk, System Partition.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getfontsizeforandroid": {
@@ -6838,6 +7249,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Font Size for Android.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getgraceperiodforpasscodechangeforandroid": {
@@ -6852,6 +7264,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Android Grace Period for Passcode change.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getimportantupdatesforwindowspc": {
@@ -6866,6 +7279,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Returns Important Updates for Windows PC platform.",
 		Description:    "Gets a list of supported actions for important updates\r\nExample : Install Updates Automatically, Download updates but let the user decide when to install them.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getincomingmailserverauthenticationforapple": {
@@ -6880,6 +7294,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets the values that can be configured for Incoming mail server authentication(IncomingMailServerAuthentication).",
 		Description:    "IncomingMailServerAuthentication determines the authentication scheme for incoming mail in Apple Email profile.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getincomingmailserverprotocolforandroid": {
@@ -6894,6 +7309,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Incomming Mail Server Protocol for android.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getinneridentityforapple": {
@@ -6908,6 +7324,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets the values that can be configured for inner authentication(TTLSInnerAuthentication) in Apple WIFI profile.",
 		Description:    "TTLSInnerAuthentication determines inner authentication used by the TTLS module.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getmachineauthenticationforapple": {
@@ -6922,6 +7339,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets values that can be configured for Machine Authentication (IPSecAuthenticationMode) for Apple VPN profile.",
 		Description:    "Machine Authentication methods available for VPN profile.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getmaxmailstoshowforandroid": {
@@ -6936,6 +7354,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Maximum E-mails to show for Android.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getminwifisecurityforandroid": {
@@ -6950,6 +7369,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Minimum Wifi Security for Android.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getnetworkinneridentityforappleosx": {
@@ -6964,6 +7384,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Network Inner Identity of TTLS protocol in Apple macOS Wi-Fi payload.",
 		Description:    "Inner Authentication required for TTLS protocol.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getnetworkinterfaceforappleosx": {
@@ -6978,6 +7399,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Network Interfaces for Apple macOS Platform.",
 		Description:    "Supported interfaces(Wi-Fi, Ethernet) for Network profile.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getnetworkproxytypesforappleosx": {
@@ -6992,6 +7414,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Valid ProxyTypes for Apple macOS Wi-Fi Payload.",
 		Description:    "Proxy types supported for Network profile.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getnetworksecuritytypeforappleosx": {
@@ -7006,6 +7429,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Network Security Protocols for Apple macOS Wi-Fi payload.",
 		Description:    "Supported Security protocols(WEP, WPA / WPA2) for Network profile.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getoperatingsystemlist": {
@@ -7020,6 +7444,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets operating systems list.",
 		Description:    "Gets the list of all the available operating systems from the picklist for the specified platform Eg.iOS 4.0.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "platform", In: "path", Required: true, Type: "string", Description: "device platform name Eg:APPLE (Required)."},
 		},
@@ -7036,6 +7461,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets the values that can be configured for Outgoing mail server authentication(IncomingMailServerAuthentication).",
 		Description:    "IncomingMailServerAuthentication determines the authentication scheme for outgoing mail in Apple Email profile.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getoutgoingmailserverprotocolforandroid": {
@@ -7050,6 +7476,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Outgoing Mail Server Protocol for android.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getownershiptypelist": {
@@ -7064,6 +7491,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets ownership type list.",
 		Description:    "Gets the list of all the available ownership types from the picklist Eg.EmployeeOwned.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getpasscodeautolockforapple": {
@@ -7078,6 +7506,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets the values that can be configured for passcode autolock in minutes(maxInactivity) in Apple passcode profile.",
 		Description:    "Device automatically locks when time period elapses.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getpasscodeautolockforappleosx": {
@@ -7092,6 +7521,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets the values that can be configured for passcode autolock in minutes(maxInactivity) in Apple macOS passcode profile.",
 		Description:    "Device automatically locks when time period elapses.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getpasscodecontentforandroid": {
@@ -7106,6 +7536,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Passcode Content for Android.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getpasscodegraceperiodforapple": {
@@ -7120,6 +7551,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets the values that can be configured for maximum grace period(maxGracePeriod) in Apple passcode profile.",
 		Description:    "Amount of time device can be locked without prompting for passcode on unlock.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getproxytypeforapple": {
@@ -7134,6 +7566,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets the values that can be configured for Vpn proxy type(HTTPProxyType) in Apple VPN profile.",
 		Description:    "HTTPProxyType determines proxy is manual or automatic.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getratingappsforapple": {
@@ -7148,6 +7581,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets the values that can be configured for rating apps (ratingApps) in Apple Restrictions profile.",
 		Description:    "RatingApps determines the ratings of the apps that are allowed.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getratingmoviesforapple": {
@@ -7162,6 +7596,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets the values that can be configured for rating movies (ratingMovies) in Apple Restrictions profile.",
 		Description:    "RatingMovies determines the ratings of movies that are allowed.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "filterKey", In: "query", Required: false, Type: "string", Description: "The key for filter countries."},
 		},
@@ -7178,6 +7613,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets the values that can be configured for rating region (ratingRegion) in Apple Restrictions profile.",
 		Description:    "RatingRegion determine the regions.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getratingtvshowsforapple": {
@@ -7192,6 +7628,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets the values that can be configured for rating tv shows (ratingTVShows) in Apple Restrictions profile.",
 		Description:    "RatingTVShows determines the ratings of tv shows that are allowed.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "filterKey", In: "query", Required: false, Type: "string", Description: "The key for filter countries."},
 		},
@@ -7208,6 +7645,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets eligible applications to apply restriction of Apple macOS platform.",
 		Description:    "Applicationsn list which are allowed to apply restrictions on.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getrestrictionallowedwidgetsforappleosx": {
@@ -7222,6 +7660,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets eligible widgets to apply restriction of Apple macOS platform.",
 		Description:    "Widgets list which are allowed to apply restrictions on.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getrestrictiondataconnectionforandroid": {
@@ -7236,6 +7675,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Restriction Data Connection for Android.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getsafariacceptcookiesforapple": {
@@ -7250,6 +7690,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets the values that can be configured for safari accept cookies(safariAcceptCookies) in Apple Restrictions profile.",
 		Description:    "SafariAcceptCookies determines conditions under which the device will accept cookies.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getscepcredentialsourceforapple": {
@@ -7264,6 +7705,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets valid Scep Credential Source(CertificateSource) for Apple iOS SCEP profile.",
 		Description:    "CertificateSource determines the source of the certificate.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "includeSupportedOnly", In: "query", Required: false, Type: "boolean", Description: "(Optional) Flag to indicate if only supported \"CredentialSource\" list is to be included or not.Default is False."},
 			{Name: "includeAirwatchCAIfEnabledInOg", In: "query", Required: false, Type: "boolean", Description: "(Optional) Flag to indicate to include Airwatch Certificate Authority only if its Enabled in the OG or not.Default is False."},
@@ -7282,6 +7724,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets valid Scep CredentialSorces(CertificateSource) for Apple macOS platform.",
 		Description:    "CertificateSource determines the source of the certificate.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "includeSupportedOnly", In: "query", Required: false, Type: "boolean", Description: "(Optional) Flag to indicate if only supported \"CredentialSource\" list is to be included or not.Default is False."},
 			{Name: "includeAirwatchCAIfEnabledInOg", In: "query", Required: false, Type: "boolean", Description: "(Optional) Flag to indicate to include Airwatch Certificate Authority only if its Enabled in the OG or not.Default is False."},
@@ -7300,6 +7743,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Security Type for Android Wifi.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getsecuritytypeforwindowsmobilewifi": {
@@ -7314,6 +7758,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Security Type for Windows Mobile Wifi.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getsfatypeforandroidwifi": {
@@ -7328,6 +7773,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets sfa Type for Androie Wifi.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getsmimecertificatetypeforandroid": {
@@ -7342,6 +7788,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets SMIME certificate type for Android.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.gettfatypeforandroidwifi": {
@@ -7356,6 +7803,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Tfa Type for Android Wifi.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getuserauthenticationtypeforapple": {
@@ -7370,6 +7818,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets the values that can be configured for User Authentication Type for Apple VPN Profile.",
 		Description:    "UserAuthenticationType determines the authentication type for the user.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getvpnauthenticationmethodforapple": {
@@ -7384,6 +7833,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets the values that can be configured for Vpn authentication method(VpnAuthenticationMethod) in Apple VPN profile.",
 		Description:    "VpnAuthenticationMethod determines the authentication method used for VPN.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getvpnencryptionlevelforapple": {
@@ -7398,6 +7848,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets values that can be configured for VPN encryption level(PP2PEncryptionLevel) for Apple VPN profile.",
 		Description:    "PP2PEncryptionLevel determines the vpn encryption level.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getvpnencryptionlevelforappleosx": {
@@ -7412,6 +7863,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets values that can be configured for VPN encryption level(PP2PEncryptionLevel) for Apple macOS VPN profile.",
 		Description:    "PP2PEncryptionLevel determines the vpn encryption level.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getvpnikeidtypeforandroid": {
@@ -7426,6 +7878,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Vpn IKE ID Type for Android.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getvpnmachineauthenticationforappleosx": {
@@ -7440,6 +7893,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets MachineAuthentication For Apple macOS VPN Profile.",
 		Description:    "Authentication mode supported by VPN type for Machine Authentication.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getvpnondemandtypeforappleosx": {
@@ -7454,6 +7908,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets VPN OnDemandType values for Apple macOS platform.",
 		Description:    "Supported for OnDemand Action values of VPN profile.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getvpnproxyforappleosxplatform": {
@@ -7468,6 +7923,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets VPN proxy types for Apple macOS platform.",
 		Description:    "Proxy types valid for VPN profile.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getvpntype": {
@@ -7482,6 +7938,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Vpn Types by Platform.",
 		Description:    "Gets Vpn Payload picklist items for the specified platform(Ex. android, apple, appleosx, windowspc).",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "platform", In: "path", Required: true, Type: "string", Description: "Platform name (Required)."},
 		},
@@ -7498,6 +7955,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Valid UserAuthentication for the specified VpnType.",
 		Description:    "Authentication method supported by VpnType.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "vpnType", In: "path", Required: true, Type: "string", Description: "Vpn Type."},
 		},
@@ -7514,6 +7972,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Returns Valid Wifi Connection Modes for Windows PC platform.",
 		Description:    "Gets a list of supported connection modes for wifi profile.\r\nExample : Auto, Manual.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getwificonnectiontypeforwindowspc": {
@@ -7528,6 +7987,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Returns Valid Wifi Connection Types for Windows PC platform.",
 		Description:    "Gets a list of supported connection types for wifi profile.\r\nExample : Infrastructure, ad-hoc.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getwifiencryptionforwindowspc": {
@@ -7542,6 +8002,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Returns Valid Wifi Encryption Types for Windows PC platform.",
 		Description:    "Gets a list of supported encryption algorithms Wifi profile.\r\nExample : TKIP, AES.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getwifiproxytypeforapple": {
@@ -7556,6 +8017,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets the values that can be configured for WIFI proxy type(ProxyType) in Apple WIFI profile.",
 		Description:    "ProxyType determines if the proxy is automatic or manual.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getwifisecuritytypeforapple": {
@@ -7570,6 +8032,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets values that can be configured for encryption type(EncryptionType) for Apple WIFI profile.",
 		Description:    "EncryptionType determines the encryption type of the wifi configuration.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getwifisecuritytypeforwindowspc": {
@@ -7584,6 +8047,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Returns Valid Wifi Security Types for Windows PC platform.",
 		Description:    "Gets a list of supported security types for wifi profile.\r\nExample : WPA2 Personal, WPA Enterprise.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.picklists.getwindowsupdatesourceforwindowspc": {
@@ -7598,6 +8062,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Returns Windows Update Source for Windows PC platform.",
 		Description:    "Gets a list of supported update sources for windows update\r\nExample : Microsoft, Corporate Wsus\r\nMicrosoft is default.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.platformsv1.getactiveplatforms": {
@@ -7612,6 +8077,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Retrieves a list of active platforms.",
 		Description:    "Fetch a list of active platforms.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "platformType", In: "query", Required: false, Type: "string", Description: "Filters platforms by platform type."},
 		},
@@ -7628,6 +8094,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Delete an Android Update Policy.",
 		Description:    "Delete an Android Update Policy.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for organization group.(Required)"},
 			{Name: "policyUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for policy.(Required)"},
@@ -7645,6 +8112,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get an Android Update Policy.",
 		Description:    "Get an Android Update Policy.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for organization group.(Required)"},
 			{Name: "policyUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for policy.(Required)"},
@@ -7662,6 +8130,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get Applicable Devices for an Android Update Policy.",
 		Description:    "Gets the list of applicable devices with eligibility information for a given policy.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for organization group.(Required)"},
 			{Name: "policyUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for policy.(Required)"},
@@ -7685,6 +8154,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get Applicable Devices count for an Android Update Policy.",
 		Description:    "Gets the count of applicable devices for a given policy.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for organization group.(Required)"},
 			{Name: "policyUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for policy.(Required)"},
@@ -7702,6 +8172,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the updates artifacts list for a policy and the given tenant.",
 		Description:    "Fetch updates artifacts for a given tenant and policy.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for organization group.(Required)"},
 			{Name: "policyUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for policy.(Required)"},
@@ -7719,6 +8190,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Create an Android Update Policy.",
 		Description:    "Create an Android Update Policy.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for organization group.(Required)."},
 		},
@@ -7735,6 +8207,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Update an Android Update Policy.",
 		Description:    "Update an Android Update Policy.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for organization group.(Required)."},
 			{Name: "policyUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for policy.(Required)."},
@@ -7752,6 +8225,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Search Update Policies.",
 		Description:    "Get a list of policies based on specified search criteria.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for organization group.(Required)"},
 		},
@@ -7768,6 +8242,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Returns available conditions for the Organization Group",
 		Description:    "Retrieves conditions available for the specified Organization Group",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "Organization group identifier"},
 			{Name: "page", In: "query", Required: false, Type: "integer", Description: "Specific page number to get. 0 based index"},
@@ -7786,6 +8261,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Report back device counts pertaining to the policy engine.",
 		Description:    "Report back device counts pertaining to the policy engine when Organization group ID, Start and End time are passed.\r\nThe parameters starttime and endtime accepts the below DateTime formats :\r\n<br>yyyy/MM/dd, yyyy-MM-dd, MM/dd/yyyy, MM-dd-yyyy, yyyy/MM/dd HH:mm:ss.fff, yyyy-MM-dd HH:mm:ss.fff, MM/dd/yyyy HH:mm:ss.fff, MM-dd-yyyy HH:mm:ss.fff,</br>\r\nyyyy/MM/ddTHH:mm:ss.fff, yyyy-MM-ddTHH:mm:ss.fff, MM/dd/yyyyTHH:mm:ss.fff, MM-dd-yyyyTHH:mm:ss.fff, yyyy-MM-dd HH-mm-ss-tt, yyyy-MM-ddTHH-mm-ss-tt.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "Organization group ID."},
 			{Name: "starttime", In: "query", Required: false, Type: "string", Description: "DateTime, Filters the result where modified date is greater than or equal to starttime value."},
@@ -7804,6 +8280,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Search for file conditions with the specified parameters.",
 		Description:    "Search for file conditions with the specified parameters such as organization group id, start time and end time value.\r\nThe parameters starttime and endtime accepts the below DateTime formats :\r\nyyyy/MM/dd, yyyy-MM-dd, MM/dd/yyyy, MM-dd-yyyy, yyyy/MM/dd HH:mm:ss.fff, \r\nyyyy-MM-dd HH:mm:ss.fff, MM/dd/yyyy HH:mm:ss.fff, MM-dd-yyyy HH:mm:ss.fff,\r\nyyyy/MM/ddTHH:mm:ss.fff, yyyy-MM-ddTHH:mm:ss.fff, MM/dd/yyyyTHH:mm:ss.fff, \r\nMM-dd-yyyyTHH:mm:ss.fff, yyyy-MM-dd HH-mm-ss-tt, yyyy-MM-ddTHH-mm-ss-tt.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "Organization group identifier"},
 			{Name: "starttime", In: "query", Required: false, Type: "string", Description: "DateTime, Filters the result where FileCondition modified date is greater than or equal to starttime value"},
@@ -7822,6 +8299,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves paginated lists of events actions for the specified organization group and page size.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "Organization group identifier."},
 			{Name: "page", In: "query", Required: false, Type: "integer", Description: "Specific page number to get in the resulting list."},
@@ -7840,6 +8318,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Get specified Product file actions by Product Id.",
 		Description:    "Retrieves specified product file actions when Product ID is specified.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Identifier of the Product. (Required)."},
 		},
@@ -7856,6 +8335,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves product components being pushed to a given relay server.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "devicepolicyuuid", In: "path", Required: true, Type: "string", Description: ""},
 			{Name: "relayserveruuid", In: "path", Required: true, Type: "string", Description: ""},
@@ -7875,6 +8355,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves product components being pushed to a given relay server.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "relayserverguid", In: "query", Required: false, Type: "string", Description: "Relay server unique identifier."},
 			{Name: "devicepolicyguid", In: "query", Required: false, Type: "string", Description: "Device policy unique identifier."},
@@ -7892,6 +8373,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Returns the list of Profiles which are assigned to the passed Product ID.",
 		Description:    "Returns the list of Profiles when Product ID is passed.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Identifier of the Product. (Required)."},
 		},
@@ -7908,6 +8390,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Get specified Product time conditions by Product Id.",
 		Description:    "Retrieves specified Product time conditions.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Identifier of the Product. (Required)."},
 		},
@@ -7924,6 +8407,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Creates  or updates a condition.",
 		Description:    "Creates or updates a condition with specified parameters.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.productcomponentsv1.maintaineventaction": {
@@ -7938,6 +8422,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Create or update an Event/Action.",
 		Description:    "This method creates new event action and updates existing event actions.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.productcomponentsv1.maintainfileaction": {
@@ -7952,6 +8437,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Creates or updates a file action.",
 		Description:    "Creates or updates a file action when required data is passed.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.productcomponentsv1.provisioningqueuecounts": {
@@ -7966,6 +8452,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Report back queue counts pertaining to the policy engine.",
 		Description:    "Report back queue counts pertaining to the policy engine when Organization group ID is passed.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Organization group ID. (Required)."},
 		},
@@ -7982,6 +8469,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves the product installation and download statistics.",
 		Description:    "Retrieves Product Download And Install Statistics based on the parameters passed.\r\nThe parameters starttime and endtime accepts the below DateTime formats :\r\n<br>yyyy/MM/dd, yyyy-MM-dd, MM/dd/yyyy, MM-dd-yyyy, yyyy/MM/dd HH:mm:ss.fff, yyyy-MM-dd HH:mm:ss.fff, MM/dd/yyyy HH:mm:ss.fff, MM-dd-yyyy HH:mm:ss.fff,</br>\r\nyyyy/MM/ddTHH:mm:ss.fff, yyyy-MM-ddTHH:mm:ss.fff, MM/dd/yyyyTHH:mm:ss.fff, MM-dd-yyyyTHH:mm:ss.fff, yyyy-MM-dd HH-mm-ss-tt, yyyy-MM-ddTHH-mm-ss-tt.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "Organization group identifier."},
 			{Name: "starttime", In: "query", Required: false, Type: "string", Description: "DateTime, Filters the result where Product's Last modified date on device is greater than or equal to starttime value. "},
@@ -8002,6 +8490,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Searches for the Files/Actions with the search parameters passed.",
 		Description:    "Retrieves Files Actions Search Result when search parameters are passed.\r\nThe parameters lastmodifiedon and lastmodifiedtill accepts the below DateTime formats :\r\n<br>yyyy/MM/dd, yyyy-MM-dd, MM/dd/yyyy, MM-dd-yyyy, yyyy/MM/dd HH:mm:ss.fff, yyyy-MM-dd HH:mm:ss.fff, MM/dd/yyyy HH:mm:ss.fff, MM-dd-yyyy HH:mm:ss.fff,</br>\r\nyyyy/MM/ddTHH:mm:ss.fff, yyyy-MM-ddTHH:mm:ss.fff, MM/dd/yyyyTHH:mm:ss.fff, MM-dd-yyyyTHH:mm:ss.fff, yyyy-MM-dd HH-mm-ss-tt, yyyy-MM-ddTHH-mm-ss-tt.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "Organization group ID."},
 			{Name: "platform", In: "query", Required: false, Type: "string", Description: "Name of the Platform in which the Files/Actions is created. (Example:Android)."},
@@ -8023,6 +8512,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Search for Time Conditions with the specified parameters.",
 		Description:    "Search for Time Conditions with the specified parameters such as organization group ID, start and end time values.\r\nThe parameters starttime and endtime accepts the below DateTime formats :\r\nyyyy/MM/dd, yyyy-MM-dd, MM/dd/yyyy, MM-dd-yyyy, yyyy/MM/dd HH:mm:ss.fff, \r\nyyyy-MM-dd HH:mm:ss.fff, MM/dd/yyyy HH:mm:ss.fff, MM-dd-yyyy HH:mm:ss.fff,\r\nyyyy/MM/ddTHH:mm:ss.fff, yyyy-MM-ddTHH:mm:ss.fff, MM/dd/yyyyTHH:mm:ss.fff, \r\nMM-dd-yyyyTHH:mm:ss.fff, yyyy-MM-dd HH-mm-ss-tt, yyyy-MM-ddTHH-mm-ss-tt.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "Organization group identifier"},
 			{Name: "starttime", In: "query", Required: false, Type: "string", Description: "DateTime, Filters the result where TimeCondition modified date is greater than or equal to starttime value"},
@@ -8041,6 +8531,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Activates a product in a Product Set.",
 		Description:    "Activates a product in a Product Set when Product Set and Product Id are passed .",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "productSetID", In: "query", Required: true, Type: "integer", Description: "Product Set ID. (Required)."},
 			{Name: "productID", In: "query", Required: true, Type: "integer", Description: "Product ID. (Required)."},
@@ -8058,6 +8549,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Deactivates a product in a Product Set.",
 		Description:    "Deactivates a product in a Product Set when Product Set and Product Id are passed.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "productSetID", In: "query", Required: true, Type: "integer", Description: "Product Set ID. (Required)."},
 			{Name: "productID", In: "query", Required: true, Type: "integer", Description: "Product ID. (Required)."},
@@ -8075,6 +8567,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Adds a product to or modifies an existing product in a Product Set.",
 		Description:    "Adds a product to or modifies an existing product in a Product Set when product details are passed.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.productsetv1.maintainproductset": {
@@ -8089,6 +8582,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Creates or updates a Product Set.",
 		Description:    "Creates or updates a product set when Product Set details are provided.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.productsetv1.productsetinquiry": {
@@ -8103,6 +8597,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves information about a Product Set and the included products.",
 		Description:    "Retrieves information about a Product Set and the list of products in the Product Set.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "OrganizationGroupID", In: "query", Required: false, Type: "integer", Description: "Organization Group ID."},
 			{Name: "ProductSetName", In: "query", Required: false, Type: "string", Description: "ProductSet Name."},
@@ -8122,6 +8617,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Pushes the Product Set onto the product policy engine.",
 		Description:    "Pushes the Product Set onto the product policy engine when Product Set ID and fasttrack parameters are passed.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "productSetID", In: "query", Required: true, Type: "integer", Description: "Product Set ID. (Required)."},
 			{Name: "fasttrack", In: "query", Required: true, Type: "integer", Description: "Should the device be fast tracked. (Required)."},
@@ -8139,6 +8635,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Reranks all products in a Product Set.",
 		Description:    "Reranks all products in a Product Set with the specified parameters.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.productsetv1.removeproductfromproductset": {
@@ -8153,6 +8650,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Deletes a product from a Product Set.",
 		Description:    "Deletes a product from a Product Set when Organization Group Id,Product Set and the product to be deleted in product set are provided.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "ogId", In: "path", Required: true, Type: "string", Description: "The Organization Group Id of the ProductSet. (Required)."},
 			{Name: "productSetIdOrName", In: "path", Required: true, Type: "string", Description: "Product Set containing the product to be deleted. (Required)."},
@@ -8171,6 +8669,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Initiates a reprocessing of a product set.",
 		Description:    "Initiates a reprocessing of a productset.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "productSetUuid", In: "path", Required: true, Type: "string", Description: "Request query."},
 			{Name: "force", In: "query", Required: false, Type: "boolean", Description: "fforce param. Default value is False."},
@@ -8188,6 +8687,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Activates the Product.",
 		Description:    "Activates the product which matches the input Product Identifier.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Identifier of Product which needs to be activated (Required)."},
 		},
@@ -8204,6 +8704,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Adds Conditions to Product.",
 		Description:    "Adds passed Download and Install Conditions to specified Product.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "productid", In: "path", Required: true, Type: "integer", Description: "Identifier of the Product to which conditions to be added (Required)."},
 		},
@@ -8220,6 +8721,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Adds SmartGroup to Product.",
 		Description:    "Adds the smart group with specified {smartgroupid} to the product with specified {id}.\r\nNote: POST /reprocessProduct API must be called explicitly to reprocess products to policy engine queue.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Identfier of the Product to which SmartGroup needs to be assigned (Required)."},
 			{Name: "smartgroupid", In: "path", Required: true, Type: "integer", Description: "Identfier of the Smart Group which needs to be assigned to the Product (Required)."},
@@ -8237,6 +8739,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Copies the existing product to create a new product.",
 		Description:    "Copies the existing product to create a new product with the details passed in input, i.e. name and organizationgroupid.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Identfier of the Product from which copy has to be made (Required)."},
 		},
@@ -8253,6 +8756,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Creates a new Product.",
 		Description:    "Creates a new Product based on the input details like Name, Organization Group, Platform, etc.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.productsv1.deactivate": {
@@ -8267,6 +8771,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Deactivates the Product.",
 		Description:    "Deactivates the product based on input Product Identifier.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Identfier of the product which needs to be deactivated (Required)."},
 		},
@@ -8283,6 +8788,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Deletes the product by the product Id",
 		Description:    "Deletes the provisioning product by the product Id specified",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Product Id.(Required)."},
 		},
@@ -8299,6 +8805,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets the details of the device health.",
 		Description:    "Gets the details of the device health which satisfies the search parameters specified in the request.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "OrganizationGroupId to search for."},
 			{Name: "organizationgroupname", In: "query", Required: false, Type: "string", Description: "OrganizationGroup name to search for. Example: US."},
@@ -8322,6 +8829,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Initiates a force reprocessing of a product",
 		Description:    "Input product uuid to initiate a force reprocessing of a product",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "productUuid", In: "path", Required: true, Type: "string", Description: "The uuid of the product.(Required)."},
 		},
@@ -8338,6 +8846,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Initiates a force reprocessing of a product for devices",
 		Description:    "Input product uuid with list of deviceIdentifiers to initiate a force reprocessing of a product for devices",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "productUuid", In: "path", Required: true, Type: "string", Description: "The uuid of the product.(Required)."},
 		},
@@ -8354,6 +8863,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get the job details of a product for a device",
 		Description:    "Input product uuid and device uuid to get the job details",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "productUuid", In: "path", Required: true, Type: "string", Description: "The uuid of the product.(Required)."},
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "The uuid of the Device.(Required)."},
@@ -8371,6 +8881,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets the Product.",
 		Description:    "Gets the Product based on input product identifier.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Identifier of the Product whose details to be fetched (Required)."},
 		},
@@ -8387,6 +8898,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Returns the product details for the given product uuid.",
 		Description:    "Returns the product's assignment and deployment configuration information. Additionally, returns the manifest/steps information based on includeStepDetails flag",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "productUuid", In: "path", Required: true, Type: "string", Description: "The uuid of the product.(Required)."},
 			{Name: "includeStepDetails", In: "query", Required: false, Type: "boolean", Description: "Indicates whether to get Manifest details or not"},
@@ -8404,6 +8916,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Get the products based on Application ID.",
 		Description:    "Get the products details based on Application Identifier.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "appid", In: "path", Required: true, Type: "integer", Description: "Product identifier (Required)."},
 		},
@@ -8420,6 +8933,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Get the details of job status changes.",
 		Description:    "Get the details of job status changes along with timestamps for those changes, for a device, a product, or a job\r\n<br />\r\n*modifieddatefrom, modifieddateto* fields accept the following\r\nValid DateTime formats : yyyy/MM/dd, yyyy-MM-dd, MM/dd/yyyy, MM-dd-yyyy, yyyy/MM/dd HH:mm:ss.fff,\r\nyyyy-MM-dd HH:mm:ss.fff, MM/dd/yyyy HH:mm:ss.fff, MM-dd-yyyy HH:mm:ss.fff, yyyy/MM/ddTHH:mm:ss.fff,\r\nyyyy-MM-ddTHH:mm:ss.fff, MM/dd/yyyyTHH:mm:ss.fff, MM-dd-yyyyTHH:mm:ss.fff, yyyy-MM-dd HH-mm-ss-tt, yyyy-MM-ddTHH-mm-ss-tt.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "ID of the Organization Group where Device/Product/Job under question is present.."},
 			{Name: "deviceid", In: "query", Required: false, Type: "string", Description: "evice ID of the device for which the job status change timestamp is desired. Example: 1."},
@@ -8443,6 +8957,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Creates or updates a product.",
 		Description:    "Creates or updates a product based on input product details like Product Name, Organization Group, Platform, etc.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.productsv1.productcomplianceissues": {
@@ -8457,6 +8972,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Returns list of non-compliant devices for products in a OG",
 		Description:    "v1",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "Organization group id which is similar to selected organization group selected in console."},
 			{Name: "resourceids", In: "query", Required: false, Type: "string", Description: "list of resources, meaning device uuids, this isnt mandatory"},
@@ -8481,6 +8997,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Returns summary of non-compliant devices for products in a OG by product compliance status",
 		Description:    "v1",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "Organization group id which is similar to selected organization group selected in console."},
 			{Name: "resourceids", In: "query", Required: false, Type: "string", Description: "list of resources, meaning device uuids, this isnt mandatory"},
@@ -8503,6 +9020,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Returns the Products.",
 		Description:    "Returns the details of Products which satisfies the search parameter\r\n<br />\r\n*modifiedfrom, modifiedtill* fields accept the following\r\nValid DateTime formats : yyyy/MM/dd, yyyy-MM-dd, MM/dd/yyyy, MM-dd-yyyy, yyyy/MM/dd HH:mm:ss.fff,\r\nyyyy-MM-dd HH:mm:ss.fff, MM/dd/yyyy HH:mm:ss.fff, MM-dd-yyyy HH:mm:ss.fff, yyyy/MM/ddTHH:mm:ss.fff,\r\nyyyy-MM-ddTHH:mm:ss.fff, MM/dd/yyyyTHH:mm:ss.fff, MM-dd-yyyyTHH:mm:ss.fff, yyyy-MM-dd HH-mm-ss-tt, yyyy-MM-ddTHH-mm-ss-tt.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "The Organization Group Identifier."},
 			{Name: "modifiedfrom", In: "query", Required: false, Type: "string", Description: "Modified from date time."},
@@ -8529,6 +9047,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Returns jobs and associated products.",
 		Description:    "Returns jobs and associated products based on input parameters like Device Identifier, Organization Group Identifier, etc\r\n<br />\r\n*modifieddatefrom, modifieddateto* fields accept the following\r\nValid DateTime formats : yyyy/MM/dd, yyyy-MM-dd, MM/dd/yyyy, MM-dd-yyyy, yyyy/MM/dd HH:mm:ss.fff,\r\nyyyy-MM-dd HH:mm:ss.fff, MM/dd/yyyy HH:mm:ss.fff, MM-dd-yyyy HH:mm:ss.fff, yyyy/MM/ddTHH:mm:ss.fff,\r\nyyyy-MM-ddTHH:mm:ss.fff, MM/dd/yyyyTHH:mm:ss.fff, MM-dd-yyyyTHH:mm:ss.fff, yyyy-MM-dd HH-mm-ss-tt, yyyy-MM-ddTHH-mm-ss-tt.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "Organization group id which is similar to organization group selected in console."},
 			{Name: "deviceid", In: "query", Required: false, Type: "integer", Description: "Device Id."},
@@ -8550,6 +9069,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Pushes the device and policy onto the policy engine.",
 		Description:    "Pushes the device and policy onto the policy engine based on the input Device Identifier and Device Policy Identifier.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceid", In: "query", Required: true, Type: "integer", Description: "DeviceId to insert. (Required)."},
 			{Name: "devicepolicyid", In: "query", Required: true, Type: "integer", Description: "PolicyId to insert. (Required)."},
@@ -8568,6 +9088,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Pushes the device onto the product policy engine.",
 		Description:    "Pushes the device onto the product policy engine for processing.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Device Identifier to push (Required)."},
 			{Name: "fasttrack", In: "query", Required: false, Type: "integer", Description: "Should the device be fast tracked (0 or 1)."},
@@ -8585,6 +9106,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Removes SmartGroup from the specified Product.",
 		Description:    "Removes SmartGroup from the specified Product based on Product Identifier and Smart Group Identifier.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Identifier of the Product from which SmartGroup needs to be removed (Required)."},
 			{Name: "smartgroupid", In: "path", Required: true, Type: "integer", Description: "Identifier of the Smart Group which needs to be removed from the Product (Required)."},
@@ -8602,6 +9124,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Initiates a reprocessing of a product.",
 		Description:    "Initiates a reprocessing of a product or product and device(s) by the policy engine. Supports a reprocess and a forced reprocess.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "productUuid", In: "path", Required: true, Type: "string", Description: "The uuid of the product.(Required)."},
 		},
@@ -8618,6 +9141,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Initiates a reprocessing of a product.",
 		Description:    "Initiates a reprocessing of a product or product and device(s) by the policy engine. Supports a reprocess and a forced reprocess.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.productsv1.search": {
@@ -8632,6 +9156,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Searches for the products with the search parameters passed.",
 		Description:    "Searches for the products with the search parameters passed like Product Name, Organization Group Identifier, etc\r\n<br />\r\n*modifiedfrom, modifiedtill* fields accept the following\r\nValid DateTime formats : yyyy/MM/dd, yyyy-MM-dd, MM/dd/yyyy, MM-dd-yyyy, yyyy/MM/dd HH:mm:ss.fff,\r\nyyyy-MM-dd HH:mm:ss.fff, MM/dd/yyyy HH:mm:ss.fff, MM-dd-yyyy HH:mm:ss.fff, yyyy/MM/ddTHH:mm:ss.fff,\r\nyyyy-MM-ddTHH:mm:ss.fff, MM/dd/yyyyTHH:mm:ss.fff, MM-dd-yyyyTHH:mm:ss.fff, yyyy-MM-dd HH-mm-ss-tt, yyyy-MM-ddTHH-mm-ss-tt.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "name", In: "query", Required: false, Type: "string", Description: "Product name. Example: OS Upgrade 10."},
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "Organization group id which is similar to selected organization group selected in console."},
@@ -8661,6 +9186,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Sets the product install time.",
 		Description:    "Sets the product install time based on input Product Identifier and Install Time.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Product identifer for which the Install time has to be specified (Required)."},
 		},
@@ -8677,6 +9203,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Updates the product details.",
 		Description:    "Updates the product details based on Product Identifier and Product properties like Name, Organization Group Identifier, etc.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Product identifier (Required)."},
 		},
@@ -8693,6 +9220,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Installs the profile on device.",
 		Description:    "Queues up installation commands for interactive profiles for a device by overriding payload settings.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "string", Description: "The device ID (Required)."},
 			{Name: "profileid", In: "query", Required: false, Type: "integer", Description: "Profile id."},
@@ -8710,6 +9238,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves the profile details of the device identified by alternate ID.",
 		Description:    "Fetches all the profiles and details for the device identified by alternate ID other than device ID.\r\nAlternate device identifiers can be MAC address, IMEI, Serial number or UDID.\r\nExample : IMEI-BCG84753GH, Serial Number-573489754.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchBy", In: "query", Required: false, Type: "string", Description: "The alternate id type [Macaddress, Udid, Serialnumber, ImeiNumber]."},
 			{Name: "id", In: "query", Required: false, Type: "string", Description: "Device alternate id."},
@@ -8729,6 +9258,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves the profile details of the device by Device ID.",
 		Description:    "Fetches all the profiles and details for the device identified by device ID.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "DeviceID is the unique identifier for devices in AirWatch (Required)."},
 			{Name: "page", In: "query", Required: false, Type: "integer", Description: "The specific page number to get."},
@@ -8747,6 +9277,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Activates a Device Profile by Profile Id.",
 		Description:    "Activates a Device Profile identified by Profile Id.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "profileid", In: "path", Required: true, Type: "integer", Description: "Profile Id (Required)."},
 		},
@@ -8763,6 +9294,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Activates a Device Profile by its unique identifier.",
 		Description:    "Activates a Device Profile identified by its unique identifier.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "profileUuid", In: "path", Required: true, Type: "string", Description: "The uuid of the profile. \r\n            Accepted formats **guid**\r\n            E.g. 3d958f38-246e-4854-a306-189d941ab073(Required)."},
 		},
@@ -8779,6 +9311,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "De-Activates a Device Profile by Profile Id.",
 		Description:    "De-Activates a Device Profile identified by Profile Id.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "profileid", In: "path", Required: true, Type: "integer", Description: "Profile Id (Required)."},
 		},
@@ -8795,6 +9328,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Deactivates a Device Profile by its unique identifier.",
 		Description:    "Deactivates a Device Profile identified by its unique identifier.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "profileUuid", In: "path", Required: true, Type: "string", Description: "The uuid of the profile. \r\n            Accepted formats **guid**\r\n            E.g. 3d958f38-246e-4854-a306-189d941ab073(Required)."},
 		},
@@ -8811,6 +9345,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Deletes the mapping between a certificate and profile",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "mappingID", In: "path", Required: true, Type: "integer", Description: "certificate profile map id"},
 		},
@@ -8827,6 +9362,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Deletes the Device Profile by Profile Id.",
 		Description:    "Deletes the Device Profile identified by the Profile Id.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "profileid", In: "path", Required: true, Type: "integer", Description: "Profile Id (Required)."},
 		},
@@ -8843,6 +9379,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Deletes a device Profile by its unique identifier.",
 		Description:    "Deletes a Device Profile identified by its unique identifier.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "profileUuid", In: "path", Required: true, Type: "string", Description: "The uuid of the profile. \r\n            Accepted formats **guid**\r\n            E.g. 3d958f38-246e-4854-a306-189d941ab073(Required)."},
 		},
@@ -8859,6 +9396,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "List the certificate mappings for a device profile",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceProfileID", In: "query", Required: true, Type: "integer", Description: "The device profile ID"},
 		},
@@ -8875,6 +9413,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Returns a list of devices based on the installation status for the specified profile identified by profile uuid.",
 		Description:    "Gets a paged list of devices along with a link to the respective GET Devices version 2 endpoint.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "profileuuid", In: "path", Required: true, Type: "string", Description: "Unique Identifier of the Profile(Required)"},
 			{Name: "profilestatus", In: "query", Required: false, Type: "string", Description: "Profile installation status:\r\n            * INSTALLED - Profile installed. This is the default value for profilestatus.\r\n            * NOT_INSTALLED - Profile assigned and not installed."},
@@ -8895,6 +9434,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Returns device profile details for the given profile uuid.",
 		Description:    "Will return the following information for profile in the provided organization group 1. Managed By 2. Profile Name 3. Platform type 4. Is Active",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "profileUuid", In: "path", Required: true, Type: "string", Description: "The uuid of the profile. \r\n            Accepted formats **guid**\r\n            E.g. 3d958f38-246e-4854-a306-189d941ab073(Required)."},
 			{Name: "organizationgroupuuid", In: "query", Required: false, Type: "string", Description: "Uuid of the Organization Group from where the profile is accessed."},
@@ -8912,6 +9452,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Returns device count by profile status for the given profile uuid.",
 		Description:    "Will return the following information for profile status count for the provided profile uuid.\r\n1. Total assigned profile count 2. Total installed profile count 3. Total not installed profile count.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "profileUuid", In: "path", Required: true, Type: "string", Description: "The uuid of the profile.\r\n            Accepted formats **guid**\r\n            E.g. 3d958f38-246e-4854-a306-189d941ab073(Required)."},
 		},
@@ -8928,6 +9469,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets sso profiles configuration status for android, ios and windows.",
 		Description:    "Checks whether sso profiles are existing in system for different platforms. Note that the profiles need to have a predefined name for api to fetch the proper status.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.profilesv1.installprofile": {
@@ -8942,6 +9484,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Installs the profile on device.",
 		Description:    "Installs the profile on the device identified by the query information provided.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "profileid", In: "path", Required: true, Type: "integer", Description: "The id of the profile to be installed.(Required)."},
 		},
@@ -8958,6 +9501,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Removes the profile from the device.",
 		Description:    "Removes the profile from the device identified by the query information provided.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "profileid", In: "path", Required: true, Type: "integer", Description: "Profile Id Example=12."},
 		},
@@ -8974,6 +9518,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Creates a mapping between a profile and certificate or certificate template",
 		Description:    "v1",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.profilesv1.search": {
@@ -8988,6 +9533,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Searches for all profiles applicable using the query information provided.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "type", In: "query", Required: false, Type: "string", Description: "Assignment Type."},
 			{Name: "profilename", In: "query", Required: false, Type: "string", Description: "Profile Name."},
@@ -9015,6 +9561,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Generates a barcode to be used with Stage Now",
 		Description:    "It generates a barcode to be used with the Stage Now client on Zebra Android devices.  Stage Now replaces the RD staging client in newer Zebra Android devices.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.profilesv1.uploadcertificate": {
@@ -9029,6 +9576,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Uploads certificate into Airwatch.",
 		Description:    "Uploads certificate into AirWatch [Both .pfx and .cer formats].",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.profilesv1.uploadprofilecertificate": {
@@ -9043,6 +9591,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Saves an uploaded certificate file and associates it with a profile and Organization Group",
 		Description:    "Creates a new certificate associated with Organization Group and returns certificateID",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "profileUuid", In: "path", Required: true, Type: "string", Description: "profile unique identifier"},
 		},
@@ -9059,6 +9608,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Complete authorization, retrieve and store access and refresh tokens for the tenant.",
 		Description:    "Complete authorization, retrieve and store access and refresh tokens for the tenant.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for organization group.(Required)."},
 		},
@@ -9075,6 +9625,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Delete registration for specified tenant.",
 		Description:    "Deletes the registration records for the tenant if registration exists.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for organization group.(Required)."},
 		},
@@ -9091,6 +9642,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Registration with zebra data services.",
 		Description:    "Initiate the registration with zebra data services.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for organization group.(Required)."},
 		},
@@ -9107,6 +9659,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Creates a new relay server provided valid values are given.",
 		Description:    "Creates a new relay server based on the valid values given.<br>Relay server is a FTP server from where the devices can download the provisioning files.  This is done inorder to reduce the load of deviceservices.</br><br>These details include Name of relay server, Organization group under which it is managed, Username, Password, Connection details for the device and console to connect.</br>",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.relayserversv1.addrelayserversinbulk": {
@@ -9121,6 +9674,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Creates new relay servers in bulk provided valid values are given.",
 		Description:    "Creates new relay servers in bulk with valid values given.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.relayserversv1.deleterelayserver": {
@@ -9135,6 +9689,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Delete the relay server.",
 		Description:    "Deletes the existing relay server.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "serverId", In: "path", Required: true, Type: "integer", Description: "Id of the relay server."},
 		},
@@ -9151,6 +9706,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets details of existing relay server.",
 		Description:    "Fetch the details of the existing relay server.<br>These details include Name of relay server, Organization group under which it is managed, Username, Password, Connection details for the device and console to connect.</br>",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "serverId", In: "path", Required: true, Type: "integer", Description: "Relay server id."},
 		},
@@ -9167,6 +9723,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Posts contents for the eligible relay server for the product and og inputted.",
 		Description:    "Posts contents for the eligible relay server for the product and og inputted when there are no devices enrolled in the organization group.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.relayserversv1.updaterelayserver": {
@@ -9181,6 +9738,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Update the details existing relay server.",
 		Description:    "Update the details of existing relay server. <br>These details include Name of relay server, Organization group under which it is managed, Username, Password, Connection details for the device and console to connect. </br>",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.relayserversv2.addrelayserverv2": {
@@ -9195,6 +9753,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Creates a relay server.",
 		Description:    "This API can be used to create Push, Pull and Cloud Relay servers.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.relayserversv2.deleterelayserverv2": {
@@ -9209,6 +9768,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Delete the relay server",
 		Description:    "This endpoint deletes the specified relay server.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "relayServerUuid", In: "path", Required: true, Type: "string", Description: "Relay Server Unique Identifier(Required)."},
 		},
@@ -9225,6 +9785,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets details of existing relay server",
 		Description:    "This endpoint returns the details of specified relay server.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "relayServerUuid", In: "path", Required: true, Type: "string", Description: "Relay Server Unique Identifier(Required)."},
 		},
@@ -9241,6 +9802,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Search relay servers based on the query information provided.",
 		Description:    "Search relay servers based on the query parameters like relay server name, relay server type, state and status along with pagination and ordering support.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.relayserversv2.testconnection": {
@@ -9255,6 +9817,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets test connection details for Push Relay Servers.",
 		Description:    "Fetch the connection details for the relay server.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "relayServerUuid", In: "path", Required: true, Type: "string", Description: "Relay Server Unique Identifier(Required)."},
 		},
@@ -9271,6 +9834,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Updates a relay server.",
 		Description:    "This API can be used to update Push, Pull and Cloud Relay servers.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "relayServerUuid", In: "path", Required: true, Type: "string", Description: "Relay server unique identifier(Required)."},
 		},
@@ -9287,6 +9851,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Create a remediation assignment for a vulnerability in a specific product.",
 		Description:    "Create a remediation assignment linking a vulnerability remediation to a product deployment for devices within an organization group.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "vulnerabilityId", In: "path", Required: true, Type: "string", Description: "Unique identifier of the vulnerability.(Required)."},
 			{Name: "productId", In: "path", Required: true, Type: "string", Description: "Unique identifier of the product impacted by the vulnerability.(Required)."},
@@ -9304,6 +9869,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Delete a remediation assignment.",
 		Description:    "Delete a remediation assignment. This will remove the tracking link between the vulnerability and the application deployment assignment.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "remediationAssignmentUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier of the remediation assignment.(Required)."},
 			{Name: "organization_group_uuid", In: "query", Required: true, Type: "string", Description: "Unique identifier of the organization group.(Required)"},
@@ -9321,6 +9887,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get details of a specific remediation assignment.",
 		Description:    "Get details of a specific remediation assignment by id.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "remediationAssignmentUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier of the remediation assignment.(Required)."},
 			{Name: "organization_group_uuid", In: "query", Required: true, Type: "string", Description: "Unique identifier of the organization group.(Required)"},
@@ -9338,6 +9905,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the device's RM registration information.",
 		Description:    "Gets the information about device registration with the RM4 server, i.e, if the device is registered or not.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for the Device.(Required)"},
 		},
@@ -9354,6 +9922,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Initiates a Remote Management session.",
 		Description:    "Initiates a Remote Management session with the device and gets the session URL.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for the Device.(Required)"},
 		},
@@ -9370,6 +9939,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Registers the device with RM4 server.",
 		Description:    "Registers the device to the RM4 server for remote session capability.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for the Device.(Required)"},
 		},
@@ -9386,6 +9956,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Retrieves the details about the resources",
 		Description:    "",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.scriptassignmentv1.addscriptassignment": {
@@ -9400,6 +9971,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - AddScriptAssignmentAsync",
 		Description:    "Adds an assignment to script. Assignment information includes assigned smart groups and triggers.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "scriptUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the script.(Required)"},
 		},
@@ -9416,6 +9988,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - BulkUpdateScriptAssignmentsAsync",
 		Description:    "Updates the list of assignment for the script.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "scriptUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the script.(Required)"},
 		},
@@ -9432,6 +10005,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - GetScriptAssignmentAsync",
 		Description:    "Get script assignment information which includes assigned smart groups and triggers.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "assignmentUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the device assignment.(Required)"},
 		},
@@ -9448,6 +10022,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - GetScriptAssignmentsAsync",
 		Description:    "Get a list of script assignments information which includes assigned smart groups and triggers for each assignment.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "scriptUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the script.(Required)"},
 		},
@@ -9464,6 +10039,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - CreateScriptAsync",
 		Description:    "Create a script which includes script name, description, platform, script type, execution context, timeout, script data, script environment variables.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for the organization group"},
 		},
@@ -9480,6 +10056,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - GetScriptAsync",
 		Description:    "Get a script which includes script name, description, display name, action type, category, organization group identifier, platform, script type, execution context, timeout, script data, script environment variables.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "scriptUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the script."},
 		},
@@ -9496,6 +10073,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - GetScriptConfigurationAsync",
 		Description:    "An API to get configuration information for entitled script resource for the device. Configuration inludes the Trigger type, triggers events, trigger period along with looked up script variables)",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "deviceUuid."},
 			{Name: "scriptUuid", In: "path", Required: true, Type: "string", Description: "uuid of the script."},
@@ -9514,6 +10092,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - GetScriptDefinitionAsync",
 		Description:    "Device gateway API to get the Script definitions by device and script uuid",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "deviceUuid."},
 			{Name: "scriptUuid", In: "path", Required: true, Type: "string", Description: "uuid of the script."},
@@ -9531,6 +10110,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get script samples.",
 		Description:    "Get script samples which includes script execution details.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for the organization group"},
 		},
@@ -9547,6 +10127,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - GetScriptsByOrganizationGroupAsync",
 		Description:    "Returns a list of script(s) with scripts details for the organization group.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for the organization group"},
 			{Name: "expand", In: "query", Required: true, Type: "boolean", Description: "Flag to specify to get metadata or complete definition of a script"},
@@ -9572,6 +10153,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - ReplaceScriptDefinitionAsync",
 		Description:    "Replace the script definition which includes description, display name, action type, category, execution context, timeout, script data, script environment variables.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "scriptUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the script."},
 		},
@@ -9588,6 +10170,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - ScriptBulkDelete",
 		Description:    "This API is used to delete the list of script attribute and attribute details along with the associated assignments.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for the organization group"},
 		},
@@ -9604,6 +10187,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Searches for Device Security Information for the device.",
 		Description:    "Processes the information like organizationgroup ID, user name, model, platform, last seen, ownership, compliant status,\r\n            seen since parameters and fetches the security information for the same.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "query", Required: true, Type: "integer", Description: "OrganizationGroup to be searched, user's OG is considered if not sent. e.g.[testOrganizationGroup] (Required)."},
 			{Name: "user", In: "query", Required: true, Type: "string", Description: "Enrolled username. e.g.[testUser] (Required)."},
@@ -9629,6 +10213,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get encryption status of an enrolled device.",
 		Description:    "Get encryption status of an enrolled device identified by device Uuid.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Unique identifier (Uuid) of a device.(Required)."},
 		},
@@ -9645,6 +10230,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the Recovery Lock password for a macOS device.",
 		Description:    "Gets the Recovery Lock password for a macOS device identified by the device Uuid. Applicable for macOS 11.5+ and available with Apple Silicon.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Unique identifier (Uuid) of a device.(Required)."},
 		},
@@ -9661,6 +10247,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves the security information of the device identified by device ID.",
 		Description:    "Processes the device ID to retrieve the security information sample related info. Security Info Sample for that device\r\n            needs to be reported to the server prior to the call in order to get successful response. This API will fetch security info by\r\n            device ID.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The device ID. (Required)."},
 		},
@@ -9677,6 +10264,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves the security information of the device identified by device ID.",
 		Description:    "Processes the device id to retrieve the security information sample related info. Security Info Sample for that device\r\n            needs to be reported to the server prior to the call in order to get successful response. This API will fetch security info by alternate ID\r\n            of the device.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchBy", In: "query", Required: true, Type: "string", Description: "The alternate id type; possible values: [Macaddress, Udid, Serialnumber, ImeiNumber]. (Required)."},
 			{Name: "id", In: "query", Required: true, Type: "string", Description: "The alternate ID of the device. (Formats: Macaddress: 848506B900BA, Udid: 6bf0f04c73681fbecfc3eb4f13cbf05b, SerialNumber: LGH871c18f631a, ImeiNumber: 354833052322837)(Required)."},
@@ -9694,6 +10282,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get information of the administrator account configured on a macOS device via the Automated Device Enrollment (ADE).",
 		Description:    "Get information of the administrator account configured on a macOS device via the Automated Device Enrollment (ADE). It includes the name for the account, current and the old passwords for the account, and the date and time of the day on which the administrator password was last rotated. If a unique random password is generated for the account, for security reasons, a command will be queued automatically to rotate the administrator password in 8 hour(s) from when the information was accessed.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Universally unique identifier (UUID) of a device.(Required)."},
 		},
@@ -9710,6 +10299,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Creates a smart group in Airwatch.",
 		Description:    "Create a smart group in Airwatch based on the given details.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.smartgroups.delete": {
@@ -9724,6 +10314,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Deletes the Smart Group identified by the Smart Group Identifier.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The SmartGroup Identifier (Required)."},
 		},
@@ -9740,6 +10331,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets List of Apps assigned to Smart Group.",
 		Description:    "Get List of Apps assigned to the Smart Group based on Smart Group Identifier.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Smart Group Id (Required)."},
 		},
@@ -9756,6 +10348,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves the device details in the smart group.",
 		Description:    "Retrieves the list of all devices with their respective details (such as DeviceId, Model, OS Version, Platform and Ownership) which belongs to a specific SmartGroup based on Smart Group Identifier.\r\n            <br />\r\n            **seensince and seentill** fields accept the following\r\n            Valid DateTime formats : yyyy/MM/dd, yyyy-MM-dd, MM/dd/yyyy, MM-dd-yyyy, yyyy/MM/dd HH:mm:ss.fff,\r\n            yyyy-MM-dd HH:mm:ss.fff, MM/dd/yyyy HH:mm:ss.fff, MM-dd-yyyy HH:mm:ss.fff, yyyy/MM/ddTHH:mm:ss.fff,\r\n            yyyy-MM-ddTHH:mm:ss.fff, MM/dd/yyyyTHH:mm:ss.fff, MM-dd-yyyyTHH:mm:ss.fff, yyyy-MM-dd HH-mm-ss-tt, yyyy-MM-ddTHH-mm-ss-tt.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "smartgroupid", In: "path", Required: true, Type: "integer", Description: "The SmartGroup Identifier."},
 			{Name: "seensince", In: "query", Required: false, Type: "string", Description: "Filters the devices in the smart group seen after the seensince datetime."},
@@ -9774,6 +10367,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves the Smart Group Details.",
 		Description:    "Retrieves all the Smart Group details like ( Name, Id, RootLocationGroup, Devices Assigned,list of Users/User Groups etc.) from the Smart Group Identifier.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The SmartGroup Identifier (Required)."},
 		},
@@ -9790,6 +10384,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Searches for smart groups using the query information provided.",
 		Description:    "Searches for smart groups using the query information (smartgroup name, organizationgroup Id, mdodifedfrom/modifiedtill date, page , pagesize) provided in the request query.\r\n            <br />\r\n            **modifiedfrom and modifiedtill** fields accept the following\r\n            Valid DateTime formats : yyyy/MM/dd, yyyy-MM-dd, MM/dd/yyyy, MM-dd-yyyy, yyyy/MM/dd HH:mm:ss.fff,\r\n            yyyy-MM-dd HH:mm:ss.fff, MM/dd/yyyy HH:mm:ss.fff, MM-dd-yyyy HH:mm:ss.fff, yyyy/MM/ddTHH:mm:ss.fff,\r\n            yyyy-MM-ddTHH:mm:ss.fff, MM/dd/yyyyTHH:mm:ss.fff, MM-dd-yyyyTHH:mm:ss.fff, yyyy-MM-dd HH-mm-ss-tt, yyyy-MM-ddTHH-mm-ss-tt.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "name", In: "query", Required: false, Type: "string", Description: "SmartGroup name."},
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "Organization Group identifier."},
@@ -9814,6 +10409,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Updates the details of the specified Smart Group.",
 		Description:    "Updates the details of the specified Smart Group based on Smart Group Identifier and Smart Group details.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The SmartGroup Identifier."},
 		},
@@ -9830,6 +10426,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Search Staging Bundles based on the query information provided",
 		Description:    "Search Staging Bundles based on the query parameters like organization group uuid, device type and search text.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organization_group_uuid", In: "query", Required: false, Type: "string", Description: "organization group to search Staging Bundles"},
 			{Name: "device_type", In: "query", Required: false, Type: "", Description: "device type such as Android or Windows Mobile."},
@@ -9848,6 +10445,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Creates a new staging bundle provided valid values are given.",
 		Description:    "Creates a new staging package with the valid values provided.<br>Staging package is used for enrolling a device through barcode scanning or side loading. </br>",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.stagingv1.deletestagingbundle": {
@@ -9862,6 +10460,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Delete the staging package identified by the staging package id provided it is valid.",
 		Description:    "The staging will be deleted if identifier of existing staging package is passed.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "stagingId", In: "path", Required: true, Type: "integer", Description: "Valid staging bundle id."},
 		},
@@ -9878,6 +10477,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Retrieves a QRCode pdf file for Enrollment",
 		Description:    "Retrieves a QRCode pdf file for Enrollment used in Enrollment for Corporate Owned AFW Devices.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.stagingv1.getstagingdetails": {
@@ -9892,6 +10492,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the staging bundle identified by the staging package id provided it is valid.",
 		Description:    "Fetch the details of the existing staging package. <br>Staging package is used for enrolling a device through barcode scanning or side loading </br><br>The fetched details include name of package, organization group under which it is managed, Agent package id and manifest actions like Install profile, Uninstall application.</br>",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "stagingId", In: "path", Required: true, Type: "integer", Description: "Valid staging bundle id."},
 		},
@@ -9908,6 +10509,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Update the already existing staging package.",
 		Description:    "Updates the details of existing staging package. <br>Staging package is used for enrolling a device through barcode scanning or side loading </br><br>The details include name of package, organization group under which it is managed, Agent package id and manifest actions like Install profile, Uninstall application</br>",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.syncv1.createzebrasyncrequest": {
@@ -9922,6 +10524,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Creates a request to sync enrollment and policy status with Zebra Data Services for the devices under a given organization group.",
 		Description:    "Create a sync request for a given organization group.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier of organization group.(Required)."},
 		},
@@ -9938,6 +10541,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Add devices to the tag.",
 		Description:    "Assigns the given tag to the set of devices.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "tagid", In: "path", Required: true, Type: "integer", Description: "Tag id."},
 		},
@@ -9954,6 +10558,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Add a new tag.",
 		Description:    "Add a tag based on the details provided.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.tags.deletetag": {
@@ -9968,6 +10573,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Delete a tag.",
 		Description:    "Delete a tag based on tag identifier.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "tagId", In: "path", Required: true, Type: "integer", Description: "The tag ID."},
 		},
@@ -9984,6 +10590,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves all the devices with the specified tag.",
 		Description:    "Retrieves the list of devices that have the specified input tag assigned.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "tagId", In: "path", Required: true, Type: "integer", Description: "Tag identifier."},
 			{Name: "lastSeen", In: "query", Required: false, Type: "string", Description: "Date Last Seen."},
@@ -10001,6 +10608,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Remove devices from the tag.",
 		Description:    "Remove devices from tag based on the tag identifier and devices to be removed.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "tagid", In: "path", Required: true, Type: "integer", Description: "Tag id."},
 		},
@@ -10017,6 +10625,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieve the list of tags based off name, organization group, tag type.",
 		Description:    "Retrieve the list of tags with the search criteria that includes name, organization group, tagtype, page and page size.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "name", In: "query", Required: false, Type: "string", Description: "Name of the tag to search."},
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "Organization group identifier."},
@@ -10038,6 +10647,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Updates a tag name, tag type or tag avatar.",
 		Description:    "Updates a tag based on the tag identifier and tag details. This API can be used to update the tag name, tag type and tag avatar.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "tagId", In: "path", Required: true, Type: "integer", Description: "Unique identifier for the tag."},
 		},
@@ -10054,6 +10664,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Export entitled devices",
 		Description:    "Export applicable devices for a given application whose assignments are evaluated",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "externalUpdateIdentifier", In: "path", Required: true, Type: "string", Description: "Update identifier generated by the OS vendor(Required)."},
 		},
@@ -10070,6 +10681,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get entitled devices for the targeted system update whose assignments have been evaluated",
 		Description:    "Returns entitled devices for the given targeted system update, only those devices whose assignments have been evaluated are considered",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "externalUpdateIdentifier", In: "path", Required: true, Type: "string", Description: "Update identifier generated by the OS vendor(Required)."},
 		},
@@ -10086,6 +10698,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get a summary of evaluated devices.",
 		Description:    "Get a summary of evaluated devices, summarizing information on different fields/attributes of the evaluated devices.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "externalUpdateIdentifier", In: "path", Required: true, Type: "string", Description: "Update identifier generated by the OS vendor(Required)."},
 		},
@@ -10102,6 +10715,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Export excluded devices",
 		Description:    "Export devices who are excluded from a given external update",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "externalUpdateIdentifier", In: "path", Required: true, Type: "string", Description: "Update identifier generated by the OS vendor(Required)."},
 		},
@@ -10118,6 +10732,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get excluded devices for the targeted system update",
 		Description:    "Returns devices that are explicitly excluded from the given external update",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "externalUpdateIdentifier", In: "path", Required: true, Type: "string", Description: "Update identifier generated by the OS vendor(Required)."},
 		},
@@ -10134,6 +10749,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get a summary of excluded devices.",
 		Description:    "Get a summary of excluded devices, summarizing information on different fields/attributes of the excluded devices.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "externalUpdateIdentifier", In: "path", Required: true, Type: "string", Description: "Update identifier generated by the OS vendor(Required)."},
 		},
@@ -10150,6 +10766,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Exports assigned devices for the targeted system update whose entitlements are not evaluated yet",
 		Description:    "Export applicable devices for the given targeted system update whose entitlement evaluation is pending",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "externalUpdateIdentifier", In: "path", Required: true, Type: "string", Description: "Update identifier generated by the OS vendor(Required)."},
 		},
@@ -10166,6 +10783,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Search for devices pending evaluation for this external update",
 		Description:    "Returns devices that are pending evaluation for the given external update",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "externalUpdateIdentifier", In: "path", Required: true, Type: "string", Description: "Update identifier generated by the OS vendor(Required)."},
 		},
@@ -10182,6 +10800,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get a summary of pending devices.",
 		Description:    "Get a summary of pending devices, summarizing information on different fields/attributes of the pending devices.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "externalUpdateIdentifier", In: "path", Required: true, Type: "string", Description: "Update identifier generated by the OS vendor(Required)."},
 		},
@@ -10198,6 +10817,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the devices that are going to be added, removed or remain unchanged with respect to a targeted system update assignment.",
 		Description:    "Gets the preview of the device list that are going to be affected by the targeted system update publish.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "targetedSystemUpdateUuid", In: "path", Required: true, Type: "string", Description: "The unique update identifier defined by UEM for the targeted system update.\r\n            Accepted formats **uuid**\r\n            example: 3d958f38-246e-4854-a306-189d941ab073(Required)."},
 		},
@@ -10214,6 +10834,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets summary of the devices that are going to be added, removed or remain unchanged with respect to a targeted system update assignment.",
 		Description:    "Gets the summary for preview of the device list that are going to be affected by the targeted system update publish.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "targetedSystemUpdateUuid", In: "path", Required: true, Type: "string", Description: "The unique update identifier defined by UEM for the targeted system update.\r\n            Accepted formats **uuid**\r\n            example: 3d958f38-246e-4854-a306-189d941ab073(Required)."},
 		},
@@ -10230,6 +10851,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Returns total assigned devices count.",
 		Description:    "API returns a count of total assigned devices.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "externalUpdateIdentifier", In: "path", Required: true, Type: "string", Description: "Update identifier generated by the OS vendor(Required)."},
 		},
@@ -10246,6 +10868,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Searches for telecom device usage history by device using the query information provided.",
 		Description:    "Searches for telecom device usage history based on the Organization Group ID, Alternate Id, Phone Number, Start Date, End Date.\r\n<br />\r\n*startdate and enddate* fields accept the following\r\nValid DateTime formats : yyyy/MM/dd, yyyy-MM-dd, MM/dd/yyyy, MM-dd-yyyy, yyyy/MM/dd HH:mm:ss.fff,\r\nyyyy-MM-dd HH:mm:ss.fff, MM/dd/yyyy HH:mm:ss.fff, MM-dd-yyyy HH:mm:ss.fff, yyyy/MM/ddTHH:mm:ss.fff,\r\nyyyy-MM-ddTHH:mm:ss.fff, MM/dd/yyyyTHH:mm:ss.fff, MM-dd-yyyyTHH:mm:ss.fff, yyyy-MM-dd HH-mm-ss-tt, yyyy-MM-ddTHH-mm-ss-tt.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "Organization Group ID."},
 			{Name: "searchBy", In: "query", Required: false, Type: "string", Description: "The Alternate ID type; possible values: [Macaddress, UdId, Serialnumber, ImeiNumber, EasId, DeviceId].(Formats: Macaddress: 848506B900BA, UdId: 6bf0f04c73681fbecfc3eb4f13cbf05b, SerialNumber: LGH871c18f631a, ImeiNumber: 354833052322837, EasId: 499NCV2JH55N5CUTR2D27GG42, DeviceId: 12345)."},
@@ -10271,6 +10894,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Searches for telecom device usage history in bulk by Organization Group using the query information provided.",
 		Description:    "Searches for telecom device usage history in bulk based on the Organization Group ID and Date.\r\n<br />\r\ndate* field accepts the following\r\nValid DateTime formats : yyyy/MM/dd, yyyy-MM-dd, MM/dd/yyyy, MM-dd-yyyy, yyyy/MM/dd HH:mm:ss.fff,\r\nyyyy-MM-dd HH:mm:ss.fff, MM/dd/yyyy HH:mm:ss.fff, MM-dd-yyyy HH:mm:ss.fff, yyyy/MM/ddTHH:mm:ss.fff,\r\nyyyy-MM-ddTHH:mm:ss.fff, MM/dd/yyyyTHH:mm:ss.fff, MM-dd-yyyyTHH:mm:ss.fff, yyyy-MM-dd HH-mm-ss-tt, yyyy-MM-ddTHH-mm-ss-tt.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "Search by Organization Group ID."},
 			{Name: "date", In: "query", Required: false, Type: "string", Description: "Search by date, if not provided current UTC date will be considered."},
@@ -10292,6 +10916,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Fetch GPO templates",
 		Description:    "Returns a list of GPO security baseline templates provided by various vendors.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.templatesv1.getpolicy": {
@@ -10306,6 +10931,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Fetch a policy with it's recommended values",
 		Description:    "Returns a policy with it's options localized for a selected language and recommended values",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "baselineTemplateUUID", In: "path", Required: true, Type: "string", Description: "The baseline template unique identifier(Required)."},
 			{Name: "policyUUID", In: "path", Required: true, Type: "string", Description: "The policy identifier(Required)."},
@@ -10324,6 +10950,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Find a vendor template",
 		Description:    "Returns a GPO security baseline template provided by a vendor.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "vendorTemplateUUID", In: "path", Required: true, Type: "string", Description: "The vendor template identifier(Required)."},
 			{Name: "osVersionUUID", In: "query", Required: true, Type: "string", Description: "The operating system version identifier(Required)"},
@@ -10344,6 +10971,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Creates a third party provider configuration for the given tenant.",
 		Description:    "Creates a third party provider configuration for the given tenant.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "provider", In: "path", Required: true, Type: "string", Description: "The name of the third party provider.(Required)."},
 		},
@@ -10360,6 +10988,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Deletes a third party provider configuration for the given tenant.",
 		Description:    "Deletes a third party provider configuration for the given tenant.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "provider", In: "path", Required: true, Type: "string", Description: "The name of the third party provider.(Required)."},
 			{Name: "organization_group_uuid", In: "query", Required: true, Type: "string", Description: "Unique identifier of the organization group.(Required)"},
@@ -10377,6 +11006,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets a third party provider configuration for the given tenant.",
 		Description:    "Gets a third party provider configuration for the given tenant.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "provider", In: "path", Required: true, Type: "string", Description: "The name of the third party provider.(Required)."},
 			{Name: "organization_group_uuid", In: "query", Required: true, Type: "string", Description: "Unique identifier of the organization group.(Required)"},
@@ -10394,6 +11024,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets third party configurations.",
 		Description:    "Gets all the third party configurations for the given tenant.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "tenantUuid", In: "path", Required: true, Type: "string", Description: "The UUID of the tenant.(Required)."},
 		},
@@ -10410,6 +11041,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the integration status of a third party configuration for the given tenant.",
 		Description:    "Gets the integration status of a third party configuration for the given tenant.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "provider", In: "path", Required: true, Type: "string", Description: "The name of the third party provider.(Required)."},
 			{Name: "organization_group_uuid", In: "query", Required: true, Type: "string", Description: "Unique identifier of the organization group.(Required)"},
@@ -10427,6 +11059,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Updates a third party provider configuration for the given tenant.",
 		Description:    "Updates a third party provider configuration for the given tenant.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "provider", In: "path", Required: true, Type: "string", Description: "The name of the third party provider.(Required)."},
 		},
@@ -10443,6 +11076,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Updates the integration status of a third party configuration for the given tenant.",
 		Description:    "Updates the integration status of a third party configuration for the given tenant.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "provider", In: "path", Required: true, Type: "string", Description: "The name of the third party provider.(Required)."},
 		},
@@ -10459,6 +11093,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Validates a third party provider configuration for the given tenant.",
 		Description:    "Validates a third party provider configuration for the given tenant.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "provider", In: "path", Required: true, Type: "string", Description: "The name of the third party provider.(Required)."},
 		},
@@ -10475,6 +11110,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the device access information.",
 		Description:    "It is used to get the device access information.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "(Required)."},
 		},
@@ -10491,6 +11127,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Perform the operation on tunnel device.",
 		Description:    "It is used to perform the console admin action for tunnel devices.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "(Required)."},
 		},
@@ -10507,6 +11144,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Retrieves the endpoint details to fetch tunnel configuration details.",
 		Description:    "Retrieves the endpoint details to fetch tunnel configuration details from the device.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "The device uuid(Required)."},
 		},
@@ -10523,6 +11161,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Return health information for tunnel connectivity.",
 		Description:    "It is used to get health information for tunnel endpoint.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.tunnelhealthv1.healthdownstream": {
@@ -10537,6 +11176,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Return health information for tunnel downstream connectivity from microservice.",
 		Description:    "It is used to get health information for tunnel downstream connectivity.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.tunnelstandaloneclientv1.createonetimetoken": {
@@ -10551,6 +11191,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Generates one time token to allow device to obtain authentication certificate",
 		Description:    "Generates one time token that is required for the device to make seperate request to the certificate delivery endpoint to obtain authentication certificate using SCEP",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Unique identifier (GUID) of the device(Required)."},
 			{Name: "tunnelConfigUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier (GUID) of the device(Required)."},
@@ -10571,6 +11212,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Retrieves the tunnel configuration for the device.",
 		Description:    "Retrieves the tunnel configuration for the specified device based on the provided tunnel configuration uuid and other query params.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "The device uuid(Required)."},
 		},
@@ -10587,6 +11229,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Retrieves profiles associated with a specific Device Traffic Rule Set.",
 		Description:    "Retrieves profiles associated with a specific Device Traffic Rule Set for the given Organization Group.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "The UUID of the Organization Group.(Required)."},
 			{Name: "dtrSetUuid", In: "path", Required: true, Type: "string", Description: "The UUID of the Device Traffic Rule Set.(Required)."},
@@ -10604,6 +11247,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "",
 		Description:    "",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.updatespolicyv1.bulkcancelupdates": {
@@ -10618,6 +11262,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Bulk Cancel Android Updates.",
 		Description:    "",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for organization group.(Required)"},
 		},
@@ -10634,6 +11279,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Bulk Delete Adnroid Updates.",
 		Description:    "",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for organization group.(Required)"},
 		},
@@ -10650,6 +11296,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Create an update of a policy for the tenant.",
 		Description:    "Create an update of a policy for the tenant.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for organization group.(Required)."},
 		},
@@ -10666,6 +11313,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Delete an Android Update.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for organization group.(Required)"},
 			{Name: "updateUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for update.(Required)"},
@@ -10683,6 +11331,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get an Android Update.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for organization group.(Required)"},
 			{Name: "updateUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for an update.(Required)"},
@@ -10700,6 +11349,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Search for updates for the tenant that matches search criteria.",
 		Description:    "",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for organization group.(Required)"},
 		},
@@ -10716,6 +11366,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Bulk update device update deployments based on custom action.",
 		Description:    "Bulk updates device update deployments based on custom action for a specific device update at the deployment Organization Group.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "updateUuid", In: "path", Required: true, Type: "string", Description: "Device update UUID"},
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Organization Group UUID"},
@@ -10734,6 +11385,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Creates a deployment for a specific device update.",
 		Description:    "Creates a deployment for a specific device update by specifying the deployment parameters and notification preferences for the deployment.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "updateUuid", In: "path", Required: true, Type: "string", Description: "Update UUID."},
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Organization Group UUID."},
@@ -10751,6 +11403,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Deletes the device update deployment.",
 		Description:    "Deletes the device update deployment along with deployment parameters and notifications.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Deployment UUID"},
 		},
@@ -10767,6 +11420,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Starts or stops the roll out of the device update for the specific Organization Group.",
 		Description:    "START will serve the purpose of resuming the roll out of updates if it has been stopped previously.\r\nSTOP will pause any further commands being delivered for a specific update in specific Organization Group.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "updateUuid", In: "path", Required: true, Type: "string", Description: "Device update UUID"},
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Organization Group UUID"},
@@ -10785,6 +11439,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the breakdown of device statuses for a given device update at the specified Organization Group",
 		Description:    "Gets the breakdown of the different device statuses (Idle, Downloading, Installing, DownloadRequiresComputer etc.) for the device update at the specified Organization Group",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "updateUuid", In: "path", Required: true, Type: "string", Description: "Device update UUID"},
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Organization Group UUID"},
@@ -10802,6 +11457,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get deployments for a device update at a specific Organization Group.",
 		Description:    "Retrieves a list of deployments for a specific device update at a specific Organization Group.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Update UUID."},
 			{Name: "organization_group_uuid", In: "query", Required: true, Type: "string", Description: "Organization Group UUID."},
@@ -10819,6 +11475,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets device readiness for a given device update at the specified Organization Group.",
 		Description:    "Gets the count of eligible devices, non-eligible devices, devices already on this version, and devices on a higher version for the device update at the specified Organization Group.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "updateUuid", In: "path", Required: true, Type: "string", Description: "Device update UUID"},
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Organization Group UUID"},
@@ -10836,6 +11493,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the device update deployment details.",
 		Description:    "Gets the device update deployment details along with deployment parameters and notifications.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Deployment UUID"},
 		},
@@ -10852,6 +11510,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get device updates by search parameters",
 		Description:    "Retrieve a list of all available device updates based on specified search parameters.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organization_group_uuid", In: "query", Required: true, Type: "string", Description: "Organization Group UUID."},
 			{Name: "platform", In: "query", Required: false, Type: "string", Description: "Platform name Ex. Apple, AppleOSX, AppleTV."},
@@ -10880,6 +11539,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the device update status for all the assigned devices by search parameters",
 		Description:    "Retrieves the list of all devices assigned to an update with the update status and failure reason (if any) in the specified Organization Group.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "updateUuid", In: "path", Required: true, Type: "string", Description: "Device update UUID"},
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Organization Group UUID"},
@@ -10903,6 +11563,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get Specific device update details.",
 		Description:    "Retrieve details about a specific device update.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Update UUID."},
 		},
@@ -10919,6 +11580,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Updates the device update deployment.",
 		Description:    "Updates the device update deployment along with deployment parameters and notifications.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Deployment UUID"},
 		},
@@ -10935,6 +11597,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves the user details of the device identified by the alternate ID.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchBy", In: "query", Required: false, Type: "string", Description: "The alternate id type [Macaddress, Udid, Serialnumber, ImeiNumber]."},
 			{Name: "id", In: "query", Required: false, Type: "string", Description: "Device alternate id."},
@@ -10952,6 +11615,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves the user details of the device identified by device ID.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The device ID."},
 		},
@@ -10968,6 +11632,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get vulnerabilities in a device.",
 		Description:    "Get vulnerabilities in a device based on specified filter criteria.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier of the device.(Required)."},
 		},
@@ -10984,6 +11649,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get vulnerability summary of a device.",
 		Description:    "Get vulnerability summary of a device based on criticality ratings.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier of the device.(Required)."},
 			{Name: "organization_group_uuid", In: "query", Required: true, Type: "string", Description: "Unique identifier of the organization group.(Required)"},
@@ -11002,6 +11668,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get devices impacted by a vulnerability.",
 		Description:    "Get devices impacted by a vulnerability within an organization group based on specified filter criteria.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "vulnerabilityId", In: "path", Required: true, Type: "string", Description: "Unique identifier of the vulnerability.(Required)."},
 		},
@@ -11018,6 +11685,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get products impacted by a vulnerability.",
 		Description:    "Get products impacted by a vulnerability in devices within an organization group based on specified filter criteria.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "vulnerabilityId", In: "path", Required: true, Type: "string", Description: "Unique identifier of the vulnerability.(Required)."},
 		},
@@ -11034,6 +11702,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get products within an organization group.",
 		Description:    "Get products within an organization group based on specified search criteria.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.vulnerabilityinsightv1.getproductssummary": {
@@ -11048,6 +11717,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get summary of products for an organization group.",
 		Description:    "Get summary of products within an organization group based on criticality ratings.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organization_group_uuid", In: "query", Required: true, Type: "string", Description: "Unique identifier of the organization group.(Required)"},
 			{Name: "vulnerability_provider", In: "query", Required: true, Type: "string", Description: "Third party provider of the vulnerability.(Required)"},
@@ -11065,6 +11735,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get vulnerabilities impacting a product.",
 		Description:    "Get vulnerabilities impacting a product in devices within an organization group based on specified filter criteria.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "productId", In: "path", Required: true, Type: "string", Description: "Unique identifier of the product.(Required)."},
 		},
@@ -11081,6 +11752,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get remediation details for a specific vulnerability in a product.",
 		Description:    "Get remediation details for a specific vulnerability in a product.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "productId", In: "path", Required: true, Type: "string", Description: "Unique identifier of the product.(Required)."},
 			{Name: "vulnerabilityId", In: "path", Required: true, Type: "string", Description: "Unique identifier of the vulnerability.(Required)."},
@@ -11099,6 +11771,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get vulnerability summary of a product.",
 		Description:    "Get vulnerability summary of a product based on criticality ratings.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "productId", In: "path", Required: true, Type: "string", Description: "Unique identifier of the product.(Required)."},
 			{Name: "organization_group_uuid", In: "query", Required: true, Type: "string", Description: "Unique identifier of the organization group.(Required)"},
@@ -11117,6 +11790,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get list of assigned remediation products for a vulnerable product.",
 		Description:    "Get list of assigned remediation products for a vulnerable product within an organization group.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "productId", In: "path", Required: true, Type: "string", Description: "Unique identifier of the vulnerable product.(Required)."},
 		},
@@ -11133,6 +11807,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get remediation products for a product's vulnerability.",
 		Description:    "Get products assigned to remediate the specified vulnerability for the given product within the organization group.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "vulnerabilityId", In: "path", Required: true, Type: "string", Description: "Unique identifier of the vulnerability.(Required)."},
 			{Name: "productId", In: "path", Required: true, Type: "string", Description: "Unique identifier of the vulnerable product.(Required)."},
@@ -11150,6 +11825,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get remediation products for a vulnerability.",
 		Description:    "Get products assigned to remediate the specified vulnerability within the organization group.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "vulnerabilityId", In: "path", Required: true, Type: "string", Description: "Unique identifier of the vulnerability.(Required)."},
 		},
@@ -11166,6 +11842,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get vulnerabilities impacting devices in an organization group.",
 		Description:    "Get vulnerabilities impacting devices in an organization group based on specified search criteria.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.vulnerabilityinsightv1.getvulnerabilitiessummary": {
@@ -11180,6 +11857,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get vulnerabilities summary for an organization group.",
 		Description:    "Get summary of all vulnerabilities within an organization group based on criticality ratings.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organization_group_uuid", In: "query", Required: true, Type: "string", Description: "Unique identifier of the organization group.(Required)"},
 			{Name: "vulnerability_provider", In: "query", Required: true, Type: "string", Description: "Third party provider of the vulnerability.(Required)"},
@@ -11197,6 +11875,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get details of a vulnerability.",
 		Description:    "Get details of a vulnerability within an organization group based on specified filter criteria.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "vulnerabilityId", In: "path", Required: true, Type: "string", Description: "Unique identifier of the vulnerability.(Required)."},
 			{Name: "vulnerability_provider", In: "query", Required: true, Type: "string", Description: "Third party provider of the vulnerability.(Required)"},
@@ -11214,6 +11893,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get summary of a vulnerability.",
 		Description:    "Get summary of a vulnerability within an organization group.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "vulnerabilityId", In: "path", Required: true, Type: "string", Description: "Unique identifier of the vulnerability.(Required)."},
 			{Name: "organization_group_uuid", In: "query", Required: true, Type: "string", Description: "Unique identifier of the organization group.(Required)"},
@@ -11232,6 +11912,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Export devices for a given workflow.",
 		Description:    "Used for exporting devices based on specified search criteria.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "workflowUuid", In: "path", Required: true, Type: "string", Description: "UUID of the workflow.(Required)"},
 		},
@@ -11248,6 +11929,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Retrieves a paginated result of the workflows assigned to this entity.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "entitytype", In: "path", Required: true, Type: "string", Description: "The type of the entity.(Required)"},
 			{Name: "entityUuid", In: "path", Required: true, Type: "string", Description: "The identifier of the entity for which we are searching for the workflows assigned.(Required)"},
@@ -11270,6 +11952,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Delete workflow job and its related output files",
 		Description:    "",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.workflowimportexportjobsv1.downloadworkflowexports": {
@@ -11284,6 +11967,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Download workflow export files.",
 		Description:    "",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.workflowimportexportjobsv1.getallworkflowjobs": {
@@ -11298,6 +11982,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get all workflow jobs at this organization group.",
 		Description:    "Used to get all workflow jobs at this organization group.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organization_group_uuid", In: "query", Required: true, Type: "string", Description: "Uuid of the Organization group(Required)"},
 			{Name: "job_type", In: "query", Required: false, Type: "string", Description: "Workflow job type."},
@@ -11320,6 +12005,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get the workflow job corresponding to the workflow job uuid.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "workflowJobUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the workflow job(Required)."},
 		},
@@ -11336,6 +12022,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Copies Workflow from one OG to another OG.",
 		Description:    "",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.workflowimportexportv1.exportworkflows": {
@@ -11350,6 +12037,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Queues workflows to be exported as json.",
 		Description:    "",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.workflowimportexportv1.importworkflow": {
@@ -11364,6 +12052,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Queues job to import selected workflows.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv1.workflowstatusreporting.getdevicecountforworkflowstatus": {
@@ -11378,6 +12067,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get the count of devices for each workflow status.",
 		Description:    "Get the count of devices that belong to each workflow status for specified WorkflowUuid.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "workflowUuid", In: "path", Required: true, Type: "string", Description: "Unique Identifier for the workflow.(Required)"},
 		},
@@ -11394,6 +12084,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the status of the workflow and corresponding steps for the device.",
 		Description:    "Gets the status of the workflow and corresponding steps for the device.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "Unique Identifier for the device.(Required)"},
 			{Name: "workflowUuid", In: "path", Required: true, Type: "string", Description: "Unique Identifier for the workflow.(Required)"},
@@ -11413,6 +12104,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get the workflow status for device.",
 		Description:    "Get the status of device workflow.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the device.(Required)"},
 			{Name: "search", In: "query", Required: false, Type: "string", Description: "The text to search for in the name of the workflow."},
@@ -11434,6 +12126,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Returns list of application(s) for provided devices.",
 		Description:    "This endpoint returns the list of application for provided devices.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv2.assignmentgroupsv2.getassignmentgroupsbysearchcontext": {
@@ -11448,6 +12141,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Returns a list of Assignment Groups matching the search criteria",
 		Description:    "Get List of Assignment Groups based on the Organization Group, Search Text, AssignmentType. Search text should not be more than 255 characters.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique Identifier for the Organization Group(Required)."},
 			{Name: "assignmentType", In: "query", Required: true, Type: "integer", Description: "Type of Assignment Group to search\r\n             All types of Assignment Groups (Smart Group, User Group, Organization Group) \r\n             SmartGroups \r\n             UserGroups \r\n             OrganizationGroups (Required)"},
@@ -11469,6 +12163,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Executes command for multiple devices identified by device uuid",
 		Description:    "Executes command for multiple devices identified by device uuid. Supported commands are Lock, SyncSensors (macOS only), and DeviceWipe.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "commandName", In: "path", Required: true, Type: "string", Description: "The command to execute [Lock, DeviceWipe, SyncSensors].(Required)"},
 		},
@@ -11485,6 +12180,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Executes a command for device by device uuid",
 		Description:    "Executes a command for device by device uuid. Supported commands are Lock(macOS and Linux only), DeviceWipe, logout-user (iOS only), delete-user (iOS only), user-list (iOS only), SyncSensors (macOS only), suspend-bitlocker (Windows only), resume-bitlocker (Windows only).",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "Device Uuid.\r\n            Accepted format is **guid**\r\n            E.g. 0258902A-9E0C-4DC5-A997-9E079559F75E(Required)"},
 			{Name: "commandName", In: "path", Required: true, Type: "string", Description: "The command to execute [Lock, DeviceWipe, logout-user, delete-user, user-list, SyncSensors, suspend-bitlocker, resume-bitlocker].(Required)"},
@@ -11502,6 +12198,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Executes a command for device by alternate ID",
 		Description:    "Execute commands for specified device ID. Supported commands are ClearPasscode, DeviceWipe, Lock, SyncSensors (macOS only), enable-activation-lock (iOS and macOS only), logout-user (iOS only), delete-user (iOS only), user-list (iOS only), refresh-esim (iOS only), suspend-bitlocker (Windows only), resume-bitlocker (Windows only).",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "commandName", In: "path", Required: true, Type: "string", Description: "The command to execute [ClearPasscode, DeviceWipe, Lock, SyncSensors, delete-user, enable-activation-lock, logout-user, refresh-esim, user-list, suspend-bitlocker, resume-bitlocker].(Required)"},
 			{Name: "searchBy", In: "path", Required: true, Type: "string", Description: "Search by alternate ID type [MacAddress, Udid, SerialNumber, ImeiNumber, EasId].(Required)"},
@@ -11520,6 +12217,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Retrieve Conditional Access device registration information",
 		Description:    "Retrieve Conditional Access device registration information by the device UUID",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "Unique internal identifier for the device(Required)"},
 		},
@@ -11536,6 +12234,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Adds an assignment to device sensor.",
 		Description:    "Adds an assignment to device sensor. Assignment information includes assigned smart groups and triggers.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "sensorUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the device sensor.(Required)"},
 		},
@@ -11552,6 +12251,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Bulk update device sensor assignments based on custom action",
 		Description:    "Bulk update device sensor assignments for a specific device sensor",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "sensorUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the device sensor.(Required)"},
 			{Name: "action", In: "query", Required: true, Type: "string", Description: "Custom action on device sensor assignments. Possible values [update-ranking] update-ranking will update all the rankings provided for device assignments belonging to a specific device sensor.(Required)"},
@@ -11569,6 +12269,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Create a device sensor.",
 		Description:    "Create a device sensor which includes sensor name, description, organization group identifier, platform, query type, execution context, timeout, script data, script blob identifier, and script environment variables.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv2.devicesensorsv2.deletedevicesensorassignment": {
@@ -11583,6 +12284,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Deletes the device sensor assignment.",
 		Description:    "Deletes a single device sensor assignment.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "assignmentUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the device sensor assignment.(Required)"},
 		},
@@ -11599,6 +12301,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the device sensor information.",
 		Description:    "Get a device sensor which includes sensor name, description, organization group identifier, platform, query type, execution context, timeout, script data, script blob identifier, and script environment variables.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "sensorUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the device sensor.(Required)"},
 		},
@@ -11615,6 +12318,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the device sensor assignment information.",
 		Description:    "Gets device sensor assignment information which includes assigned smart groups and triggers.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "assignmentUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the device sensor assignment.(Required)"},
 		},
@@ -11631,6 +12335,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the list of device sensor assignments.",
 		Description:    "Get a list of device sensor assignments information which includes assigned smart groups and triggers for each assignment.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "sensorUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the device sensor.(Required)"},
 		},
@@ -11647,6 +12352,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the list of all the device sensors for the Organization Group.",
 		Description:    "Returns a list of device sensor(s) with sensor details for the Organization Group.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Identifier of the Organization Group(Required)"},
 			{Name: "name", In: "query", Required: false, Type: "string", Description: "Filter records based on the sensor name. Partial names are accepted."},
@@ -11670,6 +12376,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Update the device sensor.",
 		Description:    "Update the device sensor which includes description, platform, query type, execution context, timeout, script data, script blob identifier, and script environment variables.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "sensorUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the device sensor.(Required)"},
 		},
@@ -11686,6 +12393,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Update the device sensor assignment information.",
 		Description:    "Update the device sensor assignment information which includes smartgroup ids and triggers.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "assignmentUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the device sensor assignment.(Required)"},
 		},
@@ -11702,6 +12410,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Check In and Check Out the device to the Multi-Staging enrollment User. The checkout action is supported only for MacOS and iOS devices.",
 		Description:    "Check In and Check Out the device to the Multi-Staging enrollment User. This API returns a 400 - BadRequest if device is not enrolled to Multi-Staging enrollment User.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Device Identifier.(Required)."},
 			{Name: "enrollmentuserid", In: "path", Required: true, Type: "integer", Description: "Enrollment User Identifier.(Required)."},
@@ -11719,6 +12428,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get basic details about the device",
 		Description:    "Get basic information about the device based on the unique identifier passed in the path. The response contains hypermedia links, which can be followed to get more information about the device. The API returns a 404 - NotFound if the device is not available.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Device identifier(Required)."},
 		},
@@ -11735,6 +12445,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves Device Count Information which are Categorized by Device Info like Platform, EnrollmentStatus, Ownership etc..",
 		Description:    "Retrieves the device count for the following information.\r\n1. Total number of devices deployed in an OG.\r\n2. Device count breakdown by Security Info.\r\n3. Device count breakdown by Ownership Info.\r\n4. Device count breakdown by Platform Info.\r\n5. Device count breakdown by EnrollmentStatus Info.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "oguuid", In: "query", Required: false, Type: "string", Description: "OrganizationGroupUUID to be searched, user's OG is considered if not sent."},
 		},
@@ -11751,6 +12462,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Retrieve application install status for an AFW device",
 		Description:    "Retrieve application install status for an AFW device. The API returns a 404 - NotFound if the device is not available.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Identifier for a device. Ex. 827BE1C5AEC05C378C61C44103E9D3FCB2EC354D(Required)."},
 			{Name: "installId", In: "query", Required: true, Type: "string", Description: "Bundle id(Required)"},
@@ -11768,6 +12480,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Retrieves available OS updates for a device",
 		Description:    "Retrieves a list of all available OS and software updates for the device specified by the device UDID.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Identifier for a device. Ex. 153B4D9D-24DC-416B-91F9-94253D623611(Required)."},
 		},
@@ -11784,6 +12497,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Find relevant devices using various criteria.",
 		Description:    " Returns details of relevant devices belonging to an enrollment user matching specified criteria, where results are ranked/sorted using the specified orderby criteria with maximum pagesize limit of 500.\r\n If page size is greater than the maximum limit, it will return the first 500 records.\r\nseensince and lastseen fields accept the following Valid DateTime formats :\r\nyyyy/MM/dd, yyyy-MM-dd, MM/dd/yyyy, MM-dd-yyyy, yyyy/MM/dd HH:mm:ss.fff,\r\nyyyy-MM-dd HH:mm:ss.fff, MM/dd/yyyy HH:mm:ss.fff, MM-dd-yyyy HH:mm:ss.fff, yyyy/MM/ddTHH:mm:ss.fff,\r\nyyyy-MM-ddTHH:mm:ss.fff, MM/dd/yyyyTHH:mm:ss.fff, MM-dd-yyyyTHH:mm:ss.fff, yyyy-MM-dd HH-mm-ss-tt,\r\nyyyy-MM-ddTHH-mm-ss-tt.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "user", In: "query", Required: false, Type: "string", Description: "Filters devices based on enrolled username."},
 			{Name: "model", In: "query", Required: false, Type: "string", Description: "Filters devices based on model. For example iPhone."},
@@ -11811,6 +12525,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Creates device enrollment token based on registration type",
 		Description:    "Creates enrollment token for devices with specific registration type like Blacklist or Whitelist or RegisterDevice. Only for message type as QRCODE in register device record it returns the QR Code Data URI as response",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "ogUuid", In: "path", Required: true, Type: "string", Description: "Organization group UUID(Required)"},
 		},
@@ -11827,6 +12542,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Sends an email to the user of the device.",
 		Description:    "Sends an email message to the user of the device specified by the device UUID.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "The device UUID of the recipient device (Required)."},
 		},
@@ -11843,6 +12559,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Sends an SMS message to the device.",
 		Description:    "Sends an SMS message to the device identified by the device UUID in the URL.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "The device UUID of the recipient device (Required)."},
 		},
@@ -11859,6 +12576,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Creates a deployment for a specific device update.",
 		Description:    "Creates a deployment for a specific device update by specifying the deployment parameters and notification preferences for the deployment.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "updateUuid", In: "path", Required: true, Type: "string", Description: "Update UUID(Required)"},
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Organization Group UUID(Required)"},
@@ -11876,6 +12594,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Updates the device update deployment.",
 		Description:    "Updates the device update deployment along with deployment parameters and notifications.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Deployment UUID(Required)"},
 		},
@@ -11892,6 +12611,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the list of Certificate Authorities (CA) for an organization group.",
 		Description:    "Retrieves the list of Certificate Authority (CA) for an organization group. In cryptography, a certificate authority is an entity that issues digital certificates. A digital certificate certifies the ownership of a public key by the named subject of the certificate.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "The unique identifier of the organization group.(Required)."},
 		},
@@ -11908,6 +12628,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Returns the details of the Device for which Provisioning is Assigned.",
 		Description:    "Returns the details of the Device for which Provisioning is Assigned.<br />\r\n            Device details includes <br />\r\n            DeviceID,<br />\r\n            Name,<br />\r\n            LastJobStatus,<br />\r\n            LastSeen.<br />",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Identfier of the Product(Required)."},
 			{Name: "seensince", In: "query", Required: false, Type: "string", Description: "Filters devices such that devices with last seen after this date will be returned.\r\n            Valid DateTime formats includes as below:\r\n            yyyy/MM/dd,yyyy-MM-dd,MM/dd/yyyy,MM-dd-yyyy,\r\n            yyyy/MM/dd HH:mm:ss.fff,yyyy-MM-dd HH:mm:ss.fff,\r\n            MM/dd/yyyy HH:mm:ss.fff,MM-dd-yyyy HH:mm:ss.fff,\r\n            yyyy/MM/ddTHH:mm:ss.fff,yyyy-MM-ddTHH:mm:ss.fff,\r\n            MM/dd/yyyyTHH:mm:ss.fff,MM-dd-yyyyTHH:mm:ss.fff,\r\n            yyyy-MM-dd HH-mm-ss-tt,yyyy-MM-ddTHH-mm-ss-tt."},
@@ -11928,6 +12649,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Returns the details of the Device for which Provisioning is Failed.",
 		Description:    "Returns the details of the Devices for which Provisioning is Failed<br />\r\n            Device details includes <br />\r\n            DeviceID,<br />\r\n            Name,<br />\r\n            LastJobStatus,<br />\r\n            LastSeen.<br />",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Identfier of the Product of which ProductCompliant Device details needs to be retrieved(Required)."},
 			{Name: "page", In: "query", Required: false, Type: "integer", Description: "Specific page number to get. 0 based index."},
@@ -11946,6 +12668,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Returns the details of the Device for which Provisioning is In-Progress.",
 		Description:    "Returns the details of the Devices which provisioning is in-progress.<br />\r\n            Device details includes <br />\r\n            DeviceID,<br />\r\n            Name,<br />\r\n            LastJobStatus,<br />\r\n            LastSeen.<br />",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Identfier of the Product of which ProductCompliant Device details needs to be retrieved(Required)."},
 			{Name: "page", In: "query", Required: false, Type: "integer", Description: "Specific page number to get. 0 based index."},
@@ -11964,6 +12687,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Returns the details of the Devices which are Product Compliant .",
 		Description:    "Returns the details of the Devices which are Product Compliant<br />\r\n            Device details includes <br />\r\n            DeviceID,<br />\r\n            Name,<br />\r\n            LastJobStatus,<br />\r\n            LastSeen.<br />",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Identfier of the Product of which ProductCompliant Device details needs to be retrieved(Required)."},
 			{Name: "page", In: "query", Required: false, Type: "integer", Description: "Specific page number to get. 0 based index."},
@@ -11982,6 +12706,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Creates an ANDROID Device Profile.",
 		Description:    "1. v2\r\n2. For Compliance Assignment Type Allow Removal should always be Never.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv2.profilesv2.createappledeviceprofile": {
@@ -11996,6 +12721,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Creates an Apple iOS device profile.",
 		Description:    "1. Creates an Apple device profile containing a number of settings that you can specify, including : Passcode, Restrictions, VPN, Wi-Fi, Email, EAS, SCEP, Credentials, Custom Settings, etc.\r\n2. For Compliance Assignment Type Allow Removal should always be Never.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv2.profilesv2.createappleosxdeviceprofile": {
@@ -12010,6 +12736,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Creates an Apple macOS device Profile.",
 		Description:    "1. Creates an Apple macOS device profile containing a number of settings that you can specify, including : Passcode, Restrictions, Network, Email, Dock, SCEP, Credentials, Custom Settings, etc.\r\n2. For Compliance Assignment Type Allow Removal should always be Never.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv2.profilesv2.createappletvprofiles": {
@@ -12024,6 +12751,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Create a new profile for apple tv.",
 		Description:    "Create a new profile for apple tv with configuration of SingleAppMode or ConferenceRoomDisplay payload.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv2.profilesv2.createepsonprinterprofiles": {
@@ -12038,6 +12766,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Create a new profile for Epson printer.",
 		Description:    "Create a new profile for epson printer with configuration SCEP",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv2.profilesv2.createprofileresource": {
@@ -12052,6 +12781,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Creates a Resource for the requested type.",
 		Description:    "Creates a Resource for the passed in Resource Type(VPN/Wifi/EAS).",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "resourceType", In: "path", Required: true, Type: "string", Description: ""},
 			{Name: "resource.name", In: "query", Required: false, Type: "string", Description: "Gets or sets resource name."},
@@ -12075,6 +12805,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Deletes the Resource identified by the Resource ID.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Resource ID (Required)."},
 		},
@@ -12091,6 +12822,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Edit the Smart Group assignments for a given Resource.",
 		Description:    "",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Resource ID (Required)."},
 		},
@@ -12107,6 +12839,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Device Profile.",
 		Description:    "Gets Device Profile Details identified by the Profile Id.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "profileId", In: "path", Required: true, Type: "integer", Description: "Profile Id (Required)."},
 		},
@@ -12123,6 +12856,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets PayloadKeys.",
 		Description:    "Gets PayloadKeys for the specified Platform and Payload.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "platform", In: "path", Required: true, Type: "string", Description: "Platform Name (Required)."},
 			{Name: "payload", In: "path", Required: true, Type: "string", Description: "Payload Name (Required)."},
@@ -12141,6 +12875,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets a Resource for a given Resource ID.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Resource ID (Required)."},
 		},
@@ -12157,6 +12892,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Resource keys and advanced settings for the specified Resource type.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "resourceType", In: "path", Required: true, Type: "string", Description: "ResourceType (Required)."},
 		},
@@ -12173,6 +12909,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets List of profiles based on the search criteria.",
 		Description:    "The search result will contain profile's basic informations.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "Organization Group ID."},
 			{Name: "organizationgroupuuid", In: "query", Required: false, Type: "string", Description: "Organization group uuid, based on we search the profiles, organizationgroupid will be ignored if valid organizationgroupuuid is Passed. "},
@@ -12201,6 +12938,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Updates an ANDROID Device Profile.\r\nIf the CreateNewVersion key is empty or false, a new Profile version will not be created but AssignedSmartGroups, RootLocationGroup, AssignedGeofenceArea and AssignedSchedule will be saved and published.\r\nElse if it's true, new version of the profile will be created and published.",
 		Description:    "1. v2\r\n2. For Compliance Assignment Type Allow Removal should always be Never.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv2.profilesv2.updateappledeviceprofile": {
@@ -12215,6 +12953,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Updates an Apple iOS device profile.",
 		Description:    "1. Updates an Apple device profile identified by its numeric ID.\r\n2. For Compliance Assignment Type Allow Removal should always be Never.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv2.profilesv2.updateappleosxdeviceprofile": {
@@ -12229,6 +12968,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Updates an Apple macOS device Profile.",
 		Description:    "1. Updates an Apple macOS device profile identified by its numeric ID.\r\n2. For Compliance Assignment Type Allow Removal should always be Never.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv2.profilesv2.updateappletvprofiles": {
@@ -12243,6 +12983,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Update an existing profile for apple tv",
 		Description:    "Update an existing profile for apple tv with new configuration of payloads",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "profileId", In: "path", Required: true, Type: "integer", Description: "Profile id"},
 		},
@@ -12259,6 +13000,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Update the existing printer profile for Epson.",
 		Description:    "Update the existing Epson printer profile",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "profileId", In: "path", Required: true, Type: "integer", Description: "Profile id"},
 		},
@@ -12275,6 +13017,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Updates the given Resource entity.",
 		Description:    "Updates the passed in Resource Entity(VPN/Wifi/EAS entity).",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "resourceType", In: "path", Required: true, Type: "string", Description: ""},
 			{Name: "resource.name", In: "query", Required: false, Type: "string", Description: "Gets or sets resource name."},
@@ -12298,6 +13041,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Updates the custom attributes details of existing QNX Device Profile.",
 		Description:    "1. Updates the details of existing QNX profiles. <br> The details majorly include the custom attribute name, value and application group.</br>\r\n2. For Compliance Assignment Type Allow Removal should always be Never.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv2.remotemanagementv2.initiatermsession": {
@@ -12312,6 +13056,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Initiates a Remote Management session.",
 		Description:    "Initiates a Remote Management session with the device for the specified tool name and gets the Remote Management session URL.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for the Device.(Required)"},
 		},
@@ -12328,6 +13073,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Partially updates Smart Group criteria.",
 		Description:    " Partially updates Smart Group criteria by adding/removing rules and/or values to rules like Organization groups, user groups, etc.                         \r\n------------Example--------------  \r\n[\r\n  {op: \"add\", path: \"/smartGroupsOperationsV2/organizationGroups\", value: \"069DC0E2-D4E2-E611-8114-005056AF67FF, 069DC0E2-D4E2-E611-8114-005056AF67FF\"},\r\n  {op: \"remove\", path: \"/smartGroupsOperationsV2/users\", value: \"069DC0E2-D4E2-E611-8114-005056AF67FF, 069DC0E2-D4E2-E611-8114-005056AF67FF\"},\r\n  {op: \"add\", path: \"/smartGroupsOperationsV2/devices\", value: \"069DC0E2-D4E2-E611-8114-005056AF67FF\"},\r\n  {op: \"add\", path: \"/smartGroupsOperationsV2/tags\", value: \"123, 345\"},\r\n  {op: \"remove\", path: \"/smartGroupsOperationsV2/platforms\", value: \"WindowsMobile, Apple, BlackBerry, Android, Athena, Motorola, WindowsPhone, WindowsPc, AppleOsX, WindowsPhone8, WinRT, BlackBerry10, AppleTv, Qnx, ChromeBook, ChromeOS\"},\r\n  {op: \"add\", path: \"/smartGroupsOperationsV2/managementTypes\", value: \"MdmEnrolled\"},\r\n  {op: \"add\", path: \"/smartGroupsOperationsV2/enrollmentCategories\", value: \"DepEnrolled, AndroidEnterprise\"},\r\n  {op: \"add\", path: \"/smartGroupsOperationsV2/cpuArchitectures\", value: \"049892B1-BCFE-447A-B34C-52D2BE897715, 1D88CEFE-8959-4E26-BD0C-355889B14378\"},\r\n  {op: \"add\", path: \"/smartGroupsOperationsV2/modelfamily\", value: \"123, 345\"},\r\n  {op: \"remove\", path: \"/smartGroupsOperationsV2/modelfamily\", value: \"123, 345\"}\r\n]     \r\n-----------Platforms--------------  \r\n\"WindowsMobile, Apple, BlackBerry, Android, Athena, Motorola, WindowsPhone, WindowsPc, AppleOsX, WindowsPhone8, WinRT, BlackBerry10, AppleTv, Qnx, ChromeBook, ChromeOS\"\r\n-----------Ownerships-------------    \r\n\r\n \"CorporateDedicated, CorporateShared, EmployeeOwned, AllOwnerships\"\r\n \r\n ----------ManagementTypes-------\r\n \r\n \"MdmEnrolled, ApplicationManaged, All\"\r\n \r\n ----------EnrollmentCategories---\r\n \r\n \"DepEnrolled, Supervised, UserApprovedMdmEnrolled, SharedIpad, EduShared, AndroidLegacy, AndroidEnterprise, AadEnrolled, CustomDpcWorkManaged, CustomDpcCope, CustomDpcWorkProfile, AMAPI, AMAPIWorkManaged, AMAPICope, AMAPIWorkProfile, All\"\r\n\r\n --- Get all CPU Architectures API /processor-architectures",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Smart Group unique identifier(Required)."},
 		},
@@ -12344,6 +13090,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Finds Staging Bundle by Staging Bundle UUID",
 		Description:    "Returns a single Staging Bundle identified by Staging Bundle UUID",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "stagingUuid", In: "path", Required: true, Type: "string", Description: "UUID of Staging Bundle to return(Required)"},
 		},
@@ -12360,6 +13107,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Adds a new Staging Bundle",
 		Description:    "Adds a new Staging Bundle",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv2.stagingbundlesv2.stagingbundlesdelete": {
@@ -12374,6 +13122,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Deletes a Staging Bundle identified by Staging Bundle UUID",
 		Description:    "Deletes a Staging Bundle package identified by the Staging Bundle UUID",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "stagingUuid", In: "path", Required: true, Type: "string", Description: "UUID of Staging Bundle to return(Required)"},
 		},
@@ -12390,6 +13139,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Updates a Staging Bundle identified by Staging Bundle UUID",
 		Description:    "Updates a Staging Bundle with Staging Bundle UUID as the required field",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv2.stagingv2.generateqrcodepdffile": {
@@ -12404,6 +13154,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Retrieves a QRCode pdf file for Enrollment",
 		Description:    "Retrieves a QRCode pdf file for Enrollment used in Enrollment for Corporate Owned AFW Devices.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv2.tagsv2.assigntag": {
@@ -12418,6 +13169,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Add devices to the tag.",
 		Description:    "Associates the given tag to the set of devices.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "tagUuid", In: "path", Required: true, Type: "string", Description: "(Required)."},
 		},
@@ -12434,6 +13186,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Deletes the tag.",
 		Description:    "Deletes the tag for a given tag uuid.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "tagUuid", In: "path", Required: true, Type: "string", Description: "The tag UUID."},
 		},
@@ -12450,6 +13203,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Returns a list of Tags for a given organization group.",
 		Description:    "Returns a list of Tags for a given organization group and other filter criteria.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "organization-group-uuid", In: "query", Required: true, Type: "string", Description: "Organization group uuid.(Required)"},
 			{Name: "search_text", In: "query", Required: false, Type: "string", Description: "Search text."},
@@ -12472,6 +13226,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Returns a list of devices for a given tag uuid or lastseen.",
 		Description:    "Returns a list of devices for a given tag uuid or lastseen.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "tagUuid", In: "path", Required: true, Type: "string", Description: "(Required)."},
 			{Name: "lastseen", In: "query", Required: false, Type: "string", Description: "LastSeen time for the device."},
@@ -12491,6 +13246,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Remove devices from the tag.",
 		Description:    "Removes the given tag from the set of devices.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "tagUuid", In: "path", Required: true, Type: "string", Description: "(Required)."},
 		},
@@ -12507,6 +13263,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Updates the tag.",
 		Description:    "Updates the tag for a given tag uuid.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "tagUuid", In: "path", Required: true, Type: "string", Description: "The tag UUID."},
 		},
@@ -12523,6 +13280,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Fetch GPO templates.",
 		Description:    "Returns a list of GPO security baseline templates provided by various vendors.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "platformType", In: "query", Required: false, Type: "string", Description: "Filters templates by platform type."},
 		},
@@ -12539,6 +13297,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Search devices for a given workflow.",
 		Description:    "Used for searching and filtering. Returns a paginated result.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "workflowUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the workflow.(Required)."},
 		},
@@ -12555,6 +13314,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Search pending devices for a given workflow.",
 		Description:    "Used for searching and filtering. Returns a paginated result.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "workflowUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the workflow.(Required)."},
 		},
@@ -12571,6 +13331,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Fetch workflow status summary across all assigned devices.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "workflowUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the workflow.(Required)."},
 			{Name: "organization_group_uuid", In: "query", Required: true, Type: "string", Description: "Operating organization group UUID for which the summary is required.(Required)"},
@@ -12588,6 +13349,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Clones a workflow.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "workflowUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the source workflow to be cloned."},
 		},
@@ -12604,6 +13366,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Create a new workflow.",
 		Description:    "",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv2.workflowv2.getallworkflows": {
@@ -12618,6 +13381,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get all workflows at this Organization Group.",
 		Description:    "Used for searching and filtering. Returns a paginated result.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "organization_group_uuid", In: "query", Required: true, Type: "string", Description: "Uuid of the Organization group or csv of uuids of organization groups.(Required)"},
 			{Name: "search", In: "query", Required: false, Type: "string", Description: "The text to search for in the name and description for workflows."},
@@ -12644,6 +13408,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get the workflow corresponding to the workflow uuid.",
 		Description:    "Get the corresponding workflow for workflow uuid.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "workflowUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the workflow.(Required)"},
 			{Name: "step_summary", In: "query", Required: false, Type: "boolean", Description: "Determines whether to fetch the workflow step status summary."},
@@ -12661,6 +13426,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Update a workflow.",
 		Description:    "",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "workflowUuid", In: "path", Required: true, Type: "string", Description: "Uuid of the workflow.(Required)"},
 		},
@@ -12677,6 +13443,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Executes a command for a device by the device uuid.",
 		Description:    "Executes a command for a device by device uuid. Supported commands are SetRecoveryLock (macOS only), DeviceWipe (macOS only), CustomMdmCommand (macOS only).",
 		HasRequestBody: true,
+		AcceptVersion:  "3",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "The Device unique identifier.\r\n            Accepted format is **guid**\r\n            E.g. 0258902A-9E0C-4DC5-A997-9E079559F75E(Required)."},
 			{Name: "commandName", In: "path", Required: true, Type: "string", Description: "The name of the command to execute. Supported command types [SetRecoveryLock, DeviceWipe, CustomMdmCommand, CancelPendingWipe].(Required)."},
@@ -12694,6 +13461,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Executes a command for device by alternate identifier.",
 		Description:    "Executes a command for the specified device alternate identifier. Supported commands are SetRecoveryLock (macOS only), DeviceWipe (macOS only).",
 		HasRequestBody: true,
+		AcceptVersion:  "3",
 		Parameters: []ParamMeta{
 			{Name: "commandName", In: "path", Required: true, Type: "string", Description: "The name of the command to execute. Supported command types [SetRecoveryLock, DeviceWipe, CancelPendingWipe].(Required)."},
 			{Name: "searchBy", In: "path", Required: true, Type: "string", Description: "Search by Alternate Id type [MacAddress, Udid, SerialNumber, ImeiNumber, EasId].(Required)."},
@@ -12712,6 +13480,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Execute actions on devices.",
 		Description:    "This API is for executing actions on give set of devices.",
 		HasRequestBody: true,
+		AcceptVersion:  "3",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv3.devicesv3.getbyuuid": {
@@ -12726,6 +13495,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get basic details about the device.",
 		Description:    "Get basic information about the device based on the unique identifier passed in the path. The response contains hypermedia links, which can be followed to get more information about the device.",
 		HasRequestBody: false,
+		AcceptVersion:  "3",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Device unique identifier.(Required)"},
 		},
@@ -12742,6 +13512,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Searches the device using the query information provided.",
 		Description:    "Get basic information about the device with maximum pagesize limit of 500. If page size is greater than the maximum limit, it will return the first 500 records.",
 		HasRequestBody: false,
+		AcceptVersion:  "3",
 		Parameters: []ParamMeta{
 			{Name: "user", In: "query", Required: false, Type: "string", Description: "Username the device enrolled under."},
 			{Name: "model_identifier", In: "query", Required: false, Type: "string", Description: "Partial search by device model. Search by MD20 would return device with model MD200LL."},
@@ -12770,6 +13541,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - upload enrollment tokens.",
 		Description:    "Register multiple devices and create enrollment tokens.",
 		HasRequestBody: false,
+		AcceptVersion:  "3",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Guid of the organisation group for which the upload is being done.(Required)."},
 		},
@@ -12786,6 +13558,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Create a new profile",
 		Description:    "1. Create a new profile for the provided platform with the specified payloads.\r\n2. For Version 2004, only Windows Defender Payload is supported.",
 		HasRequestBody: true,
+		AcceptVersion:  "3",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv3.profilesv3.deletedeviceprofile": {
@@ -12800,6 +13573,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Delete a Profile",
 		Description:    "Deletes the specified profile.",
 		HasRequestBody: false,
+		AcceptVersion:  "3",
 		Parameters: []ParamMeta{
 			{Name: "profileUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier of the device profile"},
 		},
@@ -12816,6 +13590,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Retrieve details of a specific profile",
 		Description:    "1. Returns the full profile details, including all payloads associated with the profile.\r\n2. Only the Windows Defender payload is supported.",
 		HasRequestBody: false,
+		AcceptVersion:  "3",
 		Parameters: []ParamMeta{
 			{Name: "profileUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier of the profile"},
 		},
@@ -12832,6 +13607,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Get all device profiles as per search filter",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "3",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for organization group"},
 			{Name: "platform", In: "query", Required: false, Type: "string", Description: "Platform name"},
@@ -12855,6 +13631,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Search API to Retrieve a list of profiles.",
 		Description:    "Returns a list of profiles based on the search criteria.",
 		HasRequestBody: true,
+		AcceptVersion:  "3",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv3.profilesv3.updatedeviceprofile": {
@@ -12869,6 +13646,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Updates Device Profile.",
 		Description:    "1. If the add_version attribute is empty or false a new Profile version will not be created but AssignedSmartGroups RootLocationGroup AssignedGeofenceArea and AssignedSchedule will be saved and published. \r\n2. If it is true new version of the profile will be created and published.\r\n3. For Version 2004, only Windows Defender Payload is supported.",
 		HasRequestBody: true,
+		AcceptVersion:  "3",
 		Parameters: []ParamMeta{
 			{Name: "profileUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier of the device profile."},
 		},
@@ -12885,6 +13663,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Uploads a completed (already built for device) profile",
 		Description:    "For an existing profile in pending state, upload the completed profile for a given device",
 		HasRequestBody: false,
+		AcceptVersion:  "3",
 		Parameters: []ParamMeta{
 			{Name: "deviceUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for the device"},
 			{Name: "profileUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for the profile"},
@@ -12903,6 +13682,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Creates a New Tag.",
 		Description:    "Creates a New Tag for a given Organization Group Uuid.",
 		HasRequestBody: true,
+		AcceptVersion:  "3",
 		Parameters:     []ParamMeta{},
 	},
 	"mdmv4.profilesv4.getdeviceprofiledetails": {
@@ -12917,6 +13697,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Retrive profile details from Profile Id.",
 		Description:    "Returns the full profile details, including all payloads associated with the profile.\r\nThe only payloads supported by this API are the Linux Wi-Fi, Credentials, and Custom Configuration payloads.",
 		HasRequestBody: false,
+		AcceptVersion:  "4",
 		Parameters: []ParamMeta{
 			{Name: "profileId", In: "path", Required: true, Type: "integer", Description: "Profile Id(Required)"},
 		},
@@ -12933,6 +13714,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Searches for the MEM Devices.",
 		Description:    "Given a page index (row index) and page size, it gets the MEM Devices for a particular Organization Group.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "Organization group id."},
 			{Name: "page", In: "query", Required: false, Type: "integer", Description: "Specific page number to get. 0 based index."},
@@ -12951,6 +13733,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Completes the chunked upload process for a file",
 		Description:    "Finalizes the chunked upload process by combining all uploaded chunks into the final file.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: ""},
 		},
@@ -12967,6 +13750,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Initiates a chunked upload process for a file",
 		Description:    "Starts a new chunked upload session for ACC log files and returns a transaction ID for subsequent operations.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: ""},
 		},
@@ -12983,6 +13767,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Raises a failure / log not found notification for a log upload process",
 		Description:    "Notifies the system about a failure / log not found in the log upload process.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: ""},
 		},
@@ -12999,6 +13784,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Uploads a chunk of a file as part of a chunked upload process",
 		Description:    "Uploads a single chunk of the file data as part of the multipart upload process.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: ""},
 		},
@@ -13015,6 +13801,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Provides identity required to create token for basic and directory admin user.",
 		Description:    "This API identifies the admin user and returns the uuid for the same.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv1.adminloginhistoryv1.generateloginhistoryreport": {
@@ -13029,6 +13816,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Generate Login History Report.",
 		Description:    "Generate report of Login history based on the parameters.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv1.adminloginhistoryv1.getadminloginhistory": {
@@ -13043,6 +13831,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Returns a list of admin login history records.",
 		Description:    "Returns a list of admin login history records satisfying the search criteria.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv1.adminsv1.addroletouser": {
@@ -13057,6 +13846,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Adds a role to the specified admin user.",
 		Description:    "Performs necessary checks and add an role for an existing admin.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The admin user ID (Required)."},
 		},
@@ -13073,6 +13863,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Changes the specified admin user's password.",
 		Description:    "This API is deprecated. Use POST /api/v2/admins/{uuid}/passwordresetemail instead.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The admin user ID (Required)."},
 		},
@@ -13089,6 +13880,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Deletes the specified admin user.",
 		Description:    "Performs necessary checks and delete all the information of the Admin based on admin id.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The admin user ID (Required)."},
 		},
@@ -13105,6 +13897,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves information about the specified admin user.",
 		Description:    "Performs necessary checks and get all the information of the Admin based on admin id.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The admin user ID (Required)."},
 		},
@@ -13121,6 +13914,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Retrieves the value for showConfigurationsAboutPage.",
 		Description:    "Retrieves the value for showConfigurationsAboutPage which will be used to enable or disable the About page.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "adminId", In: "path", Required: true, Type: "integer", Description: "Identifier for an admin(Required)."},
 		},
@@ -13137,6 +13931,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Creates a new admin user.",
 		Description:    "Performs necessary checks and Create a new Admin.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv1.adminsv1.removerolefromuser": {
@@ -13151,6 +13946,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Removes a role from the specified admin user.",
 		Description:    "Performs necessary checks and remove an role from an existing admin.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The admin user ID. (Required)."},
 		},
@@ -13167,6 +13963,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Searches for Admin users using the query information provided.",
 		Description:    "Performs necessary checks and search for the admin users based on the request query.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "firstname", In: "query", Required: false, Type: "string", Description: "The First name to search for."},
 			{Name: "lastname", In: "query", Required: false, Type: "string", Description: "The Last name to search for."},
@@ -13194,6 +13991,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Updates the specified admin user.",
 		Description:    "Performs necessary checks and Update the Admin properties based on Id.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The admin user ID (Required)."},
 		},
@@ -13210,6 +14008,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Updates the value for showConfigurationsAboutPage.",
 		Description:    "Updates the value for showConfigurationsAboutPage which will be used to enable or disable the About page.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "adminId", In: "path", Required: true, Type: "integer", Description: "Identifier for an admin(Required)."},
 			{Name: "showpage", In: "path", Required: true, Type: "boolean", Description: "true if the About page should be displayed for Configurations(Required)."},
@@ -13227,6 +14026,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets Advanced Ldap Sync job details for a particular Organization group. Allows admins to preview the all the job details for a specific OG.",
 		Description:    "Preview details of all the advanced LDAP sync job including the job status, enrollment user attributes etc. for a particular OG.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organization_group_uuid", In: "query", Required: true, Type: "string", Description: "The unique id of the organization group.(Required)"},
 			{Name: "page_number", In: "query", Required: false, Type: "integer", Description: "Page number."},
@@ -13249,6 +14049,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Approves or declines the created LDAP sync job.",
 		Description:    "Functionality to approve or decline the created advanced LDAP sysnc job.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "The unique id of the advanced ldap sync job created.(Required)."},
 			{Name: "action", In: "query", Required: true, Type: "string", Description: "The approval action.(Required)"},
@@ -13266,6 +14067,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Creates a new LDAP sync job.",
 		Description:    "Creates the advanced ldap sync job. Queues a message in MSMQ for the Directory Sync Services to pick up and process.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv1.advancedldapsyncjobv1.getjobstatus": {
@@ -13280,6 +14082,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets LDAP sync job details.",
 		Description:    "Get details of the advanced LDAP job including the job ID, job progress attributes etc.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "The unique id of the advanced ldap sync job.(Required)."},
 		},
@@ -13296,6 +14099,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets LDAP sync job details. Allows admins to preview the changes to enrollment user attributes.",
 		Description:    "Preview details of the advanced LDAP sync job including the job status, enrollment user attributes etc.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "The unique id of the created advanced ldap sync job.(Required)."},
 			{Name: "page_number", In: "query", Required: false, Type: "integer", Description: "Page number."},
@@ -13315,6 +14119,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets the Android Work Settings for Passed Location Group.",
 		Description:    "Gets the Android Work Settings for Passed Location Group and Settings consists of EnterpriseId, ServiceAccountAdminEmail, ServiceAccountEmail and ServiceAccountClientId.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "LocationGroup Id."},
 		},
@@ -13331,6 +14136,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Method to Create APNs Certificate Request.",
 		Description:    "Returns the status of the APNs Configuration for an Organization Group.\r\nUpload certificate Blob Id is -1 when APNs is already Configured for the Organization Group.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "This is the Organization Group Identifier also known as GroupID. Typically used during enrollment (Required)."},
 			{Name: "force", In: "query", Required: false, Type: "boolean", Description: "Option to force generate APNs Cert Request."},
@@ -13348,6 +14154,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Method to Save the APNs Configuration for an Organization Group.",
 		Description:    "This endpoint is applicable after the APNs certificate Blob(.pem) is uploaded to the AirWatch server.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "This is the Organization Group Identifier also known as GroupID. Typically used during enrollment (Required)."},
 		},
@@ -13364,6 +14171,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Update the APNs Configuration for an Organization Group.",
 		Description:    "This endpoint is applicable after APNs is configured on the AirWatch server.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The OrganizationGroup Identifier (Required)."},
 		},
@@ -13380,6 +14188,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Fetches Application and Content storage informations for Organization Group that is of type Customer.",
 		Description:    "Provides application and content storage information for the specified Organization Group that is of type Customer.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "ogid", In: "path", Required: true, Type: "integer", Description: "The Organization Group ID.(Required)."},
 		},
@@ -13396,6 +14205,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Delete assist configurations for a given smart group.",
 		Description:    "Delete assist configurations for a given smart group Uuid.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for the organization group(Required)."},
 			{Name: "smart_group_uuid", In: "query", Required: true, Type: "string", Description: "Using this uuid to delete smart group specific configurations.(Required)"},
@@ -13413,6 +14223,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets configurations for an organization group.",
 		Description:    "Gets assist configurations for an organization group Id.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for the organization group(Required)."},
 			{Name: "type", In: "query", Required: true, Type: "string", Description: "The type will be used to determine whether to fetch the configurations of configured smart group names, the default settings, or specific smart group configurations.(Required)"},
@@ -13431,6 +14242,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Create new or update configurations for a given smart group.",
 		Description:    "Create new or update configurations for a given smart group Uuid.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for the organization group(Required)."},
 			{Name: "action", In: "query", Required: true, Type: "string", Description: "Type of action to execute for create new or update the configurations.(Required)"},
@@ -13449,6 +14261,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "",
 		Description:    "",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: ""},
 		},
@@ -13465,6 +14278,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Returns the connection status for the AirWatch Cloud Connector configured for the given organization group.",
 		Description:    "Gets the AirWatch Cloud Connector connection status for the organization group.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "The unique identifier of the organization group.(Required)."},
 		},
@@ -13481,6 +14295,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Creates a custom attribute definition in AirWatch.",
 		Description:    "Creates a custom attibute for the organization group. Multiple values can be added to a custom attribute with this API.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv1.customattributes.search": {
@@ -13495,6 +14310,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Search custom attributes.",
 		Description:    "Searches Custom Attributes based on name, page and pagesize.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "Organization Group Identifer."},
 			{Name: "name", In: "query", Required: false, Type: "string", Description: "Custom Attribute Name."},
@@ -13514,6 +14330,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Bulk Add or update or Delete  Custom Gateway Settings",
 		Description:    "Bulk Add or update or Delete a set of Custom Gateway Settings linked to configuration",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "configurationUuid", In: "path", Required: true, Type: "string", Description: "configuration id(Required)"},
 			{Name: "moduleName", In: "path", Required: true, Type: "string", Description: "module name ContentGateWay,Tunnel or MEM(Required)"},
@@ -13531,6 +14348,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets Details of a Key",
 		Description:    "Custom Gateway Setting keys",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "keyUuid", In: "path", Required: true, Type: "string", Description: "Custom Gateway Settings Key Guid(Required)"},
 		},
@@ -13547,6 +14365,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets All the predefined keys for the module with its validation details",
 		Description:    "Custom Gateway Setting keys and its validation details",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "moduleName", In: "path", Required: true, Type: "string", Description: "module name ContentGateWay,Tunnel or MEM(Required)"},
 		},
@@ -13563,6 +14382,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the Custom Gateway Settings for ContentGateway,Tunnel and MEM",
 		Description:    "Custom Gateway Settings needed for interacting with ContentGateway,Tunnel and MEM",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "configurationUuid", In: "path", Required: true, Type: "string", Description: "configuration id of ContentGateway, Tunnel and MEM(Required)"},
 			{Name: "moduleName", In: "path", Required: true, Type: "string", Description: "module name ContentGateway, Tunnel and MEM(Required)"},
@@ -13580,6 +14400,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the Custom Reports refresh token for an organization group",
 		Description:    "This api generates the Custom Report refresh token valid at the user's topmost Customer Organization Group. The token is valid for 5 minutes.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv1.deviceregistrationv1.deleteregistereddevices": {
@@ -13594,6 +14415,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Delete the registered devices.",
 		Description:    "Delete the registered devices identified by [Asset number] or [Udid] or [Serialnumber]\r\n            (Formats: Udid: 6bf0f04c73681fbecfc3eb4f13cbf05b, SerialNumber: RZ1G124JZ6W, AssetNumber: ea856771ba6277bfca16528a79c5ce1f).",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "httpRequest", In: "query", Required: true, Type: "object", Description: "Holds request entity coming through call pipeline."},
 			{Name: "searchby", In: "query", Required: true, Type: "string", Description: "The identifier type must be one of the following [ Udid, Serialnumber, AssetNumber](Required)."},
@@ -13612,6 +14434,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Search for Enrollment Token and Device details.",
 		Description:    "Search for Enrollment Token and Device details using the query information provided.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "username", In: "query", Required: false, Type: "string", Description: "UserName of the Enrollment User for whom Enrollment Tokens needs to be searched."},
 			{Name: "userid", In: "query", Required: false, Type: "integer", Description: "Identifier of the Enrollment User for whom Enrollment Tokens needs to be searched."},
@@ -13635,6 +14458,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Register a device to enrollment user.",
 		Description:    "Register a device to the specified enrollment user.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The enrollment user Id."},
 		},
@@ -13651,6 +14475,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves enrolled device details.",
 		Description:    "Retrieves enrolled device details for the query information provided in the request\r\n            <br />\r\n            *seensince, seentill, enrolledsince and enrolledtill* fields accept the following\r\n            Valid DateTime formats : yyyy/MM/dd, yyyy-MM-dd, MM/dd/yyyy, MM-dd-yyyy, yyyy/MM/dd HH:mm:ss.fff,\r\n            yyyy-MM-dd HH:mm:ss.fff, MM/dd/yyyy HH:mm:ss.fff, MM-dd-yyyy HH:mm:ss.fff, yyyy/MM/ddTHH:mm:ss.fff,\r\n            yyyy-MM-ddTHH:mm:ss.fff, MM/dd/yyyyTHH:mm:ss.fff, MM-dd-yyyyTHH:mm:ss.fff, yyyy-MM-dd HH-mm-ss-tt, yyyy-MM-ddTHH-mm-ss-tt.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "Organization Group Identifier in which device details will be retrieved."},
 			{Name: "organizationgroup", In: "query", Required: false, Type: "string", Description: "Organization Group Name search parameter in which device details will be retrieved."},
@@ -13675,6 +14500,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves registered device details.",
 		Description:    "Retrieves registered device details for the query information provided in the request\r\n            <br />\r\n            *seensince and seentill* fields accept the following\r\n            Valid DateTime formats : yyyy/MM/dd, yyyy-MM-dd, MM/dd/yyyy, MM-dd-yyyy, yyyy/MM/dd HH:mm:ss.fff,\r\n            yyyy-MM-dd HH:mm:ss.fff, MM/dd/yyyy HH:mm:ss.fff, MM-dd-yyyy HH:mm:ss.fff, yyyy/MM/ddTHH:mm:ss.fff,\r\n            yyyy-MM-ddTHH:mm:ss.fff, MM/dd/yyyyTHH:mm:ss.fff, MM-dd-yyyyTHH:mm:ss.fff, yyyy-MM-dd HH-mm-ss-tt, yyyy-MM-ddTHH-mm-ss-tt.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "Organization Group Identifier in which device details will be retrieved."},
 			{Name: "organizationgroup", In: "query", Required: false, Type: "string", Description: "Organization Group Name search parameter in which device details will be retrieved."},
@@ -13697,6 +14523,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Creates the report for device wipe log.",
 		Description:    "Creates the report for device wipe log in CSV or XLSX format.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "The unique identifier of the organization group.(Required)."},
 		},
@@ -13713,6 +14540,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the list of device wipe events for the specified organization group.",
 		Description:    "Gets the list of device wipe events for devices enrolled in the organization group.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "The unique identifier of the organization group.(Required)."},
 			{Name: "search_text", In: "query", Required: false, Type: "string", Description: "The search text string which the device wipe results will be filtered by."},
@@ -13740,6 +14568,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the state of the wipe lock.",
 		Description:    "Returns the current state of the device wipe threshold lock.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "The unique identifier of the organization group.(Required)."},
 		},
@@ -13756,6 +14585,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Resets the wipe lock to allow scheduled wipe actions to proceed.",
 		Description:    "Unlocks the wipe actions that were placed in held status because of the wipe threshold setting.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "The unique identifier of the organization group.(Required)."},
 		},
@@ -13772,6 +14602,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Performs the specified action on the selected wipe actions.",
 		Description:    "Approves or rejects the specified wipe actions for further processing.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "The unique identifier of the organization group.(Required)."},
 			{Name: "action", In: "query", Required: true, Type: "string", Description: "Specifies what action should be taken. Supported actions are APPROVE, REJECT.(Required)"},
@@ -13789,6 +14620,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Deletes DEEM configuration.",
 		Description:    "Deletes configuration and registration from Entitlement Service.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "groupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for an organization group.(Required)"},
 			{Name: "configurationUuid", In: "path", Required: true, Type: "string", Description: "Deem configuration UUID.(Required)"},
@@ -13806,6 +14638,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Loads DEEM configurations based on query parameter for provided organization group.",
 		Description:    "Loads paginated list of DEEM configurations details and payloads.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "groupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for organization group(Required)."},
 			{Name: "page_number", In: "query", Required: false, Type: "integer", Description: "Page number."},
@@ -13824,6 +14657,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Creates and Updates deem configuration defined by admin.",
 		Description:    "Creates and Updates payload, smart group assignments , priority and exclusions for DEEM configurations. Register rule with Entitlement Service.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "groupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for an organization group.(Required)"},
 		},
@@ -13840,6 +14674,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Enable a dropship provisioning for given organization groups",
 		Description:    "Saves and enable dropship provisioning for a given Organization Group UUID.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Organization group UUID to perform the operation on.(Required)."},
 		},
@@ -13856,6 +14691,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets dropship provisioning details of a given organization group UUID.",
 		Description:    "Returns dropship provisioning details of given organization group id and its children.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Organization group UUID to perform the operation on.(Required)."},
 		},
@@ -13872,6 +14708,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Creates multiple new device custom attributes for a registered device.",
 		Description:    "Creates new device custom attributes for regisered devices. Device Serial number is used as the key to find the device.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "serialnumber", In: "path", Required: true, Type: "string", Description: "Device Serial number  (Required)."},
 		},
@@ -13888,6 +14725,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Creates multiple new device custom attributes for a registered device.",
 		Description:    "Creates new device custom attributes for regisered devices. Device Asset number is used as the key to find the device.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "assetnumber", In: "path", Required: true, Type: "string", Description: "Device Asset number (Required)."},
 		},
@@ -13904,6 +14742,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Deletes multiple device custom attribute values for a registered device.",
 		Description:    "Deletes device custom attributes for a regisered device. Device Serial number is used as the key to find the device.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "serialnumber", In: "path", Required: true, Type: "string", Description: "Device Serial number (Required)."},
 		},
@@ -13920,6 +14759,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Deletes multiple device custom attribute values for a registered device.",
 		Description:    "Deletes device custom attributes for a regisered device. Device asset number is used as the key to find the device.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "assetnumber", In: "path", Required: true, Type: "string", Description: "Device asset number (Required)."},
 		},
@@ -13936,6 +14776,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Updates multiple device custom attribute values for a registered device.",
 		Description:    "Updates device custom attributes for a regisered device. Device Serial number is used as the key to find the device.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "serialnumber", In: "path", Required: true, Type: "string", Description: "Device Serial number  (Required)."},
 		},
@@ -13952,6 +14793,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Updates multiple device custom attribute values for a registered device.",
 		Description:    "Updates device custom attributes for a regisered device. Device asset number is used as the key to find the device.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "assetnumber", In: "path", Required: true, Type: "string", Description: "Device asset number (Required)."},
 		},
@@ -13968,6 +14810,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get Enrollment Customizations settings for the given Organization Group",
 		Description:    "Get the Enrollment Customization settings for the given Organization Group",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Identifier of an Organization Group(Required)"},
 		},
@@ -13984,6 +14827,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Creates a new Event Notification rule with events to subscribe to.",
 		Description:    "v1.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv1.eventnotificationsv1.createeventnotificationrule.list.alt1": {
@@ -13998,6 +14842,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Creates a new Event Notification rule with events to subscribe to.",
 		Description:    "v1.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv1.eventnotificationsv1.deleteeventnotificationrule.byid": {
@@ -14012,6 +14857,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Deletes an Event Notification Rule identified by the Event Notification Id.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The Event Notification Id."},
 		},
@@ -14028,6 +14874,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Deletes an Event Notification Rule identified by the Event Notification Id.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The Event Notification Id."},
 		},
@@ -14044,6 +14891,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves details of an Event Notification Rule identified by EventNotification Id.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The Event Notification Id."},
 		},
@@ -14060,6 +14908,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves details of an Event Notification Rule identified by EventNotification Id.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The Event Notification Id."},
 		},
@@ -14076,6 +14925,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Searches Event Notifications based on the query information provided.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "targetname", In: "query", Required: false, Type: "string", Description: "The Target Name."},
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "string", Description: "The OrganizationGroup Identifier."},
@@ -14098,6 +14948,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Searches Event Notifications based on the query information provided.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "targetname", In: "query", Required: false, Type: "string", Description: "The Target Name."},
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "string", Description: "The OrganizationGroup Identifier."},
@@ -14120,6 +14971,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Updates an Event Notification Rule identified by the Event Notification Id.",
 		Description:    "",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The Event Notification Id."},
 		},
@@ -14136,6 +14988,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Updates an Event Notification Rule identified by the Event Notification Id.",
 		Description:    "",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The Event Notification Id."},
 		},
@@ -14152,6 +15005,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Creates a new Event Notification rule with events to subscribe to.",
 		Description:    "v1.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv1.eventnotificationsv2.deleteeventnotificationrule": {
@@ -14166,6 +15020,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Deletes an Event Notification Rule identified by the Event Notification Id.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "The Event Notification GUID."},
 		},
@@ -14182,6 +15037,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Retrieves details of an Event Notification Rule identified by EventNotification Id.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "The Event Notification GUID."},
 		},
@@ -14198,6 +15054,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Get Event Notifications and Subscriptions based on optional OrganizationGroup Id or page size.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupuuid", In: "query", Required: false, Type: "string", Description: "The OrganizationGroup Identifier."},
 			{Name: "page", In: "query", Required: false, Type: "integer", Description: "Page number."},
@@ -14216,6 +15073,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Searches Event Notifications based on the query information provided.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "targetname", In: "query", Required: false, Type: "string", Description: "The Target Name."},
 			{Name: "organizationgroupuuid", In: "query", Required: false, Type: "string", Description: "The OrganizationGroup Identifier."},
@@ -14238,6 +15096,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Updates an Event Notification Rule identified by the Event Notification Id.",
 		Description:    "",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "The Event Notification GUID."},
 		},
@@ -14254,6 +15113,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Submit a bulk export job matching specified criteria.",
 		Description:    "",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Organization Group UUID.(Required)."},
 		},
@@ -14270,6 +15130,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get List of all exported reports by admin.",
 		Description:    "Get List of all exported reports by admin for each organization group .",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Organization Group UUID.(Required)."},
 			{Name: "search", In: "query", Required: false, Type: "string", Description: "The text to search for in the name and description for exports."},
@@ -14294,6 +15155,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get report status.",
 		Description:    "Get status of exported report.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Organization Group UUID.(Required)."},
 			{Name: "reportUuid", In: "path", Required: true, Type: "string", Description: "Report UUID.(Required)."},
@@ -14311,6 +15173,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Creates specific number of aw express licenses at given organization group.",
 		Description:    "Creates specific number of airwatch express licenses at given organization group.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv1.hubv1.configurehubservicesurl": {
@@ -14325,6 +15188,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Updates Hub Services configuration URL at given organization group.",
 		Description:    "Updates Hub Services configuration URL at the given organization group.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv1.info.getinfo": {
@@ -14339,6 +15203,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves the information of the AirWatch Developer APIs.",
 		Description:    "Provides information about AirWatch version and API URLs. Replaces \"https://{host}/API/v1\" and \"https://{host}/API/v2\".",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv1.intelligenceeulav1.accepteula": {
@@ -14353,6 +15218,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Accept intelligence EULA details.",
 		Description:    "",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Identifier of an Organization Group(Required)."},
 		},
@@ -14369,6 +15235,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets EULA for Intelligence of given organization group.",
 		Description:    "Gets EULA for Intelligence of given organization group.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "The unique identifier of the organization group.(Required)."},
 		},
@@ -14385,6 +15252,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Tech Preview - Performs consolidation of Directory Services settings, Users and User Groups between specified organization groups",
 		Description:    "Tech Preview - Performs consolidation of Directory Services settings, Users and User Groups between specified organization groups",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv1.lookupfieldsv1.retrievelookupkeys": {
@@ -14399,6 +15267,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Retrieves lookup keys for a given organization group",
 		Description:    "Retrieve all lookup value keys for the given organization group.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Represents the organization group to retrieve lookup value keys from(Required)"},
 			{Name: "language", In: "query", Required: false, Type: "string", Description: "The language code (Default en-US)."},
@@ -14416,6 +15285,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Retrieves lookup keys for a specified lookup field type.",
 		Description:    "Retrieve all lookup keys for the specified lookup field type.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Represents the organization group to retrieve lookup value keys from(Required)"},
 			{Name: "lookupValueType", In: "path", Required: true, Type: "string", Description: "Represents the category of lookup value keys to retrieve.(Required)"},
@@ -14433,6 +15303,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves the list of notifications based on the core user.",
 		Description:    "This API is used to get a list of all the notifications created for a particular admin.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "startIndex", In: "query", Required: false, Type: "integer", Description: "Optional. Start index for the list of fetched notifications. Default value is 0."},
 			{Name: "pageSize", In: "query", Required: false, Type: "integer", Description: "Optional. Number of notifications fetched per page. Default value is 0."},
@@ -14452,6 +15323,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Dismiss a notification.",
 		Description:    "Dismiss a notification using notification id passed in by the user.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Notification id."},
 		},
@@ -14468,6 +15340,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Fetch notification counts.",
 		Description:    "Retrieves the total, active and dismissed count of notifications.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv1.operationsv1.createandtriggeroperation": {
@@ -14482,6 +15355,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Creates and triggers an operation",
 		Description:    "Creates an operation and triggers a background job corresponding to that operation",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv1.operationsv1.getoperationstatus": {
@@ -14496,6 +15370,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Retrieves status for an operation",
 		Description:    "Given an operation identifier this API retrieves and returns its latest recorded status",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "operationUuid", In: "path", Required: true, Type: "string", Description: "Identifier of the operation whose status to be obtained"},
 		},
@@ -14512,6 +15387,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Gets Custom Attribute Details.",
 		Description:    "Gets Custom Attribute Details for the specified Organization Group.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "ogid", In: "path", Required: true, Type: "integer", Description: "The OrganizationGroup Identifier (Required)."},
 		},
@@ -14528,6 +15404,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets LDAP sync connection status for an OG.",
 		Description:    "Provide Directory Sync Service Connection Status for an OG.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "The unique id of the organization group.(Required)."},
 		},
@@ -14544,6 +15421,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Creates a new organization group.",
 		Description:    "Create a new organization group.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The parent OrganizationGroup Identifier."},
 		},
@@ -14560,6 +15438,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Deletes the specified organization group.",
 		Description:    "Delete organization group by given ID. It return Forbidden if user want to delete current organization group. It returns bad request,if organization group cannot be deleted.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The OrganizationGroup Identifier."},
 		},
@@ -14576,6 +15455,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves information about the specified organization group.",
 		Description:    "Retrieves organization group by ID. If Organization group is not found, it will throw 404 error.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The OrganizationGroup Identifier."},
 		},
@@ -14592,6 +15472,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Provides a list of child organization groups of the specified organization group.",
 		Description:    "Lists the Organization Group specified by the ID and all of its child Organization Groups. Users, administrators, and devices in the OG specified by the ID are broken down and listed underneath the Organization Group they are enrolled or created at.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The parent organization group ID."},
 		},
@@ -14608,6 +15489,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Returns the Device Count for all the Organization Groups that are available under the specified Organization Group.",
 		Description:    "Returns the device count for all the organization groups under specified organization group. It return bad request if start date is greater than end date or user has no access to the organization group.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "Organization Group to be searched, user's OG is considered if not sent."},
 			{Name: "seensince", In: "query", Required: false, Type: "string", Description: "Filter devices such that devices with last seen after this date will be returned. Supported format:\r\n            \"yyyy/MM/dd\", \"yyyy-MM-dd\", \"MM/dd/yyyy\", \"MM-dd-yyyy\", \"yyyy/MM/dd HH:mm:ss.fff\", \"yyyy-MM-dd HH:mm:ss.fff\", \"MM/dd/yyyy HH:mm:ss.fff\", \"MM-dd-yyyy HH:mm:ss.fff\", \"yyyy/MM/ddTHH:mm:ss.fff\", \"yyyy-MM-ddTHH:mm:ss.fff\", \"MM/dd/yyyyTHH:mm:ss.fff\", \"MM-dd-yyyyTHH:mm:ss.fff\", \"yyyy-MM-dd HH-mm-ss-tt\", \"yyyy-MM-ddTHH-mm-ss-tt\".\r\n            "},
@@ -14628,6 +15510,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Provides the device sample rates.",
 		Description:    "Provides the device sample rates for an organization group by platform.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "Organization Group Id.(Required)."},
 			{Name: "platform", In: "query", Required: true, Type: "string", Description: "The platform of device for which sample rates are requested.(Required)"},
@@ -14645,6 +15528,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Searches for organization groups using the query information provided.",
 		Description:    "Search organization group by given parameter.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "name", In: "query", Required: false, Type: "string", Description: "The OrganizationGroup name, such as \"Global\"."},
 			{Name: "type", In: "query", Required: false, Type: "string", Description: "The OrganizationGroup type. (eg. \"Container\",\"Customer\",\"Partner\")."},
@@ -14667,6 +15551,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Updates the metadata of the specified organization group.",
 		Description:    "update the metadata of organization group specified by ID. It return bad request if organization group name too long or group id too long.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The Organization Group Identifier."},
 		},
@@ -14683,6 +15568,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Returns the list of product licenses associated with the given organization group.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "The unique identifier of the organization group.(Required)."},
 		},
@@ -14699,6 +15585,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the list of apps based on the search parameters",
 		Description:    "Returns the list of all matching apps on the search criteria provided",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchtext", In: "query", Required: false, Type: "string", Description: "App name or part of app name used as Search text for searching applications"},
 			{Name: "pagenumber", In: "query", Required: false, Type: "integer", Description: "Specific page number to get. Default value is 0"},
@@ -14717,6 +15604,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the deployment status of the specified app or profile on various devices",
 		Description:    "Returns the deployment status of the specified app or profile on various devices",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Unique Identifier for App or profile(Required)"},
 			{Name: "producttype", In: "query", Required: true, Type: "string", Description: "Type of the product i.e., InternalApp, PublicApp, PurchasedApp or Profile(Required)"},
@@ -14734,6 +15622,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the list of profiles based on the search parameters",
 		Description:    "Returns the list of all matching profiles on the search criteria provided",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "searchtext", In: "query", Required: false, Type: "string", Description: "Profile name or part of profile name used as Search text for searching profiles"},
 			{Name: "pagenumber", In: "query", Required: false, Type: "integer", Description: "Specific page number to get. Default value is 0"},
@@ -14752,6 +15641,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets services and corresponding tenant keys for specified organization group",
 		Description:    "Returns list of services/api and corresponding tenant keys for the organization group in the request, if applicable",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "This is the Organization Group identifier also known as GroupID.(Required)."},
 		},
@@ -14768,6 +15658,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Create a pinned host.",
 		Description:    "Accepts and parses a fully qualified domain name for the contextual, or specified, Organization Group and creates a container to attach acceptable public keys to.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv1.sslpinning.disablepin": {
@@ -14782,6 +15673,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Disable a pinned relationship between host and cert.",
 		Description:    "Disables the enforcement of pinning for one particular Pinned Host-Pinned Certificate pair.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "hostGuid", In: "path", Required: true, Type: "string", Description: "The ID of the pertinent host (Required)."},
 			{Name: "organizationgroupid", In: "path", Required: true, Type: "integer", Description: "The Organization Group to disable at (Required)."},
@@ -14799,6 +15691,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Disable SSL Pinning at an Organization Group.",
 		Description:    "Disables the enforcement of SSL Pinning at the specified Organization Group if it is allowed.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "path", Required: true, Type: "integer", Description: "The ID of the organization group to disable at (Required)."},
 		},
@@ -14815,6 +15708,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Enable a pinned relationship between host and cert.",
 		Description:    "Enables the enforcement of pinning for one particular Pinned Host-Pinned Certificate pair.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "hostGuid", In: "path", Required: true, Type: "string", Description: "The ID of the pertinent host (Required)."},
 			{Name: "organizationgroupid", In: "path", Required: true, Type: "integer", Description: "The ID of the organization group."},
@@ -14832,6 +15726,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Enable SSL Pinning at an Organization Group.",
 		Description:    "Enables the enforcement of SSL Pinning at the specified Organization Group if it is allowed.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "path", Required: true, Type: "integer", Description: "The ID of the organization group to enable at (Required)."},
 		},
@@ -14848,6 +15743,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Query for pinned hosts by host name.",
 		Description:    "Finds and returns all pinned hosts and their associated public keys that match the fully qualified domain name of the search criteria that are visible at the contextual, or specified, Organization Group.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "hostName", In: "query", Required: false, Type: "string", Description: "The hostname to query for (Required)."},
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "The organization group to check at."},
@@ -14865,6 +15761,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Pin a given certificate to a pinned host.",
 		Description:    "Processes a public key from a provided certificate and maps it to the pinned host with the specified UUID.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv1.sslpinning.removepinnedhost": {
@@ -14879,6 +15776,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Query for pinned hosts by UDID.",
 		Description:    "Returns the pinned host and its associated public keys with the specified UUID and that are visible at the contextual, or specified, Organization Group.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "hostGuid", In: "path", Required: true, Type: "string", Description: "The ID (returned during creation or a query) of the host to delete (Required)."},
 		},
@@ -14895,6 +15793,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Synchronize Pins with Auto Discovery at an Organization Group.",
 		Description:    "Initiates the synchronization routine with Auto Discovery to send it the pinned public keys for the Device Services host at the specified Organization Group.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupid", In: "path", Required: true, Type: "integer", Description: "The ID of the organization group (Required)."},
 		},
@@ -14911,6 +15810,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Unpin a given certificate from a pinned host.",
 		Description:    "Un-maps the certificate with the specified thumbprint from the pinned host with the specified UUID.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv1.sslpinning.updatepinnedhost": {
@@ -14925,6 +15825,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Update a specific pinned host.",
 		Description:    "Updates the pinned host with the given UUID with new details, including a parsed FQDN.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "hostGuid", In: "path", Required: true, Type: "string", Description: "The ID of the host to delete (Required)."},
 		},
@@ -14941,6 +15842,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves a particular tag for the specified organization group.",
 		Description:    "v1.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The OrganizationGroup Id."},
 		},
@@ -14957,6 +15859,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Deletes a tag for the specified organization group.\r\n<br />Tag is a custom identifier that can be associated to a device(Example: Refursbished, Repaired).",
 		Description:    "Delete a tag specified in the input that is present in the given organization group.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "ogid", In: "path", Required: true, Type: "integer", Description: "The OrganizationGroup Id."},
 			{Name: "tagid", In: "path", Required: true, Type: "integer", Description: "The tag Id to be deleted."},
@@ -14974,6 +15877,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves the tag details for a given tag in an organization group.",
 		Description:    "Retrieves all the details about a tag in an organization group<br />Tag is a custom identifier that can be associated to a device(Example: Refursbished, Repaired).",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "ogid", In: "path", Required: true, Type: "integer", Description: "The OrganizationGroup Id."},
 			{Name: "tagid", In: "path", Required: true, Type: "integer", Description: "The tag Id."},
@@ -14991,6 +15895,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves the tags for the specified organization group.",
 		Description:    "Gets the list of tags for the given organization group\r\n            <br />Tag is a custom identifier that can be associated to a device(Example: Refursbished, Repaired).",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The OrganizationGroup Id."},
 		},
@@ -15007,6 +15912,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Updates a tag for the specified organization group.",
 		Description:    "v1.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "ogid", In: "path", Required: true, Type: "integer", Description: "The OrganizationGroup Id."},
 			{Name: "tagid", In: "path", Required: true, Type: "integer", Description: "The tag Id to be updated."},
@@ -15024,6 +15930,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Activate the enrollment user.",
 		Description:    "Activate the enrollment user by enrollment user id.\r\nThe enrollment user will be activated once the call is complete.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The enrollment user id (Required)."},
 		},
@@ -15040,6 +15947,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Create a new enrollment user.",
 		Description:    "Create a new enrollment user with all provided information.\r\nValidation will be performed based on the input data.\r\nThe enrollment user will be added to the system once the call is complete.\r\nWe have introduced v2 for this API, which includes enhancements, and recommend using v2 going forward.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv1.user.bulkactivate": {
@@ -15054,6 +15962,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Activate a list of enrollment users.",
 		Description:    "Activate a list of enrollment users. Enrollment user ids will be taken as input.\r\nThe list of enrollment users will be activated once the call is complete.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv1.user.bulkdeactivate": {
@@ -15068,6 +15977,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Deactivate a list of enrollment users.",
 		Description:    "Deactivate a list of enrollment users. Enrollment user ids will be taken as input.\r\nThe list of enrollment users will be deactivated once the call is complete.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv1.user.bulkdelete": {
@@ -15082,6 +15992,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Delete a list of enrollment users.",
 		Description:    "Delete a list of enrollment users. Enrollment user ids will be taken as input.\r\nThe list of enrollment users will be deleted once the call is complete.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv1.user.changelocationgroup": {
@@ -15096,6 +16007,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Change the organization group of the enrollment user.",
 		Description:    "Change the organization group of the enrollment user by enrollment user id.\r\nThe organization group will be changed once the call is complete.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The enrollment user id (Required)."},
 			{Name: "targetLG", In: "query", Required: true, Type: "integer", Description: "The new enrollment user organization group id (Required)."},
@@ -15113,6 +16025,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Deactivate the enrollment user.",
 		Description:    "Deactivate the enrollment user by enrollment user id.\r\nThe enrollment user will be deactivated once the call is complete.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The enrollment user id (Required)."},
 		},
@@ -15129,6 +16042,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Delete the enrollment user.",
 		Description:    "Delete the enrollment user by enrollment user id.\r\nThe enrollment user will be deleted from system once the call is complete.\r\nWe have introduced v2 for this API, which includes enhancements, and recommend using v2 going forward.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The enrollment user id (Required)."},
 		},
@@ -15145,6 +16059,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Get the enrollment user.",
 		Description:    "Get the enrollment user information by enrollment user id.\r\nThe enrollment user information will be present once the call is complete.\r\nWe have introduced v2 for this API, which includes enhancements, and recommend using v2 going forward.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The enrollment user id (Required)."},
 		},
@@ -15161,6 +16076,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Get the enrollment user authentication result and attributes.",
 		Description:    "Get the enrollment user authentication result and attributes by enrollment user credential and attributes flag.\r\nEnrollment user credential will be used as the authorization header to get enrollment user information.\r\nAttributes will be returned together with authentication result if attributes flag is set to true, otherwise only authentication result is returned.\r\nThe enrollment user authentication result and/or attributes will be present once the call is complete.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "attributes", In: "query", Required: false, Type: "boolean", Description: "Attributes flag indicating whether to return enrollment user attributes."},
 		},
@@ -15177,6 +16093,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Search for the enrollment users.",
 		Description:    "Search for the enrollment users based on search criteria.\r\nFirstName, LastName, Email, LocationGroupID, Role, UserName can be used to search the enrollment users.\r\nPaging is supported together with page number and page size.\r\nSorting is supported together with order by and sort order.\r\nSupported keywords for sorting are UserName, EmailAddress, FirstName, LastName, Name - Sorts by Organization Group Name, Active, EnrollmentUserID.\r\nA list of enrollment users will be present once the call is complete.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "firstname", In: "query", Required: false, Type: "string", Description: "The enrollment user first name to search for."},
 			{Name: "lastname", In: "query", Required: false, Type: "string", Description: "The enrollment user last name to search for."},
@@ -15203,6 +16120,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Update the enrollment user.",
 		Description:    "Update the enrollment user with all provided information by enrollment user id.\r\nValidation will be performed based on the input data.\r\nThe enrollment user will be updated in the system once the call is complete.\r\nWe have introduced v2 for this API, which includes enhancements, and recommend using v2 going forward.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The enrollment user id (Required)."},
 		},
@@ -15219,6 +16137,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Upload MIME Certificates for the enrollment user.",
 		Description:    "Upload MIME certificates for the enrollment user by enrollment user id.\r\nMIME certificates will be uploaded for the enrollment user once the call is complete.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The enrollment user id (Required)."},
 		},
@@ -15235,6 +16154,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Adds the user to custom User Group.",
 		Description:    "Adds user to custom User Group based on its enrollment user id and user group id.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "usergroupid", In: "path", Required: true, Type: "integer", Description: "User Group identifier (Required)."},
 			{Name: "enrollmentuserid", In: "path", Required: true, Type: "integer", Description: "Enrollment user identifier (Required)."},
@@ -15252,6 +16172,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Creates a Custom User Group.",
 		Description:    "Creates a custom User Group using request body containing group name, description, and the id of the\r\n            organization group that will manage the User Group.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv1.usergroups.deleteusergroupidusers": {
@@ -15266,6 +16187,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Delete custom User Group.",
 		Description:    "Deletes a custom User Group based on the user group id.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "usergroupid", In: "path", Required: true, Type: "integer", Description: "User Group Identifier (Required)."},
 		},
@@ -15282,6 +16204,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Removes the user from custom User Group.",
 		Description:    "Removes the user from custom User Group based on its enrollment user id and user group id.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "usergroupid", In: "path", Required: true, Type: "integer", Description: "User group identifier (Required)."},
 			{Name: "enrollmentuserid", In: "path", Required: true, Type: "integer", Description: "Enrollment user identifier (Required)."},
@@ -15299,6 +16222,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Retrieves list of users from provided custom user group id.",
 		Description:    "Retrieves a list of users that are members of custom User Group based on the user group id and a request query containing\r\n            page number and page size.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "usergroupid", In: "path", Required: true, Type: "integer", Description: "User Group Identifier (Required)."},
 			{Name: "page", In: "query", Required: false, Type: "integer", Description: "Specific page number to get. 0 based index."},
@@ -15317,6 +16241,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Search User Groups.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "groupname", In: "query", Required: false, Type: "string", Description: "Name of the group."},
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "Organization Group Identifier."},
@@ -15343,6 +16268,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Search custom User Group with given parameters.",
 		Description:    "Search for a custom User Group with given request query containing the following parameters:\r\n            the group name, the organizaiton group identifier, page number, and page size.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "groupname", In: "query", Required: true, Type: "string", Description: "Name of User Group (Required)."},
 			{Name: "organizationgroupid", In: "query", Required: false, Type: "integer", Description: "Organization Group Identifier."},
@@ -15362,6 +16288,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Enrollment user group add-missing-users action.",
 		Description:    "Initiates add-missing-users action for user groups synced through LDAP.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "userGroupUuid", In: "path", Required: true, Type: "string", Description: "UUID of an enrollment user group.(Required)."},
 		},
@@ -15378,6 +16305,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Create enrollment user group.",
 		Description:    "Create an enrollment user group. Directory-type groups cannot be added if the tenant has SCIM-provisioning enabled.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv1.usergroupsactions.getusergroupmembers": {
@@ -15392,6 +16320,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Get members of the enrollment user group.",
 		Description:    "Get a list of members of the enrollment user group using user group uuid.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "userGroupUuid", In: "path", Required: true, Type: "string", Description: "UUID of an Enrollment user group."},
 			{Name: "page", In: "query", Required: false, Type: "integer", Description: "The specific page number to get."},
@@ -15410,6 +16339,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Enrollment user group merge action.",
 		Description:    "Initiates merge actions for the enrollment user group.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "userGroupUuid", In: "path", Required: true, Type: "string", Description: "UUID of an enrollment user group.(Required)."},
 		},
@@ -15426,6 +16356,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Enrollment user group sync action.",
 		Description:    "Initiates sync action for the directory enrollment user group except provisioned user groups.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "userGroupUuid", In: "path", Required: true, Type: "string", Description: "UUID of an enrollment user group.(Required)."},
 		},
@@ -15442,6 +16373,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Delete Enrollment User Group.",
 		Description:    "Deletes an enrollment user group. SCIM-provisioned groups are not supported.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "userGroupUuid", In: "path", Required: true, Type: "string", Description: "UUID of an enrollment user group.(Required)."},
 		},
@@ -15458,6 +16390,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Update Enrollment User Group.",
 		Description:    "Update details for enrollment user groups. SCIM-provisioned groups are not supported.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "userGroupUuid", In: "path", Required: true, Type: "string", Description: "UUID of an Enrollment user group."},
 		},
@@ -15474,6 +16407,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get a list of enrollment user group merge changes.",
 		Description:    "Review the list of enrollment users to be added or removed from the group after sync action, before merging the changes.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "userGroupUuid", In: "path", Required: true, Type: "string", Description: "UUID of an enrollment user group.(Required)."},
 			{Name: "mergechangestype", In: "query", Required: true, Type: "string", Description: "Enrollment user to be \"Add\" or \"Remove\".(Required)."},
@@ -15493,6 +16427,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Imports users batch.",
 		Description:    "Imports user batch data.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "query", Required: true, Type: "string", Description: "Organization Group unique identifier.(Required)."},
 			{Name: "batchName", In: "query", Required: true, Type: "string", Description: "Name of the batch.(Required)."},
@@ -15512,6 +16447,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Generate report of users batch details.",
 		Description:    "Generate report of users batch details based on the parameters.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv1.usersbatchesv1.generateuserbatchdetailsreport": {
@@ -15526,6 +16462,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Generate user batch details Report.",
 		Description:    "Generate report of user batch details based on the parameters.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "userBatchUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier of user batch.(Required)."},
 		},
@@ -15542,6 +16479,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - List of users batch details.",
 		Description:    "Returns a list of users batch details.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "userBatchUuid", In: "path", Required: true, Type: "string", Description: "id of user batch.(Required)."},
 			{Name: "row_number", In: "query", Required: false, Type: "string", Description: "Filter records based on row number."},
@@ -15564,6 +16502,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Returns a list of users batches.",
 		Description:    "Returns a list of users batches satisfying the search criteria.",
 		HasRequestBody: false,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "organization_group_uuid", In: "query", Required: true, Type: "string", Description: "Uuid of the Organization group to fetch the user batches for.(Required)"},
 			{Name: "batch_name", In: "query", Required: false, Type: "string", Description: "Filter records based on batch name."},
@@ -15586,6 +16525,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Update Users Batch.",
 		Description:    "Update Users Batch resource.",
 		HasRequestBody: true,
+		AcceptVersion:  "1",
 		Parameters: []ParamMeta{
 			{Name: "userBatchId", In: "path", Required: true, Type: "string", Description: "User batch ID(Required)."},
 		},
@@ -15602,6 +16542,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Adds a role to the specified admin user.",
 		Description:    "Performs necessary checks and add an role for an existing admin.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Location group UUID string (Required)."},
 			{Name: "adminUserUuid", In: "path", Required: true, Type: "string", Description: "Admin user UUID (Required)."},
@@ -15620,6 +16561,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Changes the specified admin user's password.",
 		Description:    "This API is deprecated. Use POST /api/v2/admins/{uuid}/password-reset-email instead.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "The admin user udid (Required)."},
 		},
@@ -15636,6 +16578,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Creates a new admin user.",
 		Description:    "Performs necessary checks and Create a new Admin.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv2.adminsv2.delete": {
@@ -15650,6 +16593,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Deletes the specified admin user.",
 		Description:    "V2.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Admin user UUID to be deleted(Required)."},
 		},
@@ -15666,6 +16610,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Retrieves information about the specified admin user.",
 		Description:    "Performs necessary checks and get all the information of the Admin based on admin udid.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Admin user UUID(Required)."},
 		},
@@ -15682,6 +16627,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Issues a password reset email for the specified admin user.",
 		Description:    "Triggers a password reset email to the admin (B) identified by UUID. The recipient follows the emailed link to self-service reset their own password.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "The admin user UUID (Required)."},
 		},
@@ -15698,6 +16644,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Removes a role from the specified admin user.",
 		Description:    "Performs necessary checks and remove an role from an existing admin.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Location group UUID string (Required)."},
 			{Name: "adminUserUuid", In: "path", Required: true, Type: "string", Description: "Admin user UUID (Required)."},
@@ -15716,6 +16663,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Searches for Admin users using the query information provided.",
 		Description:    "Performs necessary checks and search for the admin users based on the request query.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "firstname", In: "query", Required: false, Type: "string", Description: "The First name to search for."},
 			{Name: "lastname", In: "query", Required: false, Type: "string", Description: "The Last name to search for."},
@@ -15744,6 +16692,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Updates the specified admin user.",
 		Description:    "Performs necessary checks and Update the Admin properties based on Id.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "The admin user UUID(Required)."},
 		},
@@ -15760,6 +16709,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets Enrollment user details for a particular Organization group.",
 		Description:    "Search the details of all the enrollment users for the provided user name for a particular OG.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "oguuid", In: "path", Required: true, Type: "string", Description: "The unique id of the organization group.(Required)."},
 			{Name: "user_name", In: "query", Required: true, Type: "string", Description: "User name.(Required)"},
@@ -15777,6 +16727,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets LDAP sync job details. Allows admins to preview the changes to enrollment user attributes.",
 		Description:    "Preview details of the advanced LDAP sync job including the job status, enrollment user attributes etc.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "The unique id of the created advanced ldap sync job.(Required)."},
 			{Name: "page_number", In: "query", Required: false, Type: "integer", Description: "Page number."},
@@ -15798,6 +16749,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets the APNs configuration for an Organization Group",
 		Description:    "It fetches the configuration for APNs certificate Blob(.pem) uploaded to Workspace ONE UEM",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Unique identifier for the organization group(Required)"},
 		},
@@ -15814,6 +16766,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets Enrollment Restriction Policies accessible to admin",
 		Description:    "Fetch Enrollment Restriction Policies accessible to admin. We only return the following properties- name, uuid, organization group uuid",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv2.enrollmentrestrictionpolicyv2.getenrollmentrestrictionpolicydetailsbyuuid": {
@@ -15828,6 +16781,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Gets Enrollment Restriction Policy details based on uuid.",
 		Description:    "Fetch details for an Enrollment Restriction policy which includes name, uuid, ogname and User group assignments",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Identifier of an enrollment restriction policy"},
 		},
@@ -15844,6 +16798,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Assigns a list of usergroups to Enrollment Restriction policy",
 		Description:    "Assigns a list of usergroups to Enrollment Restriction policy",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "enrollmentRestrictionPolicyUuid", In: "path", Required: true, Type: "string", Description: "Identifier of an enrollment restriction policy(Required)"},
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Identifier of an enrollment organization group(Required)"},
@@ -15861,6 +16816,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Creates a new Event Notification rule with events to subscribe to.",
 		Description:    "v1.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv2.eventnotificationsv2.deleteeventnotificationrule": {
@@ -15875,6 +16831,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Deletes an Event Notification Rule identified by the Event Notification Id.",
 		Description:    "v1.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "The Event Notification GUID."},
 		},
@@ -15891,6 +16848,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Retrieves details of an Event Notification Rule identified by EventNotification Id.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "The Event Notification GUID."},
 		},
@@ -15907,6 +16865,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Get Event Notifications and Subscriptions based on optional OrganizationGroup Id or page size.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "organizationgroupuuid", In: "query", Required: false, Type: "string", Description: "The OrganizationGroup Identifier."},
 			{Name: "page", In: "query", Required: false, Type: "integer", Description: "Page number."},
@@ -15925,6 +16884,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Searches Event Notifications based on the query information provided.",
 		Description:    "",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "targetname", In: "query", Required: false, Type: "string", Description: "The Target Name."},
 			{Name: "organizationgroupuuid", In: "query", Required: false, Type: "string", Description: "The OrganizationGroup Identifier."},
@@ -15947,6 +16907,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Updates an Event Notification Rule identified by the Event Notification Id.",
 		Description:    "",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "The Event Notification GUID."},
 		},
@@ -15963,6 +16924,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get Group Acknowledgement",
 		Description:    "Gets the approval status for a group along with the access token and link to merge that group. This will also include the details of members added and removed from the group.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "UserGroup Uuid.(Required)"},
 			{Name: "membershipStatus", In: "query", Required: false, Type: "string", Description: "Filter for Added and Removed Users - ('Add'/'Remove')"},
@@ -15981,6 +16943,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Merges the group changes",
 		Description:    "Merges the user or admin group which are in 'MergePendingApproval' or 'MergeFailed' state.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv2.organizationgroupdirectoryservicesv2.fetchldapconfigurationv2": {
@@ -15995,6 +16958,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Loads LDAP configuration based on organization group UUID.",
 		Description:    "Gets LDAP configuration based on the organization group UUID.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "organizationGroupUuid", In: "path", Required: true, Type: "string", Description: "Unique identifier of the organization group.(Required)"},
 		},
@@ -16011,6 +16975,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Searches for organization groups using the query information provided.",
 		Description:    "Search organization by the given parameter.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "name", In: "query", Required: false, Type: "string", Description: "The OrganizationGroup name, such as \"Global\"."},
 			{Name: "type", In: "query", Required: false, Type: "string", Description: "The OrganizationGroup type. (eg. \"Container\",\"Customer\",\"Partner\")."},
@@ -16033,6 +16998,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "Creates a new organization group.",
 		Description:    "Create a new organization group.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "id", In: "path", Required: true, Type: "integer", Description: "The parent OrganizationGroup Identifier."},
 		},
@@ -16049,6 +17015,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Deletes the specified organization group.",
 		Description:    "Delete organization group by given UUID. It return Forbidden if user want to delete current organization group. It returns bad request,if organization group cannot be deleted.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Identifier for an organization group on which operation is to be executed.(Required)"},
 		},
@@ -16065,6 +17032,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Retrieves information about the specified organization group.",
 		Description:    "Retrieves organization group by UUID. If Organization goup is not found, it will throw 404 error.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Identifier for an organization group on which operation is to be executed.(Required)"},
 		},
@@ -16081,6 +17049,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Updates the metadata of the specified organization group.",
 		Description:    "Update the metadata of organization group specified by UUID. It return bad request if organization group name too long or group id too long.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Identifier for an organization group on which operation is to be executed.(Required)"},
 		},
@@ -16097,6 +17066,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Create a group.",
 		Description:    "Endpoint to create a group. As of now, we only support importing user groups from  a directory service into Workspace One UEM. \r\nWhen importing a user group form directory service, one needs to pass externalId. \r\nIn case of a directory custom group, its required to pass displayName for the group.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv2.scimv2groups.getusergroupbyuuid": {
@@ -16111,6 +17081,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get the group details by UUID",
 		Description:    "Get the enrollment/admin group details by UUID",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Identifier of an group(Required)"},
 		},
@@ -16127,6 +17098,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get a group list",
 		Description:    "Get the group list",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "filter", In: "query", Required: false, Type: "string", Description: "The filter string used to request a subset of resources."},
 			{Name: "attributes", In: "query", Required: false, Type: "string", Description: "A comma separated list of strings indicating the names of resource attributes to return in the response."},
@@ -16149,6 +17121,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Operations on groups.",
 		Description:    "Operations on groups. Currently we support patch operation only on LastSyncOn. Sync will be performed only when the LastSyncOn is passed as mm/dd/yyyy",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Identifier of a group(Required)"},
 		},
@@ -16165,6 +17138,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Search for groups.",
 		Description:    "Search for groups.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv2.scimv2serviceproviderconfig.getserviceproviderconfig": {
@@ -16179,6 +17153,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get the service provider configuration",
 		Description:    "Clients can invoke this endpoint to get the service provider configuration",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv2.scimv2users.getuserbyuuid": {
@@ -16193,6 +17168,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Get a user by UUID",
 		Description:    "Get the user by UUID.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Identifier of an user(Required)"},
 		},
@@ -16209,6 +17185,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Retrieves the tenant storage configuration details.",
 		Description:    "Retrieves the configuration settings for the Workspace ONE UEM to tenant storage configuration.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "ogUuid", In: "path", Required: true, Type: "string", Description: "Organization uuid.(Required)."},
 		},
@@ -16225,6 +17202,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Create an enrollment user",
 		Description:    "Create an enrollment user with attributes including externalId, userName, password, firstName, lastName, displayName, userPrincipalName, emailAddress, phoneNumber, mobileNumber, messageType, messageTemplateUuid, enrollmentRoleUuid, status, securityType, deviceStagingEnabled, deviceStagingType, organizationGroupUuid, enrollmentOrganizationGroupUuid, aadMappingAttribute, department, employeeIdentifier, costCenter, customAttribute1, customAttribute2, customAttribute3, customAttribute4 and customAttribute5. &lt;br/&gt;&lt;br/&gt;UsersV2 API support syncing of users into the Workspace ONE Access from Workspace ONE UEM.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters:     []ParamMeta{},
 	},
 	"systemv2.usersv2.delete": {
@@ -16239,6 +17217,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Delete an enrollment user by UUID",
 		Description:    "Delete an enrollment user by UUID. &lt;br/&gt;&lt;br/&gt;UsersV2 API support syncing of users into the Workspace ONE Access from Workspace ONE UEM.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Identifier of an enrollment user(Required)."},
 		},
@@ -16255,6 +17234,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Read an enrollment user by UUID",
 		Description:    "Read an enrollment user attributes including uuid, externalId, domain, userName, firstName, lastName,\r\ndisplayName, fullName, userPrincipalName, emailAddress, phoneNumber, mobileNumber, emailUserName,\r\nmessageType, messageTemplateUuid, enrollmentRoleUuid, status, securityType, deviceStagingType,\r\nenrolledDeviceCount, removableDriveCount, userGroupCount, organizationGroupUuid,\r\nenrollmentOrganizationGroupUuid, aadMappingAttribute, department, employeeIdentifier, costCenter,\r\ncustomAttribute1, customAttribute2, customAttribute3, customAttribute4, customAttribute5,\r\ncreatedDate, createdBy, lastModifiedDate, lastModifiedBy, lastActionSource and lastActionType.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Identifier of an enrollment user(Required)."},
 		},
@@ -16271,6 +17251,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Search for enrollment users based on Search Text.",
 		Description:    "Retrieves a collection of enrollment users for a given location group and search text for add device.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "organization-group-uuid", In: "query", Required: true, Type: "string", Description: "Location group uuid.(Required)"},
 			{Name: "searchtext", In: "query", Required: false, Type: "string", Description: "Search Text for filtering user."},
@@ -16288,6 +17269,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Update an enrollment user by UUID",
 		Description:    "Update the enrollment user with attributes including password, firstName, lastName, displayName, emailAddress, phoneNumber, mobileNumber, messageType, messageTemplateUuid, deviceStagingEnabled, deviceStagingType,  enrollmentRoleUuid, enrollmentOrganizationGroupUuid, aadMappingAttribute, department, employeeIdentifier, costCenter, customAttribute1, customAttribute2, customAttribute3, customAttribute4 and customAttribute5. &lt;br/&gt;&lt;br/&gt;UsersV2 API support syncing of users into the Workspace ONE Access from Workspace ONE UEM.",
 		HasRequestBody: true,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "uuid", In: "path", Required: true, Type: "string", Description: "Identifier of an enrollment user(Required)."},
 		},
@@ -16304,6 +17286,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Search for user categories based on location group.",
 		Description:    "Retrieves a collection of enrollment user categories for a given organization group.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "organization-group-uuid", In: "query", Required: true, Type: "string", Description: "Location group uuid.(Required)"},
 		},
@@ -16320,6 +17303,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Search for user roles based on location group.",
 		Description:    "Retrieves a collection of enrollment user roles for a given organization group.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "organization-group-uuid", In: "query", Required: true, Type: "string", Description: "Location group uuid.(Required)"},
 		},
@@ -16336,6 +17320,7 @@ var Ops = map[string]OpMeta{
 		Summary:        "New - Search for user security types based on location group.",
 		Description:    "Retrieves a collection of enrollment user security types for a given organization group.",
 		HasRequestBody: false,
+		AcceptVersion:  "2",
 		Parameters: []ParamMeta{
 			{Name: "organization-group-uuid", In: "query", Required: true, Type: "string", Description: "Location group uuid.(Required)"},
 		},

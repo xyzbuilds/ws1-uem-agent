@@ -99,6 +99,11 @@ type OpMeta struct {
 	Description    string
 	Parameters     []ParamMeta
 	HasRequestBody bool
+	// AcceptVersion is the value to send in the Accept content-type
+	// parameter (e.g. "2" -> "Accept: application/json;version=2").
+	// Empty string or "1" means omit the version parameter entirely;
+	// WS1 v1 endpoints respond to plain "Accept: application/json".
+	AcceptVersion string
 }
 
 // Ops is the compiled-in catalog. Key is the canonical operation identifier.
@@ -115,6 +120,7 @@ var Ops = map[string]OpMeta{
 		Summary:        {{printf "%q" .Summary}},
 		Description:    {{printf "%q" .Description}},
 		HasRequestBody: {{.HasRequestBody}},
+		AcceptVersion:  {{printf "%q" .AcceptVersion}},
 		Parameters: []ParamMeta{
 {{range .Parameters}}			{Name: {{printf "%q" .Name}}, In: {{printf "%q" .In}}, Required: {{.Required}}, Type: {{printf "%q" .Schema.Type}}, Description: {{printf "%q" .Description}}},
 {{end}}		},
@@ -182,6 +188,7 @@ func emitOpsIndexJSON(path string, ops []opRow) error {
 		Summary        string         `json:"summary,omitempty"`
 		Description    string         `json:"description,omitempty"`
 		HasRequestBody bool           `json:"has_request_body"`
+		AcceptVersion  string         `json:"accept_version,omitempty"`
 		Parameters     []sidecarParam `json:"parameters"`
 	}
 	out := make([]sidecarOp, 0, len(ops))
@@ -191,6 +198,7 @@ func emitOpsIndexJSON(path string, ops []opRow) error {
 			HTTPMethod: r.HTTPMethod, PathTemplate: r.PathTemplate, BasePath: r.BasePath,
 			OperationID: r.OperationID, Summary: r.Summary, Description: r.Description,
 			HasRequestBody: r.HasRequestBody,
+			AcceptVersion:  r.AcceptVersion,
 		}
 		for _, p := range r.Parameters {
 			so.Parameters = append(so.Parameters, sidecarParam{

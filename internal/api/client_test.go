@@ -62,8 +62,13 @@ func TestBuildURLMissingPathParamErrors(t *testing.T) {
 	}
 }
 
-func TestDoSetsBearerAuth(t *testing.T) {
+// TestDoSetsBearerAuthAndV1Accept: mdmv1 ops must send plain
+// `Accept: application/json` — WS1's edge gateway 503s on `;version=1`.
+func TestDoSetsBearerAuthAndV1Accept(t *testing.T) {
 	meta := generated.Ops[opDevicesSearch]
+	if meta.AcceptVersion != "1" {
+		t.Fatalf("test premise: %q expected to be a v1 op (AcceptVersion=1), got %q", opDevicesSearch, meta.AcceptVersion)
+	}
 	mux := http.NewServeMux()
 	var sawAuth, sawAccept string
 	mux.HandleFunc(meta.BasePath+"/devices/search", func(w http.ResponseWriter, r *http.Request) {
@@ -75,9 +80,8 @@ func TestDoSetsBearerAuth(t *testing.T) {
 	srv := httptest.NewServer(mux)
 	defer srv.Close()
 	c := &Client{
-		Source:        &auth.MockTokenSource{BaseURLValue: srv.URL, TokenValue: "abc"},
-		HTTP:          srv.Client(),
-		AcceptVersion: "2",
+		Source: &auth.MockTokenSource{BaseURLValue: srv.URL, TokenValue: "abc"},
+		HTTP:   srv.Client(),
 	}
 	resp, err := c.Do(context.Background(), opDevicesSearch, Args{
 		"user": "alice@example.com",
@@ -91,8 +95,37 @@ func TestDoSetsBearerAuth(t *testing.T) {
 	if sawAuth != "Bearer abc" {
 		t.Errorf("Authorization = %q", sawAuth)
 	}
-	if !strings.Contains(sawAccept, "version=2") {
-		t.Errorf("Accept missing version param: %q", sawAccept)
+	if sawAccept != "application/json" {
+		t.Errorf("v1 op Accept = %q, want plain application/json (no ;version=1)", sawAccept)
+	}
+}
+
+// TestDoSetsV2Accept: v2+ ops require ;version=N in the Accept header.
+// systemv2.usersv2.read is the v2 op we pin against.
+func TestDoSetsV2Accept(t *testing.T) {
+	meta := generated.Ops[opUserGetByUuid]
+	if meta.AcceptVersion != "2" {
+		t.Fatalf("test premise: %q expected to be a v2 op (AcceptVersion=2), got %q", opUserGetByUuid, meta.AcceptVersion)
+	}
+	mux := http.NewServeMux()
+	var sawAccept string
+	mux.HandleFunc(meta.BasePath+"/users/", func(w http.ResponseWriter, r *http.Request) {
+		sawAccept = r.Header.Get("Accept")
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{}`))
+	})
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+	c := New(&auth.MockTokenSource{BaseURLValue: srv.URL, TokenValue: "x"})
+	c.HTTP = srv.Client()
+	_, err := c.Do(context.Background(), opUserGetByUuid, Args{
+		"uuid": "f3d4e5f6-1234-5678-9abc-def012345678",
+	})
+	if err != nil {
+		t.Fatalf("Do: %v", err)
+	}
+	if sawAccept != "application/json;version=2" {
+		t.Errorf("v2 op Accept = %q, want application/json;version=2", sawAccept)
 	}
 }
 
@@ -188,9 +221,8 @@ func TestRateLimitRetryHonorsRetryAfter(t *testing.T) {
 	srv := httptest.NewServer(mux)
 	defer srv.Close()
 	c := &Client{
-		Source:        &auth.MockTokenSource{BaseURLValue: srv.URL, TokenValue: "abc"},
-		HTTP:          srv.Client(),
-		AcceptVersion: "2",
+		Source: &auth.MockTokenSource{BaseURLValue: srv.URL, TokenValue: "abc"},
+		HTTP:   srv.Client(),
 	}
 	resp, err := c.Do(context.Background(), opDevicesSearch, Args{})
 	if err != nil {

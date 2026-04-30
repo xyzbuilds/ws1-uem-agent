@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 )
@@ -32,12 +33,22 @@ type openAPIServer struct {
 type openAPIPathItem map[string]json.RawMessage
 
 type openAPIOperation struct {
-	Tags        []string           `json:"tags"`
-	Summary     string             `json:"summary"`
-	Description string             `json:"description"`
-	OperationID string             `json:"operationId"`
-	Parameters  []openAPIParameter `json:"parameters"`
-	RequestBody *openAPIRequest    `json:"requestBody"`
+	Tags        []string                       `json:"tags"`
+	Summary     string                         `json:"summary"`
+	Description string                         `json:"description"`
+	OperationID string                         `json:"operationId"`
+	Parameters  []openAPIParameter             `json:"parameters"`
+	RequestBody *openAPIRequest                `json:"requestBody"`
+	Responses   map[string]openAPIResponseItem `json:"responses"`
+}
+
+// openAPIResponseItem captures the parts of a response object we need
+// to derive the per-op Accept version. We don't unmarshal into a typed
+// schema because content-type keys are dynamic (e.g.
+// "application/json;version=2").
+type openAPIResponseItem struct {
+	Description string                     `json:"description"`
+	Content     map[string]json.RawMessage `json:"content"`
 }
 
 type openAPIParameter struct {
@@ -59,6 +70,79 @@ type openAPIRequest struct {
 
 // httpVerbs in the order ws1-build emits ambiguity warnings.
 var httpVerbs = []string{"get", "post", "put", "patch", "delete", "head", "options"}
+
+// acceptVersionRE matches the version parameter inside an OpenAPI
+// response content-type key like "application/json;version=2".
+var acceptVersionRE = regexp.MustCompile(`application/json\s*;\s*version=(\d+)`)
+
+// slugVersionRE matches the trailing version digits on a section slug
+// (e.g. "mdmv2" -> "2", "systemv1" -> "1"). The section slug IS the
+// API version per docs.spec-acquisition.md slugification: every op in
+// `mdmv2` runs at version=2, every op in `systemv1` at version=1, etc.
+// This is the reliable fallback when an op's response content-types
+// don't explicitly declare a version.
+var slugVersionRE = regexp.MustCompile(`v(\d+)$`)
+
+// versionFromSlug extracts the version digit from a section slug.
+// mdmv4 -> "4", mamv2 -> "2", systemv1 -> "1". Returns "" if the slug
+// doesn't end in v<digits> (shouldn't happen with conformant slugs).
+func versionFromSlug(slug string) string {
+	m := slugVersionRE.FindStringSubmatch(slug)
+	if len(m) < 2 {
+		return ""
+	}
+	return m[1]
+}
+
+// extractAcceptVersion walks an op's response content-type keys and
+// returns the highest application/json;version=N value, or "" if none
+// is declared. Most WS1 ops declare exactly one version that matches
+// their section slug; a handful are silent.
+func extractAcceptVersion(op openAPIOperation) string {
+	highest := 0
+	for _, body := range op.Responses {
+		for ct := range body.Content {
+			m := acceptVersionRE.FindStringSubmatch(ct)
+			if len(m) >= 2 {
+				n, err := strconvAtoiSafe(m[1])
+				if err == nil && n > highest {
+					highest = n
+				}
+			}
+		}
+	}
+	if highest == 0 {
+		return ""
+	}
+	return intToString(highest)
+}
+
+// strconvAtoiSafe is a tiny wrapper so we don't pull strconv into the
+// import block for one call. Returns (0, err) on parse failure.
+func strconvAtoiSafe(s string) (int, error) {
+	n := 0
+	for _, c := range s {
+		if c < '0' || c > '9' {
+			return 0, fmt.Errorf("non-digit: %c", c)
+		}
+		n = n*10 + int(c-'0')
+	}
+	return n, nil
+}
+
+func intToString(n int) string {
+	if n == 0 {
+		return "0"
+	}
+	var buf [20]byte
+	i := len(buf)
+	for n > 0 {
+		i--
+		buf[i] = byte('0' + n%10)
+		n /= 10
+	}
+	return string(buf[i:])
+}
 
 // loadSpec reads a single OpenAPI 3.0.1 spec file off disk.
 func loadSpec(path string) (*openAPIDoc, error) {
@@ -133,6 +217,12 @@ func extractOps(s loadedSpec) ([]opRow, []string, error) {
 		basePath = stripHostFromServerURL(s.Doc.Servers[0].URL)
 	}
 
+	// Section-level fallback: every op in `mdmv2` runs at version=2, etc.
+	// We use slug-derived version because it's how operations are
+	// grouped in the first place — guaranteed correct even if a spec
+	// file's info.version drifts.
+	sectionVersion := versionFromSlug(s.Slug)
+
 	for _, path := range paths {
 		item := s.Doc.Paths[path]
 		for _, verb := range httpVerbs {
@@ -152,6 +242,10 @@ func extractOps(s loadedSpec) ([]opRow, []string, error) {
 			if w != "" {
 				warnings = append(warnings, w)
 			}
+			opVer := extractAcceptVersion(op)
+			if opVer == "" {
+				opVer = sectionVersion
+			}
 			rows = append(rows, opRow{
 				Op:             fmt.Sprintf("%s.%s.%s", s.Slug, tag, vverb),
 				Section:        s.Slug,
@@ -165,6 +259,7 @@ func extractOps(s loadedSpec) ([]opRow, []string, error) {
 				Description:    op.Description,
 				Parameters:     op.Parameters,
 				HasRequestBody: op.RequestBody != nil,
+				AcceptVersion:  opVer,
 			})
 		}
 	}
@@ -188,6 +283,12 @@ type opRow struct {
 	Description    string
 	Parameters     []openAPIParameter
 	HasRequestBody bool
+	// AcceptVersion is the value to send in the Accept content-type
+	// parameter (`application/json;version=<N>`). Sourced from the
+	// op's response content keys; falls back to the section's
+	// info.version when the op is silent. WS1's edge gateway 503s
+	// on calls without the right version, so this is per-op-mandatory.
+	AcceptVersion string
 }
 
 func deriveTag(op openAPIOperation, path string) (tag string, warning string) {
