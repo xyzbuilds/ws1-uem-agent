@@ -39,6 +39,15 @@ type User struct {
 	DisplayName string `json:"displayName"`
 }
 
+// OrgGroup mirrors the org-group record shape the wizard expects from
+// systemv2.organizationgroups.organizationgroupsearch (and the v1
+// variant). Both Id and Uuid are populated.
+type OrgGroup struct {
+	Id   int    `json:"Id"`
+	Uuid string `json:"Uuid"`
+	Name string `json:"Name"`
+}
+
 // Device mirrors the device record shape; both flavors of identifier.
 type Device struct {
 	DeviceID              int    `json:"DeviceID"`
@@ -54,9 +63,10 @@ type Device struct {
 
 // Server is the concrete mock; thread-safe.
 type Server struct {
-	mu      sync.RWMutex
-	users   []User
-	devices []Device
+	mu        sync.RWMutex
+	users     []User
+	devices   []Device
+	orgGroups []OrgGroup
 
 	// Issued maps device UUIDs to dispatched command UUIDs so tests can
 	// verify a Lock/Wipe etc. actually landed at the API.
@@ -96,6 +106,11 @@ func New() *Server {
 				EnrollmentUser: "bob@example.com", EnrollmentStatus: "Enrolled",
 				Platform: "Android", OrganizationGroupID: 12345, OrganizationGroupName: "EMEA-Pilot"},
 		},
+		orgGroups: []OrgGroup{
+			{Id: 1, Uuid: "70a00000-0000-0000-0000-000000000001", Name: "Global"},
+			{Id: 2042, Uuid: "8b300000-0000-0000-0000-000000000001", Name: "EMEA"},
+			{Id: 4067, Uuid: "c9100000-0000-0000-0000-000000000001", Name: "EMEA-Pilot"},
+		},
 		Issued: map[string][]string{},
 	}
 }
@@ -108,6 +123,9 @@ func (s *Server) HTTPHandler() http.Handler {
 	// systemv1 / systemv2: users
 	mux.HandleFunc("/api/system/users/search", s.handleUsersSearch)
 	mux.HandleFunc("/api/system/users/", s.handleUsersByUuidOrID)
+
+	// systemv1 / systemv2: organization groups
+	mux.HandleFunc("/api/system/groups/search", s.handleOrgGroupSearch)
 
 	// mdmv1: devices search
 	mux.HandleFunc("/api/mdm/devices/search", s.handleDevicesSearch)
@@ -220,6 +238,39 @@ func (s *Server) handleUsersByUuidOrID(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	http.Error(w, `{"error":"user not found"}`, http.StatusNotFound)
+}
+
+// handleOrgGroupSearch serves both
+//
+//	GET /api/system/groups/search   — systemv2.organizationgroups.organizationgroupsearch
+//	GET /api/system/groups/search   — systemv1.organizationgroups.locationgroupsearch
+//
+// (same path, version negotiated via Accept header). The mock doesn't
+// enforce the Accept version; it returns the same body shape for both.
+func (s *Server) handleOrgGroupSearch(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	q := r.URL.Query()
+	name := q.Get("name")
+
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	matched := []OrgGroup{}
+	for _, og := range s.orgGroups {
+		if name != "" && !contains(og.Name, name) {
+			continue
+		}
+		matched = append(matched, og)
+	}
+	page, pageSize := paging(q)
+	writeJSON(w, http.StatusOK, map[string]any{
+		"LocationGroups": paginate(matched, page, pageSize),
+		"Page":           page,
+		"PageSize":       pageSize,
+		"Total":          len(matched),
+	})
 }
 
 func (s *Server) handleDevicesSearch(w http.ResponseWriter, r *http.Request) {

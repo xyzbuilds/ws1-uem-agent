@@ -170,3 +170,41 @@ func TestUnsupportedRouteIs501(t *testing.T) {
 		t.Errorf("status = %d, want 501 for unmocked op", resp.StatusCode)
 	}
 }
+
+func TestOrgGroupSearch(t *testing.T) {
+	srv := New().Start()
+	defer srv.Close()
+	resp, err := http.Get(srv.URL + "/api/system/groups/search")
+	if err != nil {
+		t.Fatalf("GET: %v", err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		body, _ := io.ReadAll(resp.Body)
+		t.Fatalf("status = %d, body = %s", resp.StatusCode, body)
+	}
+	var body struct {
+		LocationGroups []struct {
+			Id   int    `json:"Id"`
+			Uuid string `json:"Uuid"`
+			Name string `json:"Name"`
+		} `json:"LocationGroups"`
+		Total int `json:"Total"`
+	}
+	_ = json.NewDecoder(resp.Body).Decode(&body)
+	if body.Total != 3 {
+		t.Errorf("Total = %d, want 3", body.Total)
+	}
+	wantNames := map[string]bool{"Global": false, "EMEA": false, "EMEA-Pilot": false}
+	for _, og := range body.LocationGroups {
+		wantNames[og.Name] = true
+		if og.Uuid == "" {
+			t.Errorf("OG %q missing Uuid", og.Name)
+		}
+	}
+	for n, seen := range wantNames {
+		if !seen {
+			t.Errorf("OG %q missing from response", n)
+		}
+	}
+}
