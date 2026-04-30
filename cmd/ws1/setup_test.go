@@ -298,3 +298,58 @@ func TestSetupOGFallbackOnPermissionDenied(t *testing.T) {
 		t.Errorf("og = %q, want 9999 (from fallback prompt)", og)
 	}
 }
+
+func TestSetupAdvancedConfiguresMultipleProfiles(t *testing.T) {
+	cfg := t.TempDir()
+	t.Setenv("WS1_CONFIG_DIR", cfg)
+	t.Setenv("HOME", cfg)
+	t.Setenv("WS1_ALLOW_DISK_SECRETS", "1")
+	t.Setenv("WS1_FORCE_INTERACTIVE", "1")
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/oauth", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`{"access_token":"tok","token_type":"Bearer","expires_in":3600}`))
+	})
+	mux.HandleFunc("/api/system/groups/search", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`{"LocationGroups":[{"Id":4067,"Uuid":"u","Name":"EMEA-Pilot"}],"Total":1}`))
+	})
+	mux.HandleFunc("/api/mdm/devices/search", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`{"Devices":[],"Total":0}`))
+	})
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+	t.Setenv("WS1_BASE_URL", srv.URL)
+
+	stub := &StubPrompter{
+		AskAnswers: map[string]string{
+			"Tenant hostname":        "x",
+			"Profiles to configure":  "operator,ro",
+			"Client ID for operator": "op-id",
+			"Client ID for ro":       "ro-id",
+		},
+		SecretAnswers: []string{"op-sec", "ro-sec"},
+		PickIndex:     []int{2 /*region na*/, 1 /*OG*/},
+	}
+
+	opts := SetupOptions{AuthURL: srv.URL + "/oauth", Quick: false, SkipSmoke: true}
+	if err := RunSetup(context.Background(), opts, stub); err != nil {
+		t.Fatalf("RunSetup: %v", err)
+	}
+
+	profiles, _ := auth.LoadProfiles()
+	if len(profiles) != 2 {
+		t.Fatalf("len(profiles) = %d, want 2", len(profiles))
+	}
+	names := map[string]bool{}
+	for _, p := range profiles {
+		names[p.Name] = true
+	}
+	if !names["operator"] || !names["ro"] {
+		t.Errorf("profiles = %v, want operator+ro", names)
+	}
+	// Active profile defaults to ro when ro is in the set.
+	active, _ := auth.Active()
+	if active != "ro" {
+		t.Errorf("active = %q, want ro", active)
+	}
+}

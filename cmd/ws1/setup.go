@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -125,8 +126,17 @@ func RunSetup(ctx context.Context, opts SetupOptions, p Prompter) error {
 	}
 	opts.Tenant = tenant
 
-	// Step 2: Region (skipped if AuthURL was supplied directly).
-	if opts.AuthURL == "" {
+	// Step 2: Region.
+	//
+	// Quick mode: skip the region picker when AuthURL is already set
+	// (e.g. --auth-url flag or test harness). Otherwise prompt for
+	// region and derive AuthURL.
+	//
+	// Advanced mode: always show the region picker so the operator can
+	// confirm the datacenter. If AuthURL was pre-supplied (e.g. test
+	// harness), keep it and treat the region pick as informational only.
+	// If AuthURL is not set, derive it from the selected region.
+	if opts.AuthURL == "" || !opts.Quick {
 		if opts.Region == "" {
 			region, err := pickRegion(p)
 			if err != nil {
@@ -134,95 +144,35 @@ func RunSetup(ctx context.Context, opts SetupOptions, p Prompter) error {
 			}
 			opts.Region = region
 		}
-		url, ok := regionToAuthURL(opts.Region)
-		if !ok {
-			return fmt.Errorf("unknown region %q", opts.Region)
+		if opts.AuthURL == "" {
+			url, ok := regionToAuthURL(opts.Region)
+			if !ok {
+				return fmt.Errorf("unknown region %q", opts.Region)
+			}
+			opts.AuthURL = url
 		}
-		opts.AuthURL = url
 	}
 
-	// Step 3: Profile (Quick mode only configures opts.Profile; advanced
-	// mode lands in a later task).
-	profileName := opts.Profile
-	if profileName == "" {
-		profileName = "operator"
-	}
-
-	// Step 4: Credentials.
-	clientID, err := promptIfEmpty(p, "Client ID", opts.ClientID, "")
+	// Step 3: Profiles to configure.
+	profileNames, err := selectProfilesToConfigure(p, opts)
 	if err != nil {
 		return err
 	}
-	opts.ClientID = clientID
 
-	clientSecret := opts.ClientSecret
-	if clientSecret == "" {
-		clientSecret, err = p.AskSecret("Client Secret")
+	// Step 4: For each profile, prompt for credentials and validate.
+	configured := []auth.Profile{}
+	for _, name := range profileNames {
+		prof, err := configureOneProfile(ctx, p, opts, name)
 		if err != nil {
 			return err
 		}
-	}
-	opts.ClientSecret = clientSecret
-
-	// Persist profile (without secret) and secret to keychain BEFORE
-	// validation so the keychain prompt fires alongside the validating
-	// spinner — feels like one flow rather than two unrelated dialogs.
-	prof := auth.Profile{
-		Name: profileName, Tenant: opts.Tenant,
-		APIURL: "https://" + opts.Tenant, AuthURL: opts.AuthURL,
-		ClientID: opts.ClientID,
-	}
-	if err := auth.SaveProfile(prof); err != nil {
-		return fmt.Errorf("save profile: %w", err)
-	}
-	if err := auth.SaveClientSecret(profileName, opts.ClientID, opts.ClientSecret); err != nil {
-		return fmt.Errorf("save secret: %w", err)
+		configured = append(configured, prof)
 	}
 
-	// Step 5: Validate (with up to 3 retries on auth failure).
-	if !opts.SkipValidate {
-		const maxAttempts = 3
-		var lastErr error
-		for attempt := 1; attempt <= maxAttempts; attempt++ {
-			spin := p.Spinner("Validating against " + opts.AuthURL + "...")
-			client := api.New(auth.NewOAuthClient(&prof))
-			_, err := client.Source.Token(ctx)
-			if err == nil {
-				spin.Done(true, "Token issued")
-				lastErr = nil
-				break
-			}
-			lastErr = err
-			spin.Done(false, fmt.Sprintf("Auth failed (attempt %d/%d): %v", attempt, maxAttempts, err))
-			if attempt == maxAttempts {
-				break
-			}
-			// Re-prompt creds. Other fields keep their current values.
-			newID, perr := p.Ask("Client ID (retry)", opts.ClientID)
-			if perr != nil {
-				return perr
-			}
-			newSec, perr := p.AskSecret("Client Secret (retry)")
-			if perr != nil {
-				return perr
-			}
-			opts.ClientID = newID
-			opts.ClientSecret = newSec
-			prof.ClientID = newID
-			if err := auth.SaveProfile(prof); err != nil {
-				return err
-			}
-			if err := auth.SaveClientSecret(profileName, newID, newSec); err != nil {
-				return err
-			}
-		}
-		if lastErr != nil {
-			return fmt.Errorf("auth failed after %d attempts: %w", maxAttempts, lastErr)
-		}
-	}
-
-	// Step 6: OG selection.
-	og, err := pickOG(ctx, p, &prof, opts.OG)
+	// Step 5: OG selection. Use the most-privileged configured profile
+	// for the OG fetch (operator > admin > ro), per spec §4.2.
+	pickerProf := selectOGFetchProfile(configured)
+	og, err := pickOG(ctx, p, &pickerProf, opts.OG)
 	if err != nil {
 		return err
 	}
@@ -230,18 +180,166 @@ func RunSetup(ctx context.Context, opts SetupOptions, p Prompter) error {
 		return fmt.Errorf("save OG: %w", err)
 	}
 
-	// Step 7: Active profile.
+	// Step 6: Active profile. Prefer ro for safety; else operator;
+	// else first configured (matches spec §4.2 + SKILL.md principle).
 	if auth.IsInteractive() {
-		if err := auth.SwitchActive(profileName, true); err != nil {
+		active := selectActiveProfile(profileNames)
+		if err := auth.SwitchActive(active, true); err != nil {
 			return fmt.Errorf("set active: %w", err)
 		}
 	}
 
-	// Step 8: Smoke test.
+	// Step 7: Smoke test using the most-privileged profile.
 	if !opts.SkipSmoke {
-		runSmokeTest(ctx, p, &prof)
+		runSmokeTest(ctx, p, &pickerProf)
 	}
 	return nil
+}
+
+// selectProfilesToConfigure returns the list of profile names to
+// configure. Quick mode returns just opts.Profile (default operator).
+// Advanced mode prompts for a comma-separated list.
+func selectProfilesToConfigure(p Prompter, opts SetupOptions) ([]string, error) {
+	if opts.Quick {
+		name := opts.Profile
+		if name == "" {
+			name = "operator"
+		}
+		return []string{name}, nil
+	}
+	answer, err := p.Ask("Profiles to configure", "operator")
+	if err != nil {
+		return nil, err
+	}
+	parts := strings.Split(answer, ",")
+	out := make([]string, 0, len(parts))
+	seen := map[string]bool{}
+	for _, part := range parts {
+		name := strings.TrimSpace(part)
+		if name == "" {
+			continue
+		}
+		if !auth.IsValidProfile(name) {
+			return nil, fmt.Errorf("unknown profile %q (want one of ro/operator/admin)", name)
+		}
+		if seen[name] {
+			continue
+		}
+		seen[name] = true
+		out = append(out, name)
+	}
+	if len(out) == 0 {
+		out = []string{"operator"}
+	}
+	return out, nil
+}
+
+// configureOneProfile prompts for one profile's credentials, validates
+// them, persists them, and returns the resulting Profile. On
+// validation failure, retries up to 3 times.
+func configureOneProfile(ctx context.Context, p Prompter, opts SetupOptions, name string) (auth.Profile, error) {
+	clientIDLabel := "Client ID"
+	clientSecretLabel := "Client Secret"
+	if !opts.Quick {
+		clientIDLabel = "Client ID for " + name
+		clientSecretLabel = "Client Secret for " + name
+	}
+
+	clientID := opts.ClientID
+	clientSecret := opts.ClientSecret
+	if !opts.Quick {
+		// Advanced mode always prompts per-profile; do not reuse opts creds.
+		clientID = ""
+		clientSecret = ""
+	}
+	if clientID == "" {
+		var err error
+		clientID, err = p.Ask(clientIDLabel, "")
+		if err != nil {
+			return auth.Profile{}, err
+		}
+	}
+	if clientSecret == "" {
+		var err error
+		clientSecret, err = p.AskSecret(clientSecretLabel)
+		if err != nil {
+			return auth.Profile{}, err
+		}
+	}
+
+	prof := auth.Profile{
+		Name: name, Tenant: opts.Tenant,
+		APIURL: "https://" + opts.Tenant, AuthURL: opts.AuthURL,
+		ClientID: clientID,
+	}
+	if err := auth.SaveProfile(prof); err != nil {
+		return auth.Profile{}, err
+	}
+	if err := auth.SaveClientSecret(name, clientID, clientSecret); err != nil {
+		return auth.Profile{}, err
+	}
+
+	if opts.SkipValidate {
+		return prof, nil
+	}
+	const maxAttempts = 3
+	var lastErr error
+	for attempt := 1; attempt <= maxAttempts; attempt++ {
+		spin := p.Spinner(fmt.Sprintf("Validating %s against %s...", name, opts.AuthURL))
+		client := api.New(auth.NewOAuthClient(&prof))
+		_, err := client.Source.Token(ctx)
+		if err == nil {
+			spin.Done(true, "Token issued for "+name)
+			return prof, nil
+		}
+		lastErr = err
+		spin.Done(false, fmt.Sprintf("Auth failed (attempt %d/%d): %v", attempt, maxAttempts, err))
+		if attempt == maxAttempts {
+			break
+		}
+		newID, perr := p.Ask(clientIDLabel+" (retry)", clientID)
+		if perr != nil {
+			return auth.Profile{}, perr
+		}
+		newSec, perr := p.AskSecret(clientSecretLabel + " (retry)")
+		if perr != nil {
+			return auth.Profile{}, perr
+		}
+		clientID = newID
+		_ = newSec // newSec passed directly to SaveClientSecret above; clientSecret not used after loop start
+		prof.ClientID = newID
+		_ = auth.SaveProfile(prof)
+		_ = auth.SaveClientSecret(name, newID, newSec)
+	}
+	return auth.Profile{}, fmt.Errorf("auth failed after %d attempts for %s: %w", maxAttempts, name, lastErr)
+}
+
+// selectOGFetchProfile picks operator > admin > ro from the configured
+// list. Falls back to the first profile if none of those names is
+// present (shouldn't happen — selectProfilesToConfigure validates).
+func selectOGFetchProfile(profiles []auth.Profile) auth.Profile {
+	for _, want := range []string{"operator", "admin", "ro"} {
+		for _, p := range profiles {
+			if p.Name == want {
+				return p
+			}
+		}
+	}
+	return profiles[0]
+}
+
+// selectActiveProfile prefers ro (safer default; matches SKILL.md
+// principle stack) then operator, else falls back to the first
+// configured.
+func selectActiveProfile(names []string) string {
+	for _, want := range []string{"ro", "operator"} {
+		for _, n := range names {
+			if n == want {
+				return n
+			}
+		}
+	}
+	return names[0]
 }
 
 func promptIfEmpty(p Prompter, label, current, def string) (string, error) {
