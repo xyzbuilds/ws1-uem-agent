@@ -90,6 +90,7 @@ gates destructive operations behind a browser approval flow.`,
 		newOgCmd(),
 		newOpsCmd(),
 		newAuditCmd(),
+		newStatusCmd(),
 	)
 	// Generic auto-registration: every op in internal/generated.Ops
 	// becomes a `ws1 <section> <tag> <verb>` subcommand.
