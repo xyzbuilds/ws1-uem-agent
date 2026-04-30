@@ -73,6 +73,20 @@ func TestSpinnerUTF8Detected(t *testing.T) {
 	}
 }
 
+func TestSpinnerDoneClearsLongerTickLine(t *testing.T) {
+	t.Setenv("LC_ALL", "en_US.UTF-8")
+	var buf safeBuffer
+	s := newSpinner(&buf, "Validating Workspace ONE credentials")
+	time.Sleep(100 * time.Millisecond) // let it tick
+	s.Done(true, "Done")
+	out := buf.String()
+	// Final write must include the ANSI erase-line so a short result
+	// doesn't leave the long label tail visible.
+	if !strings.Contains(out, "\r\x1b[K  ✓ Done") {
+		t.Errorf("final line should be cleared with \\r\\x1b[K; got %q", out)
+	}
+}
+
 // safeBuffer is bytes.Buffer with a mutex, since the spinner writes
 // from a goroutine.
 type safeBuffer struct {

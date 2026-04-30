@@ -44,7 +44,7 @@ func (s *realSpinner) run() {
 		case <-s.stop:
 			return
 		case <-ticker.C:
-			fmt.Fprintf(s.out, "\r  %s %s   ", string(glyphs[i%len(glyphs)]), s.label)
+			fmt.Fprintf(s.out, "\r\x1b[K  %s %s", string(glyphs[i%len(glyphs)]), s.label)
 			i++
 		}
 	}
@@ -60,7 +60,7 @@ func (s *realSpinner) Done(ok bool, result string) {
 		if !ok {
 			sigil = "✗"
 		}
-		fmt.Fprintf(s.out, "\r  %s %s\n", sigil, result)
+		fmt.Fprintf(s.out, "\r\x1b[K  %s %s\n", sigil, result)
 	})
 }
 
