@@ -115,3 +115,56 @@ func containsLabel(labels []string, prefix string) bool {
 	}
 	return false
 }
+
+func TestSetupV2OGResponseShape(t *testing.T) {
+	cfg := t.TempDir()
+	t.Setenv("WS1_CONFIG_DIR", cfg)
+	t.Setenv("HOME", cfg)
+	t.Setenv("WS1_ALLOW_DISK_SECRETS", "1")
+	t.Setenv("WS1_FORCE_INTERACTIVE", "1")
+
+	// Mock that emits ONLY the v2 key (OrganizationGroups), not the v1
+	// alias. Mirrors what a real WS1 tenant returns from the v2 op.
+	mux := http.NewServeMux()
+	mux.HandleFunc("/oauth", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"access_token":"tok","token_type":"Bearer","expires_in":3600}`))
+	})
+	mux.HandleFunc("/api/system/groups/search", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"OrganizationGroups":[
+			{"Id":1,"Uuid":"u1","Name":"Global"},
+			{"Id":4067,"Uuid":"u4067","Name":"EMEA-Pilot"}
+		],"TotalResults":2}`))
+	})
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+	t.Setenv("WS1_BASE_URL", srv.URL)
+
+	stub := &StubPrompter{
+		AskAnswers: map[string]string{
+			"Tenant hostname": "cn1506.awmdm.com",
+			"Client ID":       "cid",
+		},
+		SecretAnswers: []string{"csec"},
+		PickIndex: []int{
+			2, // OG: EMEA-Pilot (second entry; only one Pick — region was supplied via AuthURL)
+		},
+	}
+
+	opts := SetupOptions{
+		Profile:   "operator",
+		AuthURL:   srv.URL + "/oauth",
+		Quick:     true,
+		SkipSmoke: true,
+	}
+
+	if err := RunSetup(context.Background(), opts, stub); err != nil {
+		t.Fatalf("RunSetup with v2 response: %v", err)
+	}
+
+	og, _ := auth.CurrentOG()
+	if og != "4067" {
+		t.Errorf("og = %q (v2 OrganizationGroups response should populate picker); want 4067", og)
+	}
+}

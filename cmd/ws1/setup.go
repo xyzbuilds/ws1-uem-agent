@@ -292,10 +292,14 @@ func fetchOGList(ctx context.Context, prof *auth.Profile) ([]ogRow, error) {
 			continue
 		}
 		var body struct {
-			LocationGroups []ogRow `json:"LocationGroups"`
+			LocationGroups     []ogRow `json:"LocationGroups"`     // v1 key
+			OrganizationGroups []ogRow `json:"OrganizationGroups"` // v2 key
 		}
 		if err := resp.JSON(&body); err != nil {
 			return nil, err
+		}
+		if len(body.OrganizationGroups) > 0 {
+			return body.OrganizationGroups, nil
 		}
 		return body.LocationGroups, nil
 	}
