@@ -121,6 +121,9 @@ func New() *Server {
 func (s *Server) HTTPHandler() http.Handler {
 	mux := http.NewServeMux()
 
+	// OAuth token endpoint — used by setup wizard's credential validation.
+	mux.HandleFunc("/oauth", s.handleOAuth)
+
 	// systemv1 / systemv2: users
 	mux.HandleFunc("/api/system/users/search", s.handleUsersSearch)
 	mux.HandleFunc("/api/system/users/", s.handleUsersByUuidOrID)
@@ -154,6 +157,30 @@ func (s *Server) handleNotImplemented(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.Error(w, fmt.Sprintf(`{"error":"NOT_IMPLEMENTED","path":%q}`, r.URL.Path), http.StatusNotImplemented)
+}
+
+// handleOAuth serves a minimal OAuth 2.0 client-credentials token endpoint.
+// Any non-empty client_id is accepted; returns a static bearer token.
+// This lets the setup wizard's credential-validation step succeed against
+// the mock without requiring a real WS1 auth server.
+func (s *Server) handleOAuth(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "bad form: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+	if r.PostForm.Get("client_id") == "" {
+		http.Error(w, `{"error":"invalid_client"}`, http.StatusUnauthorized)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{
+		"access_token": "mock-bearer-token",
+		"token_type":   "Bearer",
+		"expires_in":   3600,
+	})
 }
 
 func (s *Server) handleUsersSearch(w http.ResponseWriter, r *http.Request) {

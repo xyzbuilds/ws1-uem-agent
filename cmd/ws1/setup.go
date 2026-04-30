@@ -197,6 +197,8 @@ func RunSetup(ctx context.Context, opts SetupOptions, p Prompter) error {
 	if !opts.SkipSmoke {
 		runSmokeTest(ctx, p, &pickerProf)
 	}
+
+	printExitSummary(profileNames, configured, og)
 	return nil
 }
 
@@ -348,6 +350,32 @@ func selectActiveProfile(names []string) string {
 		}
 	}
 	return names[0]
+}
+
+// printExitSummary writes the final "Setup complete" block to stderr.
+// Stays out of stdout so emitAndExit's envelope remains the only line
+// on stdout for downstream parsers.
+func printExitSummary(profileNames []string, configured []auth.Profile, og string) {
+	if len(configured) == 0 {
+		return
+	}
+	tenant := configured[0].Tenant
+	active, _ := auth.Active()
+	fmt.Fprintln(stderrWriter, "──────────────────────────────────────────────────")
+	fmt.Fprintln(stderrWriter, "Setup complete.")
+	fmt.Fprintln(stderrWriter)
+	fmt.Fprintf(stderrWriter, "  Profiles configured: %s\n", strings.Join(profileNames, ", "))
+	fmt.Fprintf(stderrWriter, "  Active profile:      %s\n", active)
+	fmt.Fprintf(stderrWriter, "  Tenant:              %s\n", tenant)
+	if og != "" {
+		fmt.Fprintf(stderrWriter, "  OG context:          %s\n", og)
+	}
+	fmt.Fprintln(stderrWriter)
+	fmt.Fprintln(stderrWriter, "Try:")
+	fmt.Fprintln(stderrWriter, "  ws1 doctor")
+	fmt.Fprintln(stderrWriter, "  ws1 ops list | jq '.data.count'")
+	fmt.Fprintln(stderrWriter, "  ws1 mdmv1 devices search --pagesize 5")
+	fmt.Fprintln(stderrWriter, "──────────────────────────────────────────────────")
 }
 
 func pickRegion(p Prompter) (string, error) {

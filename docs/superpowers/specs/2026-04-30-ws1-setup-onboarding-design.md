@@ -1,6 +1,6 @@
 # ws1 setup — first-run onboarding
 
-**Status:** Approved for implementation, 2026-04-30.
+**Status:** Implemented, 2026-04-30 (see docs/superpowers/plans/2026-04-30-ws1-setup-onboarding.md).
 **Owner:** xyzbuilds.
 **Builds on:** the v0 design in `ws1-uem-agent-v0-spec.md` (locked decisions #5, #13, #3).
 **Successor:** an implementation plan written via the `superpowers:writing-plans` skill.
