@@ -353,3 +353,113 @@ func TestSetupAdvancedConfiguresMultipleProfiles(t *testing.T) {
 		t.Errorf("active = %q, want ro", active)
 	}
 }
+
+func TestSetupNonInteractiveAllFlags(t *testing.T) {
+	cfg := t.TempDir()
+	t.Setenv("WS1_CONFIG_DIR", cfg)
+	t.Setenv("HOME", cfg)
+	t.Setenv("WS1_ALLOW_DISK_SECRETS", "1")
+	t.Setenv("WS1_FORCE_NONINTERACTIVE", "1")
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/oauth", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`{"access_token":"tok","token_type":"Bearer","expires_in":3600}`))
+	})
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+
+	opts := SetupOptions{
+		Profile:      "operator",
+		Tenant:       "x.example.com",
+		AuthURL:      srv.URL + "/oauth",
+		ClientID:     "cid",
+		ClientSecret: "csec",
+		OG:           "12345",
+		Quick:        true,
+		SkipSmoke:    true,
+	}
+	stub := &StubPrompter{} // never called
+	if err := RunSetup(context.Background(), opts, stub); err != nil {
+		t.Fatalf("RunSetup: %v", err)
+	}
+	// Profile written.
+	profiles, _ := auth.LoadProfiles()
+	if len(profiles) != 1 {
+		t.Fatalf("profiles = %v", profiles)
+	}
+	// Active profile NOT changed under non-interactive (stays ro per
+	// auth.Active default).
+	active, _ := auth.Active()
+	if active != "ro" {
+		t.Errorf("active = %q, want ro (non-interactive must not flip)", active)
+	}
+	og, _ := auth.CurrentOG()
+	if og != "12345" {
+		t.Errorf("og = %q", og)
+	}
+	if len(stub.AskedLabels) != 0 {
+		t.Errorf("non-interactive should not call Ask; saw %v", stub.AskedLabels)
+	}
+}
+
+func TestSetupReconfigureUsesExistingAsDefault(t *testing.T) {
+	cfg := t.TempDir()
+	t.Setenv("WS1_CONFIG_DIR", cfg)
+	t.Setenv("HOME", cfg)
+	t.Setenv("WS1_ALLOW_DISK_SECRETS", "1")
+	t.Setenv("WS1_FORCE_INTERACTIVE", "1")
+
+	// Pre-seed an existing profile.
+	_ = auth.SaveProfile(auth.Profile{
+		Name: "operator", Tenant: "old.example.com",
+		APIURL:   "https://old.example.com",
+		AuthURL:  "https://na.uemauth.workspaceone.com/connect/token",
+		ClientID: "old-cid",
+	})
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/oauth", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`{"access_token":"tok","token_type":"Bearer","expires_in":3600}`))
+	})
+	mux.HandleFunc("/api/system/groups/search", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`{"LocationGroups":[{"Id":1,"Uuid":"u","Name":"Global"}],"Total":1}`))
+	})
+	mux.HandleFunc("/api/mdm/devices/search", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`{"Devices":[],"Total":0}`))
+	})
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+	t.Setenv("WS1_BASE_URL", srv.URL)
+
+	// Stub: keep the existing tenant by sending empty input
+	// (Ask returns the default when answer not in AskAnswers).
+	// opts.AuthURL is pre-set so the region pick is skipped; only
+	// one Pick fires (OG), consuming index 1 (Global).
+	stub := &StubPrompter{
+		AskAnswers: map[string]string{
+			"Client ID": "new-cid",
+		},
+		SecretAnswers: []string{"new-sec"},
+		PickIndex:     []int{1 /*OG: Global*/},
+	}
+
+	opts := SetupOptions{Profile: "operator", AuthURL: srv.URL + "/oauth", Quick: true, SkipSmoke: true}
+	if err := RunSetup(context.Background(), opts, stub); err != nil {
+		t.Fatalf("RunSetup: %v", err)
+	}
+
+	profiles, _ := auth.LoadProfiles()
+	if len(profiles) != 1 || profiles[0].Tenant != "old.example.com" {
+		t.Errorf("expected existing tenant kept; got %+v", profiles)
+	}
+	// Verify the existing tenant was offered as the Ask default.
+	found := false
+	for _, l := range stub.AskedLabels {
+		if l == "Tenant hostname" {
+			found = true
+		}
+	}
+	if !found {
+		t.Errorf("Tenant hostname was never prompted; got labels %v", stub.AskedLabels)
+	}
+}

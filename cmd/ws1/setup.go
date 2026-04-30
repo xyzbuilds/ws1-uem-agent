@@ -119,16 +119,31 @@ func missingRequiredFlags(o SetupOptions) []string {
 // prompter; emits to stderr via the prompter's Spinner / TTYPrompter.
 // Returns nil on success, error if any step fatally fails.
 func RunSetup(ctx context.Context, opts SetupOptions, p Prompter) error {
-	// Step 1: Tenant.
-	tenant, err := promptIfEmpty(p, "Tenant hostname", opts.Tenant, "")
-	if err != nil {
-		return err
-	}
-	opts.Tenant = tenant
+	// Pre-fill from existing config (if any) so re-running setup
+	// becomes the reconfigure path. Existing values take precedence
+	// only when opts is empty for that field.
+	preFillFromExisting(&opts)
 
-	// Step 2: Region (skipped if AuthURL was supplied directly).
+	// Step 1: Tenant. Prompt with existing value as default; in
+	// non-interactive mode keep whatever was passed via flag (the
+	// cobra Run handler already validated the flag set).
+	if opts.Tenant != "" && !auth.IsInteractive() {
+		// Non-interactive: keep the value as-is, no prompt.
+	} else {
+		tenant, err := p.Ask("Tenant hostname", opts.Tenant)
+		if err != nil {
+			return err
+		}
+		opts.Tenant = tenant
+	}
+
+	// Step 2: Region (only prompt interactively; non-interactive must
+	// supply --region or --auth-url).
 	if opts.AuthURL == "" {
 		if opts.Region == "" {
+			if !auth.IsInteractive() {
+				return fmt.Errorf("non-interactive: --region or --auth-url required")
+			}
 			region, err := pickRegion(p)
 			if err != nil {
 				return err
@@ -335,13 +350,6 @@ func selectActiveProfile(names []string) string {
 	return names[0]
 }
 
-func promptIfEmpty(p Prompter, label, current, def string) (string, error) {
-	if current != "" {
-		return current, nil
-	}
-	return p.Ask(label, def)
-}
-
 func pickRegion(p Prompter) (string, error) {
 	options := []PickItem{}
 	for _, r := range Regions {
@@ -425,6 +433,30 @@ func fetchOGList(ctx context.Context, prof *auth.Profile) ([]ogRow, error) {
 		return body.LocationGroups, nil
 	}
 	return nil, errors.New("no OG-search op found in compiled index")
+}
+
+// preFillFromExisting reads the existing profile (if any) named
+// opts.Profile (default "operator") and copies its tenant + auth_url
+// + client_id into opts when those fields are empty. Acts as the
+// reconfigure-friendly default-seeding step.
+func preFillFromExisting(opts *SetupOptions) {
+	name := opts.Profile
+	if name == "" {
+		name = "operator"
+	}
+	prof, err := auth.FindProfile(name)
+	if err != nil || prof == nil {
+		return
+	}
+	if opts.Tenant == "" {
+		opts.Tenant = prof.Tenant
+	}
+	if opts.AuthURL == "" {
+		opts.AuthURL = prof.AuthURL
+	}
+	if opts.ClientID == "" {
+		opts.ClientID = prof.ClientID
+	}
 }
 
 // runSmokeTest emits a spinner + final result. Failures are
