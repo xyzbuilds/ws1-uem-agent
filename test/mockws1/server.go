@@ -7,6 +7,7 @@
 //
 //	GET  /api/system/users/search                                    systemv1.user.search
 //	GET  /api/system/users/{uuid}                                    systemv2.usersv2.read
+//	GET  /api/system/groups/search                                   systemv1.organizationgroups.locationgroupsearch / systemv2.organizationgroups.organizationgroupsearch
 //	GET  /api/mdm/devices/search                                     mdmv1.devices.search
 //	GET  /api/mdm/devices/{uuid}                                     mdmv2.devicesv2.getbyuuid
 //	POST /api/mdm/devices/{deviceUuid}/commands/{commandName}        mdmv2.commandsv2.execute
@@ -265,11 +266,17 @@ func (s *Server) handleOrgGroupSearch(w http.ResponseWriter, r *http.Request) {
 		matched = append(matched, og)
 	}
 	page, pageSize := paging(q)
+	items := paginate(matched, page, pageSize)
+	total := len(matched)
 	writeJSON(w, http.StatusOK, map[string]any{
-		"LocationGroups": paginate(matched, page, pageSize),
-		"Page":           page,
-		"PageSize":       pageSize,
-		"Total":          len(matched),
+		// v1 (locationgroupsearch) keys
+		"LocationGroups": items,
+		"Total":          total,
+		// v2 (organizationgroupsearch) keys — same data, different field names
+		"OrganizationGroups": items,
+		"TotalResults":       total,
+		"Page":               page,
+		"PageSize":           pageSize,
 	})
 }
 

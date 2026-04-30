@@ -208,3 +208,33 @@ func TestOrgGroupSearch(t *testing.T) {
 		}
 	}
 }
+
+func TestOrgGroupSearchNameFilter(t *testing.T) {
+	srv := New().Start()
+	defer srv.Close()
+	resp, err := http.Get(srv.URL + "/api/system/groups/search?name=EMEA")
+	if err != nil {
+		t.Fatalf("GET: %v", err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		t.Fatalf("status = %d", resp.StatusCode)
+	}
+	var body struct {
+		LocationGroups     []OrgGroup `json:"LocationGroups"`
+		OrganizationGroups []OrgGroup `json:"OrganizationGroups"`
+		Total              int        `json:"Total"`
+		TotalResults       int        `json:"TotalResults"`
+	}
+	_ = json.NewDecoder(resp.Body).Decode(&body)
+	// EMEA + EMEA-Pilot — substring match on "EMEA"
+	if body.Total != 2 {
+		t.Errorf("Total = %d, want 2 (EMEA + EMEA-Pilot)", body.Total)
+	}
+	if body.TotalResults != 2 {
+		t.Errorf("TotalResults = %d, want 2 (v2 alias)", body.TotalResults)
+	}
+	if len(body.OrganizationGroups) != 2 {
+		t.Errorf("OrganizationGroups len = %d, want 2 (v2 alias)", len(body.OrganizationGroups))
+	}
+}
