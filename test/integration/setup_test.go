@@ -83,7 +83,9 @@ func TestSetupIntegrationAgainstMock(t *testing.T) {
 func TestSetupIntegrationOAuthRoundTrip(t *testing.T) {
 	tmp := t.TempDir()
 	bin := filepath.Join(tmp, "ws1")
-	if err := exec.Command("go", "build", "-o", bin, "../../cmd/ws1").Run(); err != nil {
+	build := exec.Command("go", "build", "-o", bin, "../../cmd/ws1")
+	build.Stderr = os.Stderr
+	if err := build.Run(); err != nil {
 		t.Fatalf("build: %v", err)
 	}
 	srv := mockws1.New().Start()

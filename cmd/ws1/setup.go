@@ -361,7 +361,7 @@ func printExitSummary(profileNames []string, configured []auth.Profile, og strin
 	}
 	tenant := configured[0].Tenant
 	active, _ := auth.Active()
-	fmt.Fprintln(stderrWriter, "──────────────────────────────────────────────────")
+	fmt.Fprintln(stderrWriter, summarySeparator())
 	fmt.Fprintln(stderrWriter, "Setup complete.")
 	fmt.Fprintln(stderrWriter)
 	fmt.Fprintf(stderrWriter, "  Profiles configured: %s\n", strings.Join(profileNames, ", "))
@@ -375,7 +375,18 @@ func printExitSummary(profileNames []string, configured []auth.Profile, og strin
 	fmt.Fprintln(stderrWriter, "  ws1 doctor")
 	fmt.Fprintln(stderrWriter, "  ws1 ops list | jq '.data.count'")
 	fmt.Fprintln(stderrWriter, "  ws1 mdmv1 devices search --pagesize 5")
-	fmt.Fprintln(stderrWriter, "──────────────────────────────────────────────────")
+	fmt.Fprintln(stderrWriter, summarySeparator())
+}
+
+// summarySeparator returns the horizontal-rule line for the exit
+// summary block. Uses a Unicode rule when the locale advertises
+// UTF-8 (matches the spinner's glyph choice); falls back to ASCII
+// hyphens otherwise.
+func summarySeparator() string {
+	if isUTF8Locale() {
+		return strings.Repeat("─", 50)
+	}
+	return strings.Repeat("-", 50)
 }
 
 func pickRegion(p Prompter) (string, error) {
