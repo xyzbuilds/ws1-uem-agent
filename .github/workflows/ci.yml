@@ -10,9 +10,6 @@ on:
 permissions:
   contents: read
 
-env:
-  GO_VERSION: "1.22"
-
 jobs:
   build:
     name: build & test
@@ -22,7 +19,10 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ env.GO_VERSION }}
+          # Source of truth: the go directive in go.mod. Avoids drift
+          # between CI's pinned version and what the module actually
+          # requires after `go mod tidy`.
+          go-version-file: go.mod
           cache: true
       - name: Verify modules
         run: |
@@ -50,10 +50,14 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ env.GO_VERSION }}
+          go-version-file: go.mod
           cache: true
+      - name: Download modules (warm cache for typecheck)
+        run: go mod download
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.61.0
+          # v1.64 is the last v1 release; supports Go up through 1.25.
+          # Earlier v1.61 fails typecheck on go.mod >= 1.23.
+          version: v1.64.8
           args: --timeout=5m

@@ -4,7 +4,8 @@
 
 run:
   timeout: 5m
-  go: "1.22"
+  # Source of truth is the `go` directive in go.mod; leaving this unset
+  # lets golangci-lint pick it up automatically and avoids version skew.
   tests: true
   modules-download-mode: readonly
 
