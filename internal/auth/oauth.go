@@ -39,6 +39,11 @@ func (t *Token) Expired() bool {
 type TokenSource interface {
 	Token(ctx context.Context) (*Token, error)
 	BaseURL() string
+	// TenantCode returns the value to send in the `aw-tenant-code`
+	// header. WS1's edge gateway uses this for tenant routing alongside
+	// the OAuth bearer; both are required. Empty string is acceptable
+	// for tests against the mock (which doesn't enforce the header).
+	TenantCode() string
 }
 
 // OAuthClient implements TokenSource for the WS1 client-credentials grant.
@@ -68,6 +73,18 @@ func (c *OAuthClient) BaseURL() string {
 		return v
 	}
 	return strings.TrimRight(c.Profile.APIURL, "/")
+}
+
+// TenantCode returns the aw-tenant-code header value for this profile.
+// Honors WS1_TENANT_CODE env override (used by demo/integration mock).
+func (c *OAuthClient) TenantCode() string {
+	if v := os.Getenv("WS1_TENANT_CODE"); v != "" {
+		return v
+	}
+	if c.Profile == nil {
+		return ""
+	}
+	return c.Profile.TenantCode
 }
 
 // Token returns a non-expired bearer token, fetching a new one as needed.
@@ -117,12 +134,27 @@ func (c *OAuthClient) fetchToken(ctx context.Context) (*Token, error) {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("Accept", "application/json")
 
+	if os.Getenv("WS1_DEBUG") != "" {
+		fmt.Fprintf(os.Stderr, "\n--- ws1 debug: OAuth token request ---\n")
+		fmt.Fprintf(os.Stderr, "POST %s\n", c.Profile.AuthURL)
+		fmt.Fprintf(os.Stderr, "client_id: %s\n", c.Profile.ClientID)
+		fmt.Fprintf(os.Stderr, "client_secret: <%d chars>\n", len(c.clientSec))
+		fmt.Fprintf(os.Stderr, "--------------------------------------\n")
+	}
+
 	resp, err := c.HTTP.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("oauth token request: %w", err)
 	}
 	defer resp.Body.Close()
 	body, _ := io.ReadAll(resp.Body)
+	if os.Getenv("WS1_DEBUG") != "" {
+		preview := body
+		if len(preview) > 256 {
+			preview = preview[:256]
+		}
+		fmt.Fprintf(os.Stderr, "OAuth response: status=%s body=%s\n", resp.Status, string(preview))
+	}
 	if resp.StatusCode >= 400 {
 		return nil, fmt.Errorf("oauth token: status %d: %s", resp.StatusCode, truncate(string(body), 256))
 	}
@@ -144,8 +176,9 @@ func truncate(s string, n int) string {
 // MockTokenSource is a TokenSource that returns the same token forever; used
 // by tests and the demo runner.
 type MockTokenSource struct {
-	BaseURLValue string
-	TokenValue   string
+	BaseURLValue    string
+	TokenValue      string
+	TenantCodeValue string
 }
 
 // Token implements TokenSource.
@@ -160,3 +193,6 @@ func (m *MockTokenSource) Token(ctx context.Context) (*Token, error) {
 
 // BaseURL implements TokenSource.
 func (m *MockTokenSource) BaseURL() string { return m.BaseURLValue }
+
+// TenantCode implements TokenSource.
+func (m *MockTokenSource) TenantCode() string { return m.TenantCodeValue }

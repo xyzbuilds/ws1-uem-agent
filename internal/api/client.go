@@ -17,6 +17,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -159,7 +160,20 @@ func (c *Client) doOnce(ctx context.Context, op string, args Args) (*Response, e
 	if meta.HasRequestBody {
 		req.Header.Set("Content-Type", "application/json")
 	}
+	// WS1's edge gateway routes by aw-tenant-code separately from the
+	// OAuth bearer that authenticates the client. Both are required;
+	// requests without aw-tenant-code 503 at the gateway before reaching
+	// the API app.
+	if tc := c.Source.TenantCode(); tc != "" {
+		req.Header.Set("aw-tenant-code", tc)
+	}
+	// User-Agent for traceability + because some WAFs reject bare
+	// `Go-http-client/1.1`.
+	if req.Header.Get("User-Agent") == "" {
+		req.Header.Set("User-Agent", "ws1-uem-agent/0.1 (+github.com/xyzbuilds/ws1-uem-agent)")
+	}
 
+	traceRequest(req, meta)
 	resp, err := c.HTTP.Do(req)
 	if err != nil {
 		return nil, err
@@ -169,11 +183,59 @@ func (c *Client) doOnce(ctx context.Context, op string, args Args) (*Response, e
 	if err != nil {
 		return nil, err
 	}
+	traceResponse(resp, respBody)
 	return &Response{
 		StatusCode: resp.StatusCode,
 		Headers:    resp.Header,
 		Body:       respBody,
 	}, nil
+}
+
+// traceRequest writes a one-screen diagnostic to stderr when WS1_DEBUG
+// is set. Authorization is partially redacted (token type + first 12
+// chars only) so the trace is safe to share.
+func traceRequest(req *http.Request, meta generated.OpMeta) {
+	if os.Getenv("WS1_DEBUG") == "" {
+		return
+	}
+	fmt.Fprintf(os.Stderr, "\n--- ws1 debug: outgoing request ---\n")
+	fmt.Fprintf(os.Stderr, "op:           %s\n", meta.Op)
+	fmt.Fprintf(os.Stderr, "accept_ver:   %q\n", meta.AcceptVersion)
+	fmt.Fprintf(os.Stderr, "%s %s\n", req.Method, req.URL.String())
+	for k, vs := range req.Header {
+		v := strings.Join(vs, ", ")
+		if strings.EqualFold(k, "Authorization") {
+			parts := strings.SplitN(v, " ", 2)
+			if len(parts) == 2 && len(parts[1]) > 12 {
+				v = parts[0] + " " + parts[1][:12] + "...(redacted)"
+			}
+		}
+		fmt.Fprintf(os.Stderr, "%s: %s\n", k, v)
+	}
+	if req.Body != nil {
+		fmt.Fprintf(os.Stderr, "body: <present>\n")
+	}
+	fmt.Fprintf(os.Stderr, "-----------------------------------\n")
+}
+
+// traceResponse mirrors traceRequest for the response side. Body is
+// truncated at 512 bytes so an HTML error page doesn't flood the
+// terminal.
+func traceResponse(resp *http.Response, body []byte) {
+	if os.Getenv("WS1_DEBUG") == "" {
+		return
+	}
+	fmt.Fprintf(os.Stderr, "\n--- ws1 debug: response ---\n")
+	fmt.Fprintf(os.Stderr, "status: %s\n", resp.Status)
+	for k, vs := range resp.Header {
+		fmt.Fprintf(os.Stderr, "%s: %s\n", k, strings.Join(vs, ", "))
+	}
+	preview := body
+	if len(preview) > 512 {
+		preview = preview[:512]
+	}
+	fmt.Fprintf(os.Stderr, "body (%d bytes): %s\n", len(body), string(preview))
+	fmt.Fprintf(os.Stderr, "----------------------------\n")
 }
 
 // retryAfterDuration parses the Retry-After header per RFC 7231 §7.1.3:

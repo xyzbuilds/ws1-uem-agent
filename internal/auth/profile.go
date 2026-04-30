@@ -43,21 +43,25 @@ func IsValidProfile(name string) bool {
 // are fetched via keychain.Get(profile.Name).
 //
 // AuthURL is region-specific (NA / EU / APAC) per Omnissa's UEM Auth
-// service; see https://kb.omnissa.com/s/article/2960893. The CLI does not
-// guess the region from Tenant; the user supplies AuthURL at `profile add`
-// time.
+// service. The CLI does not guess the region from Tenant; the user
+// supplies AuthURL (or --region) at `profile add` time.
 //
-// Note on aw-tenant-code: that header is only required for Basic Auth.
-// With OAuth client-credentials the bearer is sufficient identity, so the
-// CLI does not collect or send a tenant API key. Add it back here if/when
-// Basic Auth support lands.
+// TenantCode is the value WS1 calls the "API Key" or "Tenant Code".
+// Found in the WS1 console under Groups & Settings > All Settings >
+// System > Advanced > API > REST API. The edge gateway uses this for
+// tenant routing (which back-end serves the request), separately from
+// the OAuth bearer which authenticates the client. Both are required:
+// requests missing aw-tenant-code 503 at the gateway before reaching
+// the API. (An earlier version of this code believed the header was
+// only for Basic Auth; that was wrong.)
 type Profile struct {
-	Name     string `yaml:"name"`
-	Tenant   string `yaml:"tenant"`       // tenant hostname, e.g. as1831.awmdm.com
-	APIURL   string `yaml:"api_url"`      // base URL for API calls
-	AuthURL  string `yaml:"auth_url"`     // region-scoped OAuth token endpoint
-	ClientID string `yaml:"client_id"`    // OAuth client_id (not secret)
-	OG       string `yaml:"og,omitempty"` // optional default OG
+	Name       string `yaml:"name"`
+	Tenant     string `yaml:"tenant"`                // tenant hostname
+	APIURL     string `yaml:"api_url"`               // base URL for API calls
+	AuthURL    string `yaml:"auth_url"`              // region-scoped OAuth token endpoint
+	ClientID   string `yaml:"client_id"`             // OAuth client_id (not secret)
+	TenantCode string `yaml:"tenant_code,omitempty"` // aw-tenant-code header value
+	OG         string `yaml:"og,omitempty"`          // optional default OG
 }
 
 // Capability returns the operation classes this profile is permitted to
