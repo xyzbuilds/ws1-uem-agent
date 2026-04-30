@@ -240,14 +240,7 @@ func (p *TTYPrompter) PickByLetter(label string, options []ByLetterItem) (ByLett
 	return ByLetterItem{}, fmt.Errorf("invalid choice %q", string(buf))
 }
 
-// Spinner construction lives in spinner.go (next task); this is a
-// placeholder that returns a no-op until that file lands. Kept here
-// as a method so TTYPrompter implements the Prompter interface even
-// during the transitional commit.
+// Spinner returns an in-place spinner writing to p.Out.
 func (p *TTYPrompter) Spinner(label string) Spinner {
-	return &noopSpinner{}
+	return newSpinner(p.Out, label)
 }
-
-type noopSpinner struct{}
-
-func (n *noopSpinner) Done(_ bool, _ string) {}
