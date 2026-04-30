@@ -5,13 +5,11 @@ import (
 	"crypto/sha256"
 	"errors"
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
-	"golang.org/x/term"
 
 	"github.com/xyzbuilds/ws1-uem-agent/internal/api"
 	"github.com/xyzbuilds/ws1-uem-agent/internal/audit"
@@ -139,7 +137,7 @@ func missingRequiredFlags(o SetupOptions) []string {
 // Returns nil on success, error if any step fatally fails.
 func RunSetup(ctx context.Context, opts SetupOptions, p Prompter) error {
 	// Welcome banner (interactive + TTY only; never in CI / tests).
-	printWelcomeBanner()
+	printSetupBanner()
 
 	// Pre-fill from existing config (if any) so re-running setup
 	// becomes the reconfigure path. Existing values take precedence
@@ -454,50 +452,6 @@ func printExitSummary(profileNames []string, configured []auth.Profile, og strin
 	fmt.Fprintln(stderrWriter, "    ws1 setup --advanced      Add ro / admin profiles alongside this one")
 	fmt.Fprintln(stderrWriter, "    ws1 setup                 Re-run; existing values offered as defaults")
 	fmt.Fprintln(stderrWriter, summarySeparator())
-}
-
-// printWelcomeBanner emits a brief brand block at the top of an
-// interactive setup. The animation (three pulsing blocks) is gated on
-// stderr being a real TTY — in tests, CI, and piped-to-file runs, it
-// silently skips. Non-UTF-8 locales get a plain ASCII variant. Never
-// fires in non-interactive mode.
-func printWelcomeBanner() {
-	if !auth.IsInteractive() {
-		return
-	}
-	if !stderrIsTTY() {
-		// Captured stderr (test / pipe / log redirect): plain text only.
-		fmt.Fprintln(stderrWriter)
-		fmt.Fprintln(stderrWriter, "  ws1 — Workspace ONE UEM CLI")
-		fmt.Fprintln(stderrWriter, "  First-run setup wizard")
-		fmt.Fprintln(stderrWriter)
-		return
-	}
-	if !isUTF8Locale() {
-		fmt.Fprintln(stderrWriter)
-		fmt.Fprintln(stderrWriter, "  \x1b[1;36m| | |\x1b[0m  \x1b[1;37mws1\x1b[0m  \x1b[36mWorkspace ONE UEM\x1b[0m")
-		fmt.Fprintln(stderrWriter, "         \x1b[2mFirst-run setup wizard\x1b[0m")
-		fmt.Fprintln(stderrWriter)
-		return
-	}
-	// UTF-8 + TTY: tiny pulse-in animation. ~180ms total — visible but
-	// not annoying. Three Unicode left-half blocks in cyan, then the
-	// title appears alongside.
-	fmt.Fprint(stderrWriter, "\n  ")
-	for _, g := range []string{"▌", "▌", "▌"} {
-		fmt.Fprintf(stderrWriter, "\x1b[1;36m%s\x1b[0m", g)
-		time.Sleep(60 * time.Millisecond)
-	}
-	fmt.Fprintln(stderrWriter, "  \x1b[1;37mws1\x1b[0m  \x1b[36mWorkspace ONE UEM\x1b[0m")
-	fmt.Fprintln(stderrWriter, "         \x1b[2mFirst-run setup wizard\x1b[0m")
-	fmt.Fprintln(stderrWriter)
-}
-
-// stderrIsTTY reports whether os.Stderr is a real terminal. Used to
-// gate the welcome animation and color output. Tests with go test
-// typically don't have a TTY on stderr, so this returns false there.
-func stderrIsTTY() bool {
-	return term.IsTerminal(int(os.Stderr.Fd()))
 }
 
 // printProfileModel explains the ro/operator/admin construct and the

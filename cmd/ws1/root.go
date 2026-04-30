@@ -74,6 +74,15 @@ gates destructive operations behind a browser approval flow.`,
 				emitAndExit(buildVersionEnvelope())
 				return nil
 			}
+			// Bare `ws1` (no subcommand): show the brand banner with
+			// state-aware heads-up. Pure UX surface — no envelope, no
+			// non-zero exit. Falls through to help only when stderr
+			// isn't a TTY (scripts grep'ing the output get the text
+			// they expect).
+			if stderrIsTTY() {
+				showBareWS1Greeter()
+				return nil
+			}
 			return cmd.Help()
 		},
 	}

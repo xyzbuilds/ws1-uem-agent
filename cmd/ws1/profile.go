@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -143,11 +144,33 @@ func newProfileUseCmd() *cobra.Command {
 					envelope.CodeInternalError, err.Error()).WithDuration(time.Since(start)))
 				return
 			}
+			// Privilege heads-up on TTY: when switching to a write-capable
+			// profile, remind the user that active-profile state is
+			// OS-user-scoped (not shell-scoped) so any process running as
+			// them inherits the new privilege. See SECURITY.md.
+			if stderrIsTTY() && (args[0] == "operator" || args[0] == "admin") {
+				printPrivilegeHeadsUp(args[0])
+			}
 			emitAndExit(envelope.New("ws1.profile.use").
 				WithData(map[string]any{"active": args[0]}).
 				WithDuration(time.Since(start)))
 		},
 	}
+}
+
+// printPrivilegeHeadsUp warns the user after switching to a
+// write-capable profile. State lives in ~/.config/ws1/profile, which
+// is OS-user-scoped: every process running as that user picks up the
+// new profile on its next CLI call. See SECURITY.md for v2 mitigations.
+func printPrivilegeHeadsUp(name string) {
+	fmt.Fprintln(stderrWriter)
+	fmt.Fprintf(stderrWriter, "%s  Active profile: %s  %s\n",
+		green("✓"), bold(name),
+		dim("(write-capable; destructive ops still require browser approval)"))
+	fmt.Fprintln(stderrWriter)
+	fmt.Fprintln(stderrWriter, dim("  Heads-up: any process running as your OS user (other terminals,"))
+	fmt.Fprintln(stderrWriter, dim("  background agents, cron jobs) can now make write calls."))
+	fmt.Fprintln(stderrWriter, dim("  Switch back when you're done:  ws1 profile use ro"))
 }
 
 func newProfileAddCmd() *cobra.Command {
