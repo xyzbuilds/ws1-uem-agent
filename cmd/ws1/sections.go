@@ -2,7 +2,10 @@ package main
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"sort"
 	"strings"
@@ -11,6 +14,9 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/xyzbuilds/ws1-uem-agent/internal/api"
+	"github.com/xyzbuilds/ws1-uem-agent/internal/approval"
+	"github.com/xyzbuilds/ws1-uem-agent/internal/audit"
+	"github.com/xyzbuilds/ws1-uem-agent/internal/auth"
 	"github.com/xyzbuilds/ws1-uem-agent/internal/envelope"
 	"github.com/xyzbuilds/ws1-uem-agent/internal/generated"
 	"github.com/xyzbuilds/ws1-uem-agent/internal/policy"
@@ -311,14 +317,136 @@ func numField(m map[string]any, names ...string) (float64, bool) {
 	return 0, false
 }
 
-// runStateChangingOp is the write/destructive path. Until Phase B is
-// fully wired (snapshot lookup + approval flow + freshness check), this
-// surfaces a clear envelope explaining the situation so calls don't
-// silently noop.
+// runStateChangingOp is the write/destructive path. Per spec section 7.1:
+//
+//  1. Verify the active profile can perform the op's class.
+//  2. Capture a target snapshot via the corresponding GET op (if one
+//     can be auto-derived from the path).
+//  3. If approval is required (destructive always; write above blast
+//     threshold), launch the browser approval flow.
+//  4. Re-fetch the target; freshness-check vs. the snapshot. Drift ->
+//     STALE_RESOURCE; approval is NOT consumed.
+//  5. Execute the op.
+//  6. Append a hash-chained audit entry.
+//  7. Emit the envelope.
+//
+// --dry-run skips approval + execution and returns a "would_target"
+// envelope so an agent can preflight without side effects.
 func runStateChangingOp(cli *api.Client, meta generated.OpMeta, entry policy.Entry, args api.Args, start time.Time) {
-	// TODO Phase B: snapshot via findSnapshotOp, approval, freshness, execute, audit.
-	// For now, execute the op directly (no approval) but emit a warning
-	// in the envelope details when it's destructive.
+	// 1. Capability check.
+	activeName, _ := auth.Active()
+	if globalFlags.profile != "" {
+		activeName = globalFlags.profile
+	}
+	prof := &auth.Profile{Name: activeName}
+	if !prof.Can(string(entry.Class)) {
+		emitAndExit(envelope.NewError(meta.Op, envelope.CodeAuthInsufficientForOp,
+			fmt.Sprintf("profile %q cannot perform %s ops", activeName, entry.Class)).
+			WithErrorDetails(map[string]any{
+				"active_profile":  activeName,
+				"operation_class": string(entry.Class),
+			}).WithDuration(time.Since(start)))
+		return
+	}
+
+	// 2. Snapshot the target if we can find a matching GET. For ops
+	// with no obvious snapshot path (bulk endpoints, ops on collections,
+	// etc.) we proceed without freshness check and note that in details.
+	snaps, _, snapped, snapErr := captureSnapshotsFor(cli, meta, args)
+	if snapErr != nil {
+		emitAndExit(envelope.NewError(meta.Op, envelope.CodeIdentifierNotFound,
+			snapErr.Error()).WithDuration(time.Since(start)))
+		return
+	}
+
+	// 3. Approval if required and not dry-run.
+	needApproval := entry.RequiresApproval(targetCountFor(args))
+	var approvalRequestID string
+	if needApproval && !globalFlags.dryRun {
+		var targets []approval.Target
+		if snapped {
+			targets = targetsFromSnapshots(snaps)
+		} else {
+			// No snapshot path — surface argv-derived target so the
+			// approval page still has something concrete to show.
+			targets = []approval.Target{{
+				ID:           pathArgsAsLabel(meta, args),
+				DisplayLabel: pathArgsAsLabel(meta, args),
+				Snapshot:     map[string]any{"note": "snapshot op not auto-derivable; freshness check skipped"},
+			}}
+		}
+		og, _ := auth.ResolveOG(globalFlags.og)
+		req := approval.Request{
+			Operation:     meta.Op,
+			OperationDesc: meta.Summary,
+			Class:         string(entry.Class),
+			Reversibility: string(entry.Reversible),
+			Profile:       activeName,
+			Tenant:        og,
+			Targets:       targets,
+			Args:          map[string]any(args),
+		}
+		res, err := approval.Run(context.Background(), req)
+		if err != nil {
+			emitAndExit(envelope.NewError(meta.Op, envelope.CodeInternalError,
+				err.Error()).WithDuration(time.Since(start)))
+			return
+		}
+		switch res.Outcome {
+		case approval.OutcomeApproved:
+			approvalRequestID = res.RequestID
+		case approval.OutcomeDenied:
+			emitAndExit(envelope.NewError(meta.Op, envelope.CodeApprovalDenied,
+				"User denied approval in browser").
+				WithErrorDetails(map[string]any{"request_id": res.RequestID}).
+				WithDuration(time.Since(start)))
+			return
+		case approval.OutcomeTimeout:
+			emitAndExit(envelope.NewError(meta.Op, envelope.CodeApprovalTimeout,
+				"Approval window elapsed without a decision").
+				WithErrorDetails(map[string]any{"request_id": res.RequestID}).
+				WithDuration(time.Since(start)))
+			return
+		default:
+			emitAndExit(envelope.NewError(meta.Op, envelope.CodeInternalError,
+				"unexpected approval outcome: "+res.Outcome.String()).
+				WithDuration(time.Since(start)))
+			return
+		}
+	}
+
+	// 4. Freshness check (only when we have a snapshot AND approval ran).
+	if snapped && needApproval && !globalFlags.dryRun {
+		current, _, ok, err := captureSnapshotsFor(cli, meta, args)
+		if err != nil || !ok {
+			emitAndExit(envelope.NewError(meta.Op, envelope.CodeStaleResource,
+				"could not re-fetch target for freshness check").
+				WithDuration(time.Since(start)))
+			return
+		}
+		for id, before := range snaps {
+			now, ok := current[id]
+			if !ok {
+				emitAndExit(envelope.NewError(meta.Op, envelope.CodeStaleResource,
+					fmt.Sprintf("target %s disappeared between approval and execute", id)).
+					WithDuration(time.Since(start)))
+				return
+			}
+			if err := approval.FreshnessCheck(before, now); err != nil {
+				details := map[string]any{}
+				var d *approval.DriftError
+				if errors.As(err, &d) {
+					details = d.AsDetails()
+				}
+				emitAndExit(envelope.NewError(meta.Op, envelope.CodeStaleResource, err.Error()).
+					WithErrorDetails(details).
+					WithDuration(time.Since(start)))
+				return
+			}
+		}
+	}
+
+	// 5. Execute (or dry-run).
 	if globalFlags.dryRun {
 		emitAndExit(envelope.New(meta.Op).WithData(map[string]any{
 			"dry_run": true,
@@ -345,12 +473,116 @@ func runStateChangingOp(cli *api.Client, meta generated.OpMeta, entry policy.Ent
 			return
 		}
 	}
+
+	// 6. Audit.
+	auditEntry := writeAuditRow(meta, entry, args, "ok", approvalRequestID, time.Since(start), activeName)
+
+	// 7. Envelope.
 	env := envelope.New(meta.Op).WithData(raw).WithDuration(time.Since(start))
-	// TODO: integrate approval + audit. For now, attach a stderr warning
-	// when the class is destructive so callers know the safety gate
-	// isn't yet wired.
-	if entry.Class == policy.ClassDestructive {
-		fmt.Fprintln(stderrWriter, "WARNING: destructive op executed without browser approval. Approval flow integration pending in this build.")
+	if approvalRequestID != "" {
+		env = env.WithApproval(approvalRequestID)
+	}
+	if auditEntry != "" {
+		env = env.WithAudit(auditEntry)
 	}
 	emitAndExit(env)
+}
+
+// targetCountFor approximates how many entities this invocation will hit.
+// For single-target ops (one path param), it's 1. For bulk ops with a
+// device_uuids/device_ids array argument, it's len(array). For everything
+// else (collection-only ops, search), it's 1.
+func targetCountFor(args api.Args) int {
+	for _, key := range []string{"device_uuids", "device_ids", "uuids", "ids"} {
+		if v, ok := args[key]; ok {
+			if arr, ok := v.([]any); ok {
+				return len(arr)
+			}
+			if arr, ok := v.([]string); ok {
+				return len(arr)
+			}
+			if arr, ok := v.([]int); ok {
+				return len(arr)
+			}
+		}
+	}
+	return 1
+}
+
+// pathArgsAsLabel produces a short human label like "deviceUuid=f3d4..."
+// for cases where we have to render a target without a snapshot.
+func pathArgsAsLabel(meta generated.OpMeta, args api.Args) string {
+	parts := []string{}
+	for _, p := range meta.Parameters {
+		if p.In != "path" {
+			continue
+		}
+		if v, ok := args[p.Name]; ok {
+			parts = append(parts, fmt.Sprintf("%s=%v", p.Name, v))
+		}
+	}
+	if len(parts) == 0 {
+		return "(no path target)"
+	}
+	return joinComma(parts)
+}
+
+func joinComma(s []string) string {
+	if len(s) == 0 {
+		return ""
+	}
+	out := s[0]
+	for _, p := range s[1:] {
+		out += ", " + p
+	}
+	return out
+}
+
+// writeAuditRow appends one row to the local hash-chained audit log and
+// returns the canonical "<ts>#<seq>" entry id for the envelope's
+// meta.audit_log_entry field. Failures are non-fatal — we surface a
+// stderr warning but don't kill the operation.
+func writeAuditRow(meta generated.OpMeta, entry policy.Entry, args api.Args, result, approvalID string, dur time.Duration, profile string) string {
+	path, err := audit.DefaultPath()
+	if err != nil {
+		return ""
+	}
+	l, err := audit.New(path)
+	if err != nil {
+		return ""
+	}
+	og, _ := auth.ResolveOG(globalFlags.og)
+	argsHash := shortHashForArgs(args)
+	e, err := l.Append(audit.Entry{
+		Caller:            "ws1-cli",
+		Operation:         meta.Op,
+		ArgsHash:          argsHash,
+		Class:             string(entry.Class),
+		ApprovalRequestID: approvalID,
+		Profile:           profile,
+		Tenant:            og,
+		Result:            result,
+		DurationMs:        dur.Milliseconds(),
+	})
+	if err != nil {
+		fmt.Fprintf(stderrWriter, "ws1: audit append failed: %v\n", err)
+		return ""
+	}
+	return e.EntryID()
+}
+
+// shortHashForArgs is a stable per-invocation fingerprint used in the
+// audit row's args_hash field. SHA-256 over a sorted key/value
+// concatenation; not cryptographic privacy.
+func shortHashForArgs(args api.Args) string {
+	keys := make([]string, 0, len(args))
+	for k := range args {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	h := sha256.New()
+	for _, k := range keys {
+		fmt.Fprintf(h, "%s=%v\n", k, args[k])
+	}
+	return "sha256:" + hex.EncodeToString(h.Sum(nil))[:32]
 }

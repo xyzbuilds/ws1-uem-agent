@@ -167,3 +167,68 @@ func TestUnknownOpErrors(t *testing.T) {
 		t.Fatal("expected error for unknown op")
 	}
 }
+
+// TestRateLimitRetryHonorsRetryAfter: on 429, the client should sleep
+// the Retry-After value (capped) and retry once. If the retry succeeds,
+// the user sees a normal response and never the 429.
+func TestRateLimitRetryHonorsRetryAfter(t *testing.T) {
+	meta := generated.Ops[opDevicesSearch]
+	calls := 0
+	mux := http.NewServeMux()
+	mux.HandleFunc(meta.BasePath+"/devices/search", func(w http.ResponseWriter, r *http.Request) {
+		calls++
+		if calls == 1 {
+			w.Header().Set("Retry-After", "1")
+			w.WriteHeader(http.StatusTooManyRequests)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"Devices":[],"Total":0}`))
+	})
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+	c := &Client{
+		Source:        &auth.MockTokenSource{BaseURLValue: srv.URL, TokenValue: "abc"},
+		HTTP:          srv.Client(),
+		AcceptVersion: "2",
+	}
+	resp, err := c.Do(context.Background(), opDevicesSearch, Args{})
+	if err != nil {
+		t.Fatalf("Do: %v", err)
+	}
+	if resp.StatusCode != 200 {
+		t.Errorf("status = %d, want 200 after retry", resp.StatusCode)
+	}
+	if calls != 2 {
+		t.Errorf("call count = %d, want 2 (one retry)", calls)
+	}
+}
+
+// TestRateLimitGivesUpAfterOneRetry: persistent 429 surfaces the 429 to
+// the caller; we don't loop forever.
+func TestRateLimitGivesUpAfterOneRetry(t *testing.T) {
+	meta := generated.Ops[opDevicesSearch]
+	calls := 0
+	mux := http.NewServeMux()
+	mux.HandleFunc(meta.BasePath+"/devices/search", func(w http.ResponseWriter, r *http.Request) {
+		calls++
+		w.Header().Set("Retry-After", "1")
+		w.WriteHeader(http.StatusTooManyRequests)
+	})
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+	c := &Client{
+		Source: &auth.MockTokenSource{BaseURLValue: srv.URL, TokenValue: "x"},
+		HTTP:   srv.Client(),
+	}
+	resp, err := c.Do(context.Background(), opDevicesSearch, Args{})
+	if err != nil {
+		t.Fatalf("Do: %v", err)
+	}
+	if resp.StatusCode != 429 {
+		t.Errorf("final status = %d, want 429", resp.StatusCode)
+	}
+	if calls != 2 {
+		t.Errorf("call count = %d, want exactly 2 (1 + 1 retry)", calls)
+	}
+}

@@ -66,10 +66,44 @@ func New(src auth.TokenSource) *Client {
 	}
 }
 
+// MaxRetryAfterWait caps how long the rate-limit retry will sleep before
+// giving up. WS1's docs aren't always specific about Retry-After upper
+// bounds; we don't want a runaway header value to hang the CLI.
+const MaxRetryAfterWait = 30 * time.Second
+
 // Do executes the named op with the given args. Network errors return
 // (nil, err); HTTP-level errors (4xx/5xx) are surfaced via Response.StatusCode
 // so callers can map them to the correct envelope error code.
+//
+// Rate limit handling: on HTTP 429, sleep up to MaxRetryAfterWait honoring
+// the Retry-After header, then retry once. If still 429, return the 429
+// response so the caller can map it to RATE_LIMITED. Per the user's
+// principle: honor rate limit; don't pile on with repeated retries.
 func (c *Client) Do(ctx context.Context, op string, args Args) (*Response, error) {
+	resp, err := c.doOnce(ctx, op, args)
+	if err != nil || resp.StatusCode != http.StatusTooManyRequests {
+		return resp, err
+	}
+	wait := retryAfterDuration(resp.Headers)
+	if wait > MaxRetryAfterWait {
+		wait = MaxRetryAfterWait
+	}
+	if wait <= 0 {
+		// Header missing or unparseable — fall through to single retry
+		// with a small fixed backoff.
+		wait = 2 * time.Second
+	}
+	select {
+	case <-time.After(wait):
+	case <-ctx.Done():
+		return resp, ctx.Err()
+	}
+	return c.doOnce(ctx, op, args)
+}
+
+// doOnce performs one HTTP attempt without rate-limit retries. Do() wraps
+// it so the retry policy is in one place.
+func (c *Client) doOnce(ctx context.Context, op string, args Args) (*Response, error) {
 	meta, ok := generated.Ops[op]
 	if !ok {
 		return nil, fmt.Errorf("api: unknown op %q", op)
@@ -125,6 +159,24 @@ func (c *Client) Do(ctx context.Context, op string, args Args) (*Response, error
 		Headers:    resp.Header,
 		Body:       respBody,
 	}, nil
+}
+
+// retryAfterDuration parses the Retry-After header per RFC 7231 §7.1.3:
+// either an integer (seconds) or an HTTP-date. We support the common
+// integer form and a small subset of relative date forms by punting to
+// 0 on parse failure (caller falls back to a fixed wait).
+func retryAfterDuration(h http.Header) time.Duration {
+	v := h.Get("Retry-After")
+	if v == "" {
+		return 0
+	}
+	// Try integer seconds first — overwhelmingly the common form.
+	if n, err := strconv.Atoi(v); err == nil && n >= 0 {
+		return time.Duration(n) * time.Second
+	}
+	// HTTP-date form — let the caller fall back; date-shaped values
+	// rarely appear in practice and the simple wait is fine.
+	return 0
 }
 
 // buildURL composes the absolute URL from base + meta.BasePath + path
