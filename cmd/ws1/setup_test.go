@@ -168,3 +168,133 @@ func TestSetupV2OGResponseShape(t *testing.T) {
 		t.Errorf("og = %q (v2 OrganizationGroups response should populate picker); want 4067", og)
 	}
 }
+
+func TestSetupOAuthRetryThenSucceed(t *testing.T) {
+	cfg := t.TempDir()
+	t.Setenv("WS1_CONFIG_DIR", cfg)
+	t.Setenv("HOME", cfg)
+	t.Setenv("WS1_ALLOW_DISK_SECRETS", "1")
+	t.Setenv("WS1_FORCE_INTERACTIVE", "1")
+
+	// failCalls counts 401 responses; okCalls counts 200 responses.
+	// The validation loop fires once (401) then once (200). fetchOGList
+	// creates its own fresh OAuthClient so it fires a third /oauth call
+	// that also succeeds. We assert exactly one failure occurred.
+	failCalls := 0
+	mux := http.NewServeMux()
+	mux.HandleFunc("/oauth", func(w http.ResponseWriter, r *http.Request) {
+		if failCalls == 0 {
+			failCalls++
+			http.Error(w, `{"error":"invalid_client"}`, http.StatusUnauthorized)
+			return
+		}
+		_, _ = w.Write([]byte(`{"access_token":"tok","token_type":"Bearer","expires_in":3600}`))
+	})
+	mux.HandleFunc("/api/system/groups/search", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`{"LocationGroups":[{"Id":1,"Uuid":"u","Name":"Global"}],"Total":1}`))
+	})
+	mux.HandleFunc("/api/mdm/devices/search", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`{"Devices":[],"Total":0}`))
+	})
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+	t.Setenv("WS1_BASE_URL", srv.URL)
+
+	stub := &StubPrompter{
+		AskAnswers: map[string]string{
+			"Tenant hostname":   "x",
+			"Client ID":         "cid",
+			"Client ID (retry)": "cid",
+		},
+		// First creds fail (secret "wrong"), retry succeeds (secret "right").
+		SecretAnswers: []string{"wrong", "right"},
+		// AuthURL is provided directly so region pick is skipped;
+		// only one Pick call: OG Global (index 1).
+		PickIndex: []int{1 /*OG Global*/},
+	}
+
+	opts := SetupOptions{Profile: "operator", AuthURL: srv.URL + "/oauth", Quick: true, SkipSmoke: true}
+	if err := RunSetup(context.Background(), opts, stub); err != nil {
+		t.Fatalf("RunSetup: %v", err)
+	}
+	// Exactly one 401 must have been returned (the first attempt); all
+	// subsequent /oauth calls succeed (validation retry + OG fetch).
+	if failCalls != 1 {
+		t.Errorf("oauth fail calls = %d, want 1", failCalls)
+	}
+}
+
+func TestSetupOAuthThreeFailuresExits(t *testing.T) {
+	cfg := t.TempDir()
+	t.Setenv("WS1_CONFIG_DIR", cfg)
+	t.Setenv("HOME", cfg)
+	t.Setenv("WS1_ALLOW_DISK_SECRETS", "1")
+	t.Setenv("WS1_FORCE_INTERACTIVE", "1")
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/oauth", func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, `{"error":"invalid_client"}`, http.StatusUnauthorized)
+	})
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+	t.Setenv("WS1_BASE_URL", srv.URL)
+
+	stub := &StubPrompter{
+		AskAnswers: map[string]string{
+			"Tenant hostname":   "x",
+			"Client ID":         "cid",
+			"Client ID (retry)": "cid2",
+		},
+		SecretAnswers: []string{"a", "b", "c"},
+		PickIndex:     []int{2},
+	}
+
+	opts := SetupOptions{Profile: "operator", AuthURL: srv.URL + "/oauth", Quick: true}
+	err := RunSetup(context.Background(), opts, stub)
+	if err == nil {
+		t.Fatal("expected error after 3 failed attempts")
+	}
+	if !strings.Contains(err.Error(), "auth") {
+		t.Errorf("error = %v, want auth-related", err)
+	}
+}
+
+func TestSetupOGFallbackOnPermissionDenied(t *testing.T) {
+	cfg := t.TempDir()
+	t.Setenv("WS1_CONFIG_DIR", cfg)
+	t.Setenv("HOME", cfg)
+	t.Setenv("WS1_ALLOW_DISK_SECRETS", "1")
+	t.Setenv("WS1_FORCE_INTERACTIVE", "1")
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/oauth", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`{"access_token":"tok","token_type":"Bearer","expires_in":3600}`))
+	})
+	mux.HandleFunc("/api/system/groups/search", func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, `{"error":"forbidden"}`, http.StatusForbidden)
+	})
+	mux.HandleFunc("/api/mdm/devices/search", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`{"Devices":[],"Total":0}`))
+	})
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+	t.Setenv("WS1_BASE_URL", srv.URL)
+
+	stub := &StubPrompter{
+		AskAnswers: map[string]string{
+			"Tenant hostname": "x",
+			"Client ID":       "cid",
+			"OG ID":           "9999",
+		},
+		SecretAnswers: []string{"sec"},
+		PickIndex:     []int{2},
+	}
+	opts := SetupOptions{Profile: "operator", AuthURL: srv.URL + "/oauth", Quick: true, SkipSmoke: true}
+	if err := RunSetup(context.Background(), opts, stub); err != nil {
+		t.Fatalf("RunSetup: %v", err)
+	}
+	og, _ := auth.CurrentOG()
+	if og != "9999" {
+		t.Errorf("og = %q, want 9999 (from fallback prompt)", og)
+	}
+}

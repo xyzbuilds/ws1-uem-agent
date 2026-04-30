@@ -179,16 +179,46 @@ func RunSetup(ctx context.Context, opts SetupOptions, p Prompter) error {
 		return fmt.Errorf("save secret: %w", err)
 	}
 
-	// Step 5: Validate.
+	// Step 5: Validate (with up to 3 retries on auth failure).
 	if !opts.SkipValidate {
-		spin := p.Spinner("Validating against " + opts.AuthURL + "...")
-		client := api.New(auth.NewOAuthClient(&prof))
-		_, err := client.Source.Token(ctx)
-		if err != nil {
-			spin.Done(false, "Auth failed: "+err.Error())
-			return fmt.Errorf("auth: %w", err)
+		const maxAttempts = 3
+		var lastErr error
+		for attempt := 1; attempt <= maxAttempts; attempt++ {
+			spin := p.Spinner("Validating against " + opts.AuthURL + "...")
+			client := api.New(auth.NewOAuthClient(&prof))
+			_, err := client.Source.Token(ctx)
+			if err == nil {
+				spin.Done(true, "Token issued")
+				lastErr = nil
+				break
+			}
+			lastErr = err
+			spin.Done(false, fmt.Sprintf("Auth failed (attempt %d/%d): %v", attempt, maxAttempts, err))
+			if attempt == maxAttempts {
+				break
+			}
+			// Re-prompt creds. Other fields keep their current values.
+			newID, perr := p.Ask("Client ID (retry)", opts.ClientID)
+			if perr != nil {
+				return perr
+			}
+			newSec, perr := p.AskSecret("Client Secret (retry)")
+			if perr != nil {
+				return perr
+			}
+			opts.ClientID = newID
+			opts.ClientSecret = newSec
+			prof.ClientID = newID
+			if err := auth.SaveProfile(prof); err != nil {
+				return err
+			}
+			if err := auth.SaveClientSecret(profileName, newID, newSec); err != nil {
+				return err
+			}
 		}
-		spin.Done(true, "Token issued")
+		if lastErr != nil {
+			return fmt.Errorf("auth failed after %d attempts: %w", maxAttempts, lastErr)
+		}
 	}
 
 	// Step 6: OG selection.
