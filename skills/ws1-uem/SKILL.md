@@ -47,11 +47,31 @@ If you're unsure, run with `--dry-run` first; the CLI will return what would hav
 Run these in order at the start of any task that touches a real tenant:
 
 ```bash
-ws1 doctor                     # confirms config + connectivity
-ws1 profile current            # confirms which profile is active
-ws1 og current                 # confirms OG context is set
-ws1 ops list | jq '.data.ops[] | select(.class == "destructive")'  # pre-flight reminder
+ws1 status                     # one envelope: profile, OG, tenant, region, last audit seq
+ws1 doctor                     # confirms config + connectivity (full health check)
 ```
+
+`ws1 status` replaces the old three-call sequence (`profile current` + `og current` + `audit tail --last 1`) with a single envelope you can branch on. Use it whenever you need to introspect current config without a network round trip.
+
+**If `ws1 status` returns `active_profile: ""` or no `configured_profiles`,** the user has not run setup. Tell them:
+
+```bash
+ws1 setup                      # interactive first-run wizard (default: operator profile)
+ws1 setup --advanced           # configure ro / operator / admin in one run
+```
+
+## Discovering operations efficiently
+
+There are ~980 operations in the catalog. Always narrow before listing:
+
+```bash
+ws1 ops search <pattern>                                # substring on op id + summary
+ws1 ops list --section mdmv1 --tag devices --summary    # filter by section/tag/class
+ws1 ops list --class destructive --summary              # all destructive ops, compact
+ws1 ops describe <op>                                   # full schema for one op
+```
+
+`--summary` keeps only `op` + `class` + `summary` per row — cuts the response by ~10x compared to the full listing. Reach for `ws1 ops search` when the user describes intent ("lock devices", "wipe", "compliance") and you need to find the right op.
 
 ## Reading envelopes
 

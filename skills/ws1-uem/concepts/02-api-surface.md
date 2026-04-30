@@ -12,7 +12,18 @@ The WS1 REST API is split across sections. The `ws1` CLI mirrors this split: eac
 | Mobile Email Management | `memv1` | Email policies, blocked devices |
 | System | `systemv1` / `systemv2` | Users, OGs, admins, roles |
 
-The version-in-command is verbose (`ws1 mdmv4 devices lock` rather than `ws1 mdm devices lock`). v0 keeps it explicit because some sections ship multiple concurrent versions with different signatures. Run `ws1 ops list` to see what's compiled in.
+The version-in-command is verbose (`ws1 mdmv4 devices lock` rather than `ws1 mdm devices lock`). v0 keeps it explicit because some sections ship multiple concurrent versions with different signatures.
+
+To explore what's compiled in, prefer narrow lookups over the full catalog:
+
+```bash
+ws1 ops search lock                       # substring match on op id + summary
+ws1 ops list --section mdmv1 --summary    # one section, compact rows
+ws1 ops list --tag devices --summary      # all device ops across sections
+ws1 ops list --class destructive --summary  # safety pre-flight
+```
+
+Bare `ws1 ops list` returns ~980 entries with full metadata — only reach for that when you genuinely need everything.
 
 ## Operation identifier
 
