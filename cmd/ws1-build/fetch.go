@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 
@@ -113,6 +114,7 @@ func fetchAllSections(d *DiscoveryResult, token, outDir string, retries int) ([]
 		if err != nil {
 			return nil, err
 		}
+		pretty = sanitizeExampleSecrets(pretty)
 		pretty = append(pretty, '\n')
 		path := filepath.Join(outDir, s.Slug+".json")
 		if err := os.WriteFile(path, pretty, 0o644); err != nil {
@@ -177,4 +179,39 @@ func truncate(s string, n int) string {
 		return s
 	}
 	return s[:n] + "..."
+}
+
+// secretShapedRegexes are documentation-example tokens that ship verbatim
+// inside WS1's OpenAPI `example` blocks. They look identical to real
+// secrets to GitHub's push-protection scanner, which blocks the spec
+// commit. We replace them with an obviously-fake placeholder before
+// writing to disk; drift detection still works because the SHA256 we
+// pin in spec/VERSION is computed AFTER sanitization, so two identical
+// real-spec pulls produce identical sanitized output.
+//
+// Add new patterns here if a future spec sync surfaces another secret-
+// shaped example. False positives are fine — sanitizing a non-secret
+// string in an example block has no functional effect on the CLI.
+var secretShapedRegexes = []*regexp.Regexp{
+	// Google OAuth access token: starts with "ya29." and continues with
+	// 60+ token chars.
+	regexp.MustCompile(`"ya29\.[A-Za-z0-9_-]{60,}"`),
+	// Google OAuth refresh token: starts with "1//" and continues.
+	regexp.MustCompile(`"1//[A-Za-z0-9_-]{40,}"`),
+	// AWS access key id pattern.
+	regexp.MustCompile(`"AKIA[A-Z0-9]{16}"`),
+	// Google API key pattern.
+	regexp.MustCompile(`"AIza[A-Za-z0-9_-]{35}"`),
+}
+
+const sanitizedPlaceholder = `"REDACTED-EXAMPLE-TOKEN"`
+
+// sanitizeExampleSecrets replaces secret-shaped values in OpenAPI example
+// blocks with REDACTED-EXAMPLE-TOKEN. WS1 ships example values that are
+// generated-but-real-looking, which trips secret scanners on commit.
+func sanitizeExampleSecrets(b []byte) []byte {
+	for _, re := range secretShapedRegexes {
+		b = re.ReplaceAll(b, []byte(sanitizedPlaceholder))
+	}
+	return b
 }

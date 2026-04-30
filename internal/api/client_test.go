@@ -12,17 +12,27 @@ import (
 	"github.com/xyzbuilds/ws1-uem-agent/internal/generated"
 )
 
+// Real op identifiers from the spec snapshot in spec/. Tests pin against
+// these so a future spec sync that renames them surfaces here first.
+const (
+	opDevicesSearch       = "mdmv1.devices.search"         // GET /devices/search
+	opUserGetByUuid       = "systemv2.usersv2.read"        // GET /users/{uuid}
+	opCommandsBulkExecute = "mdmv1.commandsv1.bulkexecute" // POST /devices/commands/bulk
+)
+
 func TestBuildURLPathAndQuery(t *testing.T) {
-	meta := generated.Ops["mdmv4.devices.search"]
+	meta := generated.Ops[opDevicesSearch]
+	if meta.Op == "" {
+		t.Fatalf("op %q not in compiled index", opDevicesSearch)
+	}
 	got, err := buildURL("https://example.awmdm.com", meta, Args{
 		"user": "alice@example.com",
-		"page": 0,
 	})
 	if err != nil {
 		t.Fatalf("buildURL: %v", err)
 	}
-	if !strings.Contains(got, "/api/mdm/devices/search?") {
-		t.Errorf("URL missing base path or path template: %s", got)
+	if !strings.Contains(got, "/devices/search?") {
+		t.Errorf("URL missing path/query separator: %s", got)
 	}
 	if !strings.Contains(got, "user=alice%40example.com") {
 		t.Errorf("URL missing escaped query: %s", got)
@@ -30,39 +40,47 @@ func TestBuildURLPathAndQuery(t *testing.T) {
 }
 
 func TestBuildURLPathParam(t *testing.T) {
-	meta := generated.Ops["mdmv4.devices.get"]
-	got, err := buildURL("https://example.awmdm.com", meta, Args{"id": 12345})
+	meta := generated.Ops[opUserGetByUuid]
+	if meta.Op == "" {
+		t.Fatalf("op %q not in compiled index", opUserGetByUuid)
+	}
+	got, err := buildURL("https://example.awmdm.com", meta, Args{
+		"uuid": "f3d4e5f6-1234-5678-9abc-def012345678",
+	})
 	if err != nil {
 		t.Fatalf("buildURL: %v", err)
 	}
-	if !strings.HasSuffix(got, "/api/mdm/devices/12345") {
-		t.Errorf("URL did not interpolate path id: %s", got)
+	if !strings.HasSuffix(got, "/f3d4e5f6-1234-5678-9abc-def012345678") {
+		t.Errorf("URL did not interpolate path uuid: %s", got)
 	}
 }
 
 func TestBuildURLMissingPathParamErrors(t *testing.T) {
-	meta := generated.Ops["mdmv4.devices.get"]
+	meta := generated.Ops[opUserGetByUuid]
 	if _, err := buildURL("https://example.com", meta, Args{}); err == nil {
 		t.Fatal("expected error for missing path param")
 	}
 }
 
 func TestDoSetsBearerAuth(t *testing.T) {
+	meta := generated.Ops[opDevicesSearch]
 	mux := http.NewServeMux()
-	var sawAuth string
-	mux.HandleFunc("/api/system/users/search", func(w http.ResponseWriter, r *http.Request) {
+	var sawAuth, sawAccept string
+	mux.HandleFunc(meta.BasePath+"/devices/search", func(w http.ResponseWriter, r *http.Request) {
 		sawAuth = r.Header.Get("Authorization")
+		sawAccept = r.Header.Get("Accept")
 		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte(`{"Users":[],"Total":0}`))
+		_, _ = w.Write([]byte(`{"Devices":[],"Total":0}`))
 	})
 	srv := httptest.NewServer(mux)
 	defer srv.Close()
 	c := &Client{
-		Source: &auth.MockTokenSource{BaseURLValue: srv.URL, TokenValue: "abc"},
-		HTTP:   srv.Client(),
+		Source:        &auth.MockTokenSource{BaseURLValue: srv.URL, TokenValue: "abc"},
+		HTTP:          srv.Client(),
+		AcceptVersion: "2",
 	}
-	resp, err := c.Do(context.Background(), "systemv2.users.search", Args{
-		"email": "alice@example.com",
+	resp, err := c.Do(context.Background(), opDevicesSearch, Args{
+		"user": "alice@example.com",
 	})
 	if err != nil {
 		t.Fatalf("Do: %v", err)
@@ -71,21 +89,26 @@ func TestDoSetsBearerAuth(t *testing.T) {
 		t.Errorf("status = %d", resp.StatusCode)
 	}
 	if sawAuth != "Bearer abc" {
-		t.Errorf("Authorization header = %q", sawAuth)
+		t.Errorf("Authorization = %q", sawAuth)
 	}
-	var parsed map[string]any
-	if err := resp.JSON(&parsed); err != nil {
-		t.Fatalf("JSON: %v", err)
+	if !strings.Contains(sawAccept, "version=2") {
+		t.Errorf("Accept missing version param: %q", sawAccept)
 	}
 }
 
 func TestDoSendsJSONBodyWhenDeclared(t *testing.T) {
+	meta := generated.Ops[opCommandsBulkExecute]
+	if !meta.HasRequestBody {
+		t.Skipf("op %q in current spec doesn't declare a request body; test is informational", opCommandsBulkExecute)
+	}
 	mux := http.NewServeMux()
 	var sawBody map[string]any
-	mux.HandleFunc("/api/mdm/devices/commands/bulk", func(w http.ResponseWriter, r *http.Request) {
+	var sawQuery string
+	mux.HandleFunc(meta.BasePath+"/devices/commands/bulk", func(w http.ResponseWriter, r *http.Request) {
+		sawQuery = r.URL.RawQuery
 		_ = json.NewDecoder(r.Body).Decode(&sawBody)
 		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte(`{"successes":[],"failures":[]}`))
+		_, _ = w.Write([]byte(`{}`))
 	})
 	srv := httptest.NewServer(mux)
 	defer srv.Close()
@@ -93,31 +116,42 @@ func TestDoSendsJSONBodyWhenDeclared(t *testing.T) {
 		Source: &auth.MockTokenSource{BaseURLValue: srv.URL, TokenValue: "x"},
 		HTTP:   srv.Client(),
 	}
-	_, err := c.Do(context.Background(), "mdmv4.devices.bulkcommand", Args{
-		"command":    "Lock",
-		"device_ids": []int{12345, 12346},
+	_, err := c.Do(context.Background(), opCommandsBulkExecute, Args{
+		// Declared params go to query.
+		"command":  "LockDevice",
+		"searchby": "Udid",
+		// Undeclared args land in JSON body.
+		"BulkValues": map[string]any{
+			"Value": []string{"f3d4e5f6-1234-5678-9abc-000000000001"},
+		},
 	})
 	if err != nil {
 		t.Fatalf("Do: %v", err)
 	}
-	if sawBody["command"] != "Lock" {
-		t.Errorf("body command = %v", sawBody["command"])
+	if !strings.Contains(sawQuery, "command=LockDevice") {
+		t.Errorf("query missing command param: %q", sawQuery)
 	}
-	if ids, _ := sawBody["device_ids"].([]any); len(ids) != 2 {
-		t.Errorf("body device_ids = %v", sawBody["device_ids"])
+	if !strings.Contains(sawQuery, "searchby=Udid") {
+		t.Errorf("query missing searchby param: %q", sawQuery)
+	}
+	if sawBody["BulkValues"] == nil {
+		t.Errorf("body BulkValues missing: %+v", sawBody)
 	}
 }
 
 func TestDoSurfacesHTTPErrors(t *testing.T) {
+	meta := generated.Ops[opUserGetByUuid]
 	mux := http.NewServeMux()
-	mux.HandleFunc("/api/mdm/devices/99999", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(meta.BasePath+"/users/", func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, `{"error":"not found"}`, http.StatusNotFound)
 	})
 	srv := httptest.NewServer(mux)
 	defer srv.Close()
 	c := New(&auth.MockTokenSource{BaseURLValue: srv.URL, TokenValue: "x"})
 	c.HTTP = srv.Client()
-	resp, err := c.Do(context.Background(), "mdmv4.devices.get", Args{"id": 99999})
+	resp, err := c.Do(context.Background(), opUserGetByUuid, Args{
+		"uuid": "f3d4e5f6-1234-5678-9abc-def012345678",
+	})
 	if err != nil {
 		t.Fatalf("Do: %v", err)
 	}

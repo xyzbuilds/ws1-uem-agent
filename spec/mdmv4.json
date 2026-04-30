@@ -1,207 +1,3221 @@
 {
-  "openapi": "3.0.1",
-  "info": {
-    "title": "MDM API",
-    "description": "Workspace ONE UEM MDM REST API V4 (minimal slice for v0 demo)",
-    "contact": { "name": "Workspace ONE UEM" },
-    "version": "4"
-  },
-  "servers": [
-    { "url": "https://example.awmdm.com/api/mdm" }
-  ],
-  "paths": {
-    "/devices/search": {
-      "get": {
-        "tags": ["Devices"],
-        "summary": "Search devices",
-        "description": "Search managed devices, optionally filtered by user, organization group, or platform.",
-        "operationId": "Devices_Search",
-        "parameters": [
-          { "name": "user", "in": "query", "schema": { "type": "string" }, "description": "Username or email of enrolled user" },
-          { "name": "organizationgroupid", "in": "query", "schema": { "type": "integer" }, "description": "OG ID to scope the search" },
-          { "name": "platform", "in": "query", "schema": { "type": "string" }, "description": "Platform filter (Apple, Android, etc.)" },
-          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 0 } },
-          { "name": "pagesize", "in": "query", "schema": { "type": "integer", "default": 100 } }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of devices",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/DeviceSearchResponse" }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/devices/{id}": {
-      "get": {
-        "tags": ["Devices"],
-        "summary": "Get device by ID",
-        "description": "Fetch a single device record.",
-        "operationId": "Devices_Get",
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
-        ],
-        "responses": {
-          "200": {
-            "description": "Device record",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Device" }
-              }
-            }
+  "components": {
+    "schemas": {
+      "Action`3": {
+        "properties": {
+          "Method": {
+            "$ref": "#/components/schemas/MethodInfo"
           },
-          "404": { "description": "Device not found" }
-        }
-      }
-    },
-    "/devices/{id}/commands/lock": {
-      "post": {
-        "tags": ["Devices"],
-        "summary": "Lock device",
-        "description": "Queue a device-lock command. Reversible: the device unlocks on the next user authentication.",
-        "operationId": "Devices_Lock",
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
-        ],
-        "responses": {
-          "202": {
-            "description": "Command queued",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/CommandResult" }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/devices/{id}/commands/wipe": {
-      "post": {
-        "tags": ["Devices"],
-        "summary": "Wipe device (enterprise)",
-        "description": "Queue an enterprise-wipe command. Removes all corporate data and unenrolls the device. IRREVERSIBLE.",
-        "operationId": "Devices_Wipe",
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
-        ],
-        "responses": {
-          "202": {
-            "description": "Wipe job started",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/AsyncJobAccepted" }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/devices/commands/bulk": {
-      "post": {
-        "tags": ["Devices"],
-        "summary": "Bulk command on devices",
-        "description": "Queue the same command across multiple devices in one call. Per-target outcomes returned in the response.",
-        "operationId": "Devices_BulkCommand",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/BulkCommandRequest" }
+          "Target": {
+            "readOnly": true,
+            "type": "object",
+            "xml": {
+              "name": "Target"
             }
           }
         },
-        "responses": {
-          "200": {
-            "description": "Bulk result with per-target outcomes",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/BulkCommandResponse" }
-              }
+        "type": "object"
+      },
+      "AdditionalInputModelV4": {
+        "description": "Model for additional input required to perform an action.",
+        "properties": {
+          "change_organization_group": {
+            "$ref": "#/components/schemas/ChangeOrganizationGroupV4"
+          },
+          "change_ownership": {
+            "$ref": "#/components/schemas/ChangeOwnershipRequestModelV4"
+          },
+          "custom_mdm_command": {
+            "$ref": "#/components/schemas/CustomMdmCommandRequestModelV4"
+          },
+          "delete": {
+            "$ref": "#/components/schemas/DeleteDeviceRequestModelV4"
+          },
+          "device_wipe": {
+            "$ref": "#/components/schemas/DeviceWipeRequestModelV4"
+          },
+          "enable_lost_mode": {
+            "$ref": "#/components/schemas/EnableLostModeRequestModelV4"
+          },
+          "enterprise_wipe": {
+            "$ref": "#/components/schemas/EnterpriseWipeRequestModelV4"
+          },
+          "lock": {
+            "$ref": "#/components/schemas/LockRequestModelV4"
+          },
+          "manage_tags": {
+            "$ref": "#/components/schemas/ManageTagsRequestModelV4"
+          },
+          "override_job_log_level": {
+            "$ref": "#/components/schemas/OverrideJobLogLevelRequestModelV4"
+          },
+          "poweroff": {
+            "$ref": "#/components/schemas/PoweroffV4"
+          },
+          "provision_esim": {
+            "$ref": "#/components/schemas/ProvisionEsimV4"
+          },
+          "remote_management": {
+            "$ref": "#/components/schemas/RemoteManagementRequestModelV4"
+          },
+          "remove_esim": {
+            "$ref": "#/components/schemas/RemoveEsimV4"
+          },
+          "schedule_os_update": {
+            "$ref": "#/components/schemas/ScheduleOsUpdateModelV4"
+          },
+          "send_message": {
+            "$ref": "#/components/schemas/SendMessageRequestModelV4"
+          }
+        },
+        "type": "object"
+      },
+      "BaseExceptionModel": {
+        "description": "Base model for exception.",
+        "properties": {
+          "activityId": {
+            "description": "Gets or sets transactionId of the request.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "ActivityId"
+            }
+          },
+          "errorCode": {
+            "description": "Gets or sets application error code.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "ErrorCode"
+            }
+          },
+          "links": {
+            "description": "Gets or sets list of hypermedia link.",
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "type": "array",
+            "xml": {
+              "name": "Links",
+              "wrapped": true
+            }
+          },
+          "message": {
+            "description": "Gets or sets friendly error message.",
+            "type": "object",
+            "xml": {
+              "name": "Message"
             }
           }
+        },
+        "type": "object",
+        "xml": {
+          "name": "AirWatchFaultContract",
+          "namespace": "http://www.air-watch.com/"
         }
+      },
+      "CacheControlHeaderValue": {
+        "properties": {
+          "Extensions": {
+            "items": {
+              "$ref": "#/components/schemas/NameValueHeaderValue"
+            },
+            "readOnly": true,
+            "type": "array",
+            "xml": {
+              "name": "Extensions"
+            }
+          },
+          "MaxAge": {
+            "type": "string",
+            "xml": {
+              "name": "MaxAge"
+            }
+          },
+          "MaxStale": {
+            "type": "boolean",
+            "xml": {
+              "name": "MaxStale"
+            }
+          },
+          "MaxStaleLimit": {
+            "type": "string",
+            "xml": {
+              "name": "MaxStaleLimit"
+            }
+          },
+          "MinFresh": {
+            "type": "string",
+            "xml": {
+              "name": "MinFresh"
+            }
+          },
+          "MustRevalidate": {
+            "type": "boolean",
+            "xml": {
+              "name": "MustRevalidate"
+            }
+          },
+          "NoCache": {
+            "type": "boolean",
+            "xml": {
+              "name": "NoCache"
+            }
+          },
+          "NoCacheHeaders": {
+            "items": {
+              "type": "string"
+            },
+            "readOnly": true,
+            "type": "array",
+            "xml": {
+              "name": "NoCacheHeaders"
+            }
+          },
+          "NoStore": {
+            "type": "boolean",
+            "xml": {
+              "name": "NoStore"
+            }
+          },
+          "NoTransform": {
+            "type": "boolean",
+            "xml": {
+              "name": "NoTransform"
+            }
+          },
+          "OnlyIfCached": {
+            "type": "boolean",
+            "xml": {
+              "name": "OnlyIfCached"
+            }
+          },
+          "Private": {
+            "type": "boolean",
+            "xml": {
+              "name": "Private"
+            }
+          },
+          "PrivateHeaders": {
+            "items": {
+              "type": "string"
+            },
+            "readOnly": true,
+            "type": "array",
+            "xml": {
+              "name": "PrivateHeaders"
+            }
+          },
+          "ProxyRevalidate": {
+            "type": "boolean",
+            "xml": {
+              "name": "ProxyRevalidate"
+            }
+          },
+          "Public": {
+            "type": "boolean",
+            "xml": {
+              "name": "Public"
+            }
+          },
+          "SharedMaxAge": {
+            "type": "string",
+            "xml": {
+              "name": "SharedMaxAge"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "CertificateMetadataModel1": {
+        "description": "Certificate Metadata Model.",
+        "properties": {
+          "CertificateUuid": {
+            "description": "Gets or sets certificate Unique Identifier.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "CertificateUuid"
+            }
+          },
+          "IssueSerialNumber": {
+            "description": "Gets or sets issue Serial Number.",
+            "format": "int64",
+            "type": "integer",
+            "xml": {
+              "name": "IssueSerialNumber"
+            }
+          },
+          "IssuerName": {
+            "description": "Gets or sets issuer Name.",
+            "type": "string",
+            "xml": {
+              "name": "IssuerName"
+            }
+          },
+          "SubjectName": {
+            "description": "Gets or sets subject Name of the certificate.",
+            "type": "string",
+            "xml": {
+              "name": "SubjectName"
+            }
+          },
+          "Thumbprint": {
+            "description": "Gets or sets certificate Thumbprint.",
+            "type": "string",
+            "xml": {
+              "name": "Thumbprint"
+            }
+          },
+          "ValidFrom": {
+            "description": "Gets or sets valid From Date.",
+            "format": "date-time",
+            "type": "string",
+            "xml": {
+              "name": "ValidFrom"
+            }
+          },
+          "ValidTo": {
+            "description": "Gets or sets valid To Date.",
+            "format": "date-time",
+            "type": "string",
+            "xml": {
+              "name": "ValidTo"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "ChangeOrganizationGroupV4": {
+        "description": "Model for change organization group.",
+        "properties": {
+          "organization_group_uuid": {
+            "description": "Organization group uuid.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "OrganizationGroupUuid"
+            }
+          }
+        },
+        "required": [
+          "organization_group_uuid"
+        ],
+        "type": "object"
+      },
+      "ChangeOwnershipRequestModelV4": {
+        "description": "Model for change ownership request model.",
+        "properties": {
+          "ownership_type": {
+            "description": "Ownership type.",
+            "enum": [
+              "UNKNOWN",
+              "CORPORATE_DEDICATED",
+              "EMPLOYEE_OWNED",
+              "CORPORATE_SHARED"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "OwnershipType"
+            }
+          }
+        },
+        "required": [
+          "ownership_type"
+        ],
+        "type": "object"
+      },
+      "CustomAttributeNameValueApplicationV2Model": {
+        "description": "The device registration type",
+        "properties": {
+          "application": {
+            "description": "Custom attribute application group",
+            "type": "string",
+            "xml": {
+              "name": "Application"
+            }
+          },
+          "name": {
+            "description": "Custom attribute name",
+            "type": "string",
+            "xml": {
+              "name": "Name"
+            }
+          },
+          "value": {
+            "description": "Custom attribute application value",
+            "type": "string",
+            "xml": {
+              "name": "Value"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "CustomMdmCommandRequestModelV4": {
+        "description": "Model for custom mdm command action.",
+        "properties": {
+          "command_xml": {
+            "description": "The command xml.",
+            "type": "string",
+            "xml": {
+              "name": "CommandXml"
+            }
+          }
+        },
+        "required": [
+          "command_xml"
+        ],
+        "type": "object"
+      },
+      "DeleteDeviceRequestModelV4": {
+        "description": "Model for delete device request model.",
+        "properties": {
+          "disable_activation_lock": {
+            "description": "Disable activation lock.",
+            "type": "boolean",
+            "xml": {
+              "name": "DisableActivationLock"
+            }
+          },
+          "reason": {
+            "description": "Delete reason.",
+            "type": "string",
+            "xml": {
+              "name": "Reason"
+            }
+          },
+          "release_device": {
+            "description": "Release device.",
+            "type": "boolean",
+            "xml": {
+              "name": "ReleaseDevice"
+            }
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "type": "object"
+      },
+      "DeviceActionFaultModelV4": {
+        "description": "Defines the fault response for failed actions.",
+        "properties": {
+          "message": {
+            "description": "The error message for the failure of action.",
+            "type": "string",
+            "xml": {
+              "name": "Message"
+            }
+          },
+          "request_item": {
+            "description": "The identifier of the failed action.",
+            "type": "object",
+            "xml": {
+              "name": "RequestItem"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "DeviceActionRequestV4Model": {
+        "description": "Model for device action request.",
+        "example": {
+          "action_name": "UNKNOWN",
+          "additional_input": {
+            "change_organization_group": {
+              "organization_group_uuid": "2352a90f-e479-45d3-beac-2b9696f0987e"
+            },
+            "change_ownership": {
+              "ownership_type": "CORPORATE_DEDICATED"
+            },
+            "custom_mdm_command": {
+              "command_xml": "Text value"
+            },
+            "delete": {
+              "disable_activation_lock": true,
+              "reason": "Text value",
+              "release_device": true
+            },
+            "device_wipe": {
+              "notes_description": "Text value",
+              "reason": "Text value"
+            },
+            "enable_lost_mode": {
+              "footnote": "Text value",
+              "message": "Text value",
+              "phone_number": "Text value"
+            },
+            "enterprise_wipe": {
+              "chromeos_enterprise_wipe_reason": "Text value",
+              "disable_activation_lock": true,
+              "end_user_wipe_message": "Text value",
+              "prevent_renenrollment": true,
+              "reason": "Text value",
+              "release_device": true
+            },
+            "lock": {
+              "message": "Text value",
+              "phone_number": "Text value",
+              "reason": "Text value",
+              "unlock_note": "Text value",
+              "unlock_pin": "Text value"
+            },
+            "manage_tags": {
+              "assign_tags": [
+                {
+                  "organization_uuid": "3cb8207e-e9cc-4c17-9f5a-c7a806ee8a5e",
+                  "tag_avatar": "Text value",
+                  "tag_name": "Text value",
+                  "tag_type": 1,
+                  "tag_uuid": "89de1ca8-9329-4790-a923-6d3d35038eea"
+                }
+              ],
+              "unassign_tags": [
+                {
+                  "organization_uuid": "00000000-0000-0000-0000-000000000000",
+                  "tag_type": 0,
+                  "tag_uuid": "00000000-0000-0000-0000-000000000000"
+                }
+              ]
+            },
+            "override_job_log_level": {
+              "override_job_log_level_type": "RESET_TO_DEFAULT",
+              "warning_message": "Text value"
+            },
+            "poweroff": {
+              "clear_passcode": true,
+              "reason": "Text value"
+            },
+            "provision_esim": {
+              "activate": true,
+              "activation_code": "Text value",
+              "hostname": "Text value"
+            },
+            "remote_management": {
+              "register_device": true,
+              "remote_management_feature": 0,
+              "remote_management_step": 0,
+              "remote_session_correlation_id": "Text value"
+            },
+            "remove_esim": {
+              "card_id": "Text value"
+            },
+            "schedule_os_update": {
+              "install_action": "DEFAULT"
+            },
+            "send_message": {
+              "application_uuid": "c2a12606-e28b-435e-93c1-f71138c5ba21",
+              "email_address": "Text value",
+              "is_html": true,
+              "is_send_message_for_application": true,
+              "message_body": "Text value",
+              "message_type": "NONE",
+              "phone_number": "Text value",
+              "subject": "Text value"
+            }
+          }
+        },
+        "properties": {
+          "action_name": {
+            "description": "Name of the action.",
+            "enum": [
+              "UNKNOWN",
+              "LOCK_DEVICE",
+              "DEVICE_WIPE",
+              "DEVICE_ENTERPRISE_WIPE",
+              "SEND_MESSAGE",
+              "CHANGE_ORGANIZATION_GROUP",
+              "DEVICE_DELETE",
+              "REBOOT",
+              "SHUTDOWN",
+              "CHANGE_OWNERSHIP",
+              "QUERY_ALL",
+              "ENTERPRISE_RESET",
+              "OVERRIDE_JOB_LOG_LEVEL",
+              "DEVICE_CONFIGURED",
+              "ENABLE_LOST_MODE",
+              "DISABLE_LOST_MODE",
+              "CUSTOM_MDM_COMMAND",
+              "FORCE_BIOS_PASSWORD_RESET",
+              "MIGRATE_TO_MULTIUSER",
+              "CHANGE_TO_SINGLEUSER",
+              "CHANGE_TO_MULTIUSER",
+              "REMOTE_MANAGEMENT",
+              "SCHEDULE_OS_UPDATE",
+              "MANAGE_TAGS",
+              "GPS",
+              "POWER_ON",
+              "POWER_OFF",
+              "POWER_CYCLE",
+              "RESET",
+              "CANCEL_PENDING_WIPE",
+              "PROVISION_ESIM",
+              "REMOVE_ESIM"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "ActionName"
+            }
+          },
+          "additional_input": {
+            "$ref": "#/components/schemas/AdditionalInputModelV4"
+          }
+        },
+        "required": [
+          "action_name"
+        ],
+        "type": "object"
+      },
+      "DeviceActionResponseV4Model": {
+        "description": "Defines the response for device bulk actions.",
+        "example": {
+          "accepted_count": 2,
+          "failed_count": 3,
+          "faults": [
+            {
+              "message": "Text value",
+              "request_item": {}
+            }
+          ],
+          "total_count": 1
+        },
+        "properties": {
+          "accepted_count": {
+            "description": "The count of actions accepted for processing.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "AcceptedCount"
+            }
+          },
+          "failed_count": {
+            "description": "The count of actions failed.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "FailedCount"
+            }
+          },
+          "faults": {
+            "description": "The details of the actions failed.",
+            "items": {
+              "$ref": "#/components/schemas/DeviceActionFaultModelV4"
+            },
+            "type": "array",
+            "xml": {
+              "name": "Faults"
+            }
+          },
+          "total_count": {
+            "description": "The total count of actions.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "TotalCount"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "DeviceActionSearchRequestModelV4": {
+        "description": "Contains filters for device search.",
+        "properties": {
+          "android_enrollment_mode": {
+            "description": "Android enrollment mode.",
+            "items": {
+              "enum": [
+                "UNKNOWN",
+                "WORK_PROFILE",
+                "WORK_MANAGED",
+                "COPE",
+                "ANDROID_LEGACY"
+              ],
+              "type": "string"
+            },
+            "type": "array",
+            "xml": {
+              "name": "AndroidEnrollmentMode"
+            }
+          },
+          "battery_level": {
+            "$ref": "#/components/schemas/MinimumMaximumRangeModel"
+          },
+          "child_organization_group_uuids": {
+            "description": "Filter by an array of organization group uuids.",
+            "items": {
+              "example": "00000000-0000-0000-0000-000000000000",
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array",
+            "xml": {
+              "name": "ChildOrganizationGroupUuids"
+            }
+          },
+          "compliance_status": {
+            "description": "Device compliance status.",
+            "enum": [
+              "UNKNOWN",
+              "ALLOWED",
+              "BLOCKED",
+              "COMPLIANT",
+              "NON_COMPLIANT",
+              "NOT_APPLICABLE",
+              "NOT_AVAILABLE",
+              "PENDING_COMPLIANCE_CHECK",
+              "PENDING_COMPLIANCE_CHECK_FOR_A_POLICY",
+              "QUARANTINED",
+              "REGISTRATION_ACTIVE",
+              "REGISTRATION_EXPIRED"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "ComplianceStatus"
+            }
+          },
+          "compromised_status": {
+            "description": "Device compromised status.",
+            "enum": [
+              "UNKNOWN",
+              "YES",
+              "NO"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "CompromisedStatus"
+            }
+          },
+          "content_compliance": {
+            "description": "Device content compliance status.",
+            "enum": [
+              "UNKNOWN",
+              "MISSING_REQUIRED_DOCUMENTS",
+              "MISSING_LATEST_VERSION"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "ContentCompliance"
+            }
+          },
+          "cpu_architecture": {
+            "description": "CPU architecture for Windows Desktop and Mac OS Devices.",
+            "items": {
+              "enum": [
+                "UNKNOWN",
+                "WIN_RT_X86",
+                "WIN_RT_X64",
+                "WIN_RT_ARM",
+                "WIN_RT_ARM64",
+                "APPLE_OS_X_ARM64",
+                "APPLE_OS_X_X86"
+              ],
+              "type": "string"
+            },
+            "type": "array",
+            "xml": {
+              "name": "CpuArchitecture"
+            }
+          },
+          "device_reassignment_enabled": {
+            "description": "Device reassignment is enabled or not.",
+            "type": "boolean",
+            "xml": {
+              "name": "DeviceReassignmentEnabled"
+            }
+          },
+          "device_reassignment_supported": {
+            "description": "Device reassignment is supported or not.",
+            "type": "boolean",
+            "xml": {
+              "name": "DeviceReassignmentSupported"
+            }
+          },
+          "device_uuids": {
+            "description": "Device uuids.",
+            "items": {
+              "example": "00000000-0000-0000-0000-000000000000",
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array",
+            "xml": {
+              "name": "DeviceUuids"
+            }
+          },
+          "encryption_status": {
+            "description": "Device encryption status.",
+            "enum": [
+              "UNKNOWN",
+              "YES",
+              "NO"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "EncryptionStatus"
+            }
+          },
+          "enrollment_history": {
+            "description": "Device enrollment history.",
+            "enum": [
+              "UNKNOWN",
+              "PAST_DAY",
+              "PAST_WEEK",
+              "PAST_MONTH"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "EnrollmentHistory"
+            }
+          },
+          "enrollment_status": {
+            "description": "Device enrollment status.",
+            "enum": [
+              "UNKNOWN",
+              "DISCOVERED",
+              "REGISTERED",
+              "ENROLLMENT_IN_PROGRESS",
+              "ENROLLED",
+              "ENTERPRISE_WIPE_PENDING",
+              "DEVICE_WIPE_PENDING",
+              "RETIRED",
+              "UNENROLLED",
+              "APP_CATALOG_ONLY",
+              "BLACKLISTED",
+              "PENDING_AGENT",
+              "UNENROLLED_BY_FEEDBACK_SERVICE",
+              "DEVICE_NOT_FOUND",
+              "WIPE_INITIATED",
+              "USER_ENROLLED"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "EnrollmentStatus"
+            }
+          },
+          "external_storage_mega_bytes": {
+            "$ref": "#/components/schemas/MinimumMaximumRangeModel"
+          },
+          "internal_storage_mega_bytes": {
+            "$ref": "#/components/schemas/MinimumMaximumRangeModel"
+          },
+          "ip_range": {
+            "$ref": "#/components/schemas/IpRangeModel"
+          },
+          "last_seen_days_range": {
+            "$ref": "#/components/schemas/LastSeenDaysRangeV4Model"
+          },
+          "lost_mode_enabled": {
+            "description": "Filter by lost mode enabled/disabled.",
+            "type": "boolean",
+            "xml": {
+              "name": "LostModeEnabled"
+            }
+          },
+          "mac_address": {
+            "description": "The Mac address.",
+            "type": "string",
+            "xml": {
+              "name": "MacAddress"
+            }
+          },
+          "management_type": {
+            "description": "Device management type.",
+            "enum": [
+              "UNKNOWN",
+              "MDM",
+              "WORKSPACE",
+              "APP_CATALOG",
+              "APP_LEVEL",
+              "VM_WORKSPACE",
+              "OFFLINE"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "ManagementType"
+            }
+          },
+          "organization_group_uuid": {
+            "description": "Organization group uuid.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "OrganizationGroupUuid"
+            }
+          },
+          "ownerships": {
+            "description": "Device ownership type.",
+            "items": {
+              "enum": [
+                "UNKNOWN",
+                "CORPORATE_DEDICATED",
+                "EMPLOYEE_OWNED",
+                "CORPORATE_SHARED"
+              ],
+              "type": "string"
+            },
+            "type": "array",
+            "xml": {
+              "name": "Ownerships"
+            }
+          },
+          "passcode_present": {
+            "description": "Device passcode presence.",
+            "enum": [
+              "UNKNOWN",
+              "YES",
+              "NO"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "PasscodePresent"
+            }
+          },
+          "platform": {
+            "description": "Device platform filter model.",
+            "items": {
+              "$ref": "#/components/schemas/PlatformFilterModelV4"
+            },
+            "type": "array",
+            "xml": {
+              "name": "Platform"
+            }
+          },
+          "search_text": {
+            "description": "A string value by which devices are to be filtered by matching against device properties like Udid,Friendly Name, Model Name,Phone Number,Serial Number,Device Type,Asset Number,Username,First Name,Middle Name,Last Name and Email Address.",
+            "type": "string",
+            "xml": {
+              "name": "SearchText"
+            }
+          },
+          "smart_group_uuids": {
+            "description": "Smart group uuids.",
+            "items": {
+              "example": "00000000-0000-0000-0000-000000000000",
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array",
+            "xml": {
+              "name": "SmartGroupUuids"
+            }
+          },
+          "tag_uuids": {
+            "description": "Device tag uuids.",
+            "items": {
+              "example": "00000000-0000-0000-0000-000000000000",
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array",
+            "xml": {
+              "name": "TagUuids"
+            }
+          },
+          "user_group_uuids": {
+            "description": "User group uuids.",
+            "items": {
+              "example": "00000000-0000-0000-0000-000000000000",
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array",
+            "xml": {
+              "name": "UserGroupUuids"
+            }
+          },
+          "user_modes": {
+            "description": "User mode filter.",
+            "items": {
+              "enum": [
+                "MULTI_USER_MODE",
+                "SINGLE_USER_MODE",
+                "SINGLE_USER_LEGACY",
+                "MULTI_USER_CAPABLE",
+                "NOT_APPLICABLE"
+              ],
+              "type": "string"
+            },
+            "type": "array",
+            "xml": {
+              "name": "UserModes"
+            }
+          }
+        },
+        "required": [
+          "organization_group_uuid"
+        ],
+        "type": "object"
+      },
+      "DeviceBulkActionRequestV4Model": {
+        "description": "Model for bulk device action request.",
+        "example": {
+          "action_name": "UNKNOWN",
+          "additional_input": {
+            "change_organization_group": {
+              "organization_group_uuid": "177bd075-0c08-4017-9766-ca87f9a451da"
+            },
+            "change_ownership": {
+              "ownership_type": "CORPORATE_DEDICATED"
+            },
+            "custom_mdm_command": {
+              "command_xml": "Text value"
+            },
+            "delete": {
+              "disable_activation_lock": true,
+              "reason": "Text value",
+              "release_device": true
+            },
+            "device_wipe": {
+              "notes_description": "Text value",
+              "reason": "Text value"
+            },
+            "enable_lost_mode": {
+              "footnote": "Text value",
+              "message": "Text value",
+              "phone_number": "Text value"
+            },
+            "enterprise_wipe": {
+              "chromeos_enterprise_wipe_reason": "Text value",
+              "disable_activation_lock": true,
+              "end_user_wipe_message": "Text value",
+              "prevent_renenrollment": true,
+              "reason": "Text value",
+              "release_device": true
+            },
+            "lock": {
+              "message": "Text value",
+              "phone_number": "Text value",
+              "reason": "Text value",
+              "unlock_note": "Text value",
+              "unlock_pin": "Text value"
+            },
+            "manage_tags": {
+              "assign_tags": [
+                {
+                  "organization_uuid": "d37f25ea-b8cc-4eaf-862a-9f19a3df043b",
+                  "tag_avatar": "Text value",
+                  "tag_name": "Text value",
+                  "tag_type": 1,
+                  "tag_uuid": "cfe68466-7527-40eb-bc12-85d86bce7913"
+                }
+              ],
+              "unassign_tags": [
+                {
+                  "organization_uuid": "00000000-0000-0000-0000-000000000000",
+                  "tag_type": 0,
+                  "tag_uuid": "00000000-0000-0000-0000-000000000000"
+                }
+              ]
+            },
+            "override_job_log_level": {
+              "override_job_log_level_type": "RESET_TO_DEFAULT",
+              "warning_message": "Text value"
+            },
+            "poweroff": {
+              "clear_passcode": true,
+              "reason": "Text value"
+            },
+            "provision_esim": {
+              "activate": true,
+              "activation_code": "Text value",
+              "hostname": "Text value"
+            },
+            "remote_management": {
+              "register_device": true,
+              "remote_management_feature": 0,
+              "remote_management_step": 0,
+              "remote_session_correlation_id": "Text value"
+            },
+            "remove_esim": {
+              "card_id": "Text value"
+            },
+            "schedule_os_update": {
+              "install_action": "DEFAULT"
+            },
+            "send_message": {
+              "application_uuid": "afa2ea13-f852-4553-b4b6-fb69c4cdb1c9",
+              "email_address": "Text value",
+              "is_html": true,
+              "is_send_message_for_application": true,
+              "message_body": "Text value",
+              "message_type": "NONE",
+              "phone_number": "Text value",
+              "subject": "Text value"
+            }
+          },
+          "filter": {
+            "android_enrollment_mode": [
+              0
+            ],
+            "battery_level": {
+              "maximum_value": 1,
+              "minimum_value": 1
+            },
+            "child_organization_group_uuids": [
+              "bc7d7218-c7c3-470b-afca-5a09785fcd45"
+            ],
+            "compliance_status": "UNKNOWN",
+            "compromised_status": "UNKNOWN",
+            "content_compliance": "UNKNOWN",
+            "cpu_architecture": [
+              0
+            ],
+            "device_reassignment_enabled": true,
+            "device_reassignment_supported": true,
+            "device_uuids": [
+              "895e0b16-aaca-45d4-808a-9f4d34aecc15"
+            ],
+            "encryption_status": "UNKNOWN",
+            "enrollment_history": "UNKNOWN",
+            "enrollment_status": "UNKNOWN",
+            "external_storage_mega_bytes": {},
+            "internal_storage_mega_bytes": {},
+            "ip_range": {
+              "end": "127.0.0.10",
+              "start": "127.0.0.1"
+            },
+            "last_seen_days_range": {
+              "end": 1,
+              "start": 1
+            },
+            "lost_mode_enabled": true,
+            "mac_address": "00:A0:C9:14:C8:29",
+            "management_type": "UNKNOWN",
+            "organization_group_uuid": "5739253d-ea1d-435b-9c40-94f72ba14f17",
+            "ownerships": [
+              1
+            ],
+            "passcode_present": "UNKNOWN",
+            "platform": [
+              {
+                "device_model": {
+                  "device_models": [
+                    "Text value"
+                  ],
+                  "versions": [
+                    "Text value"
+                  ]
+                },
+                "device_type": 0
+              }
+            ],
+            "search_text": "Android, user123",
+            "smart_group_uuids": [
+              "0e8ebc04-fd4a-4276-83df-c62204336453"
+            ],
+            "tag_uuids": [
+              "b6a7a037-8fe0-4d54-a732-f8c3d5506bd8"
+            ],
+            "user_group_uuids": [
+              "85944782-9fda-4fff-9647-19a61b2673d1"
+            ],
+            "user_modes": [
+              0
+            ]
+          }
+        },
+        "properties": {
+          "action_name": {
+            "description": "Name of the action.",
+            "enum": [
+              "UNKNOWN",
+              "LOCK_DEVICE",
+              "DEVICE_WIPE",
+              "DEVICE_ENTERPRISE_WIPE",
+              "SEND_MESSAGE",
+              "CHANGE_ORGANIZATION_GROUP",
+              "DEVICE_DELETE",
+              "REBOOT",
+              "SHUTDOWN",
+              "CHANGE_OWNERSHIP",
+              "QUERY_ALL",
+              "ENTERPRISE_RESET",
+              "OVERRIDE_JOB_LOG_LEVEL",
+              "DEVICE_CONFIGURED",
+              "ENABLE_LOST_MODE",
+              "DISABLE_LOST_MODE",
+              "CUSTOM_MDM_COMMAND",
+              "FORCE_BIOS_PASSWORD_RESET",
+              "MIGRATE_TO_MULTIUSER",
+              "CHANGE_TO_SINGLEUSER",
+              "CHANGE_TO_MULTIUSER",
+              "REMOTE_MANAGEMENT",
+              "SCHEDULE_OS_UPDATE",
+              "MANAGE_TAGS",
+              "GPS",
+              "POWER_ON",
+              "POWER_OFF",
+              "POWER_CYCLE",
+              "RESET",
+              "CANCEL_PENDING_WIPE",
+              "PROVISION_ESIM",
+              "REMOVE_ESIM"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "ActionName"
+            }
+          },
+          "additional_input": {
+            "$ref": "#/components/schemas/AdditionalInputModelV4"
+          },
+          "filter": {
+            "$ref": "#/components/schemas/DeviceActionSearchRequestModelV4"
+          }
+        },
+        "required": [
+          "filter",
+          "action_name"
+        ],
+        "type": "object"
+      },
+      "DeviceModelFilterV4": {
+        "description": "Defines platform model.",
+        "properties": {
+          "device_models": {
+            "description": "Device model filter. An array of device model names.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "xml": {
+              "name": "DeviceModels"
+            }
+          },
+          "versions": {
+            "description": "An array of OS version.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "xml": {
+              "name": "Versions"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "DeviceProfileV4Entity": {
+        "description": "Base entity of the device profile for each platform.",
+        "example": {
+          "general": {
+            "AfwOemSettingsEnabled": true,
+            "AfwOemType": 0,
+            "AllowRemoval": "WithAuthorization",
+            "AssignedGeofenceArea": [
+              1
+            ],
+            "AssignedSchedule": [
+              1
+            ],
+            "AssignedSmartGroups": [
+              {
+                "Name": "Text value",
+                "SmartGroupId": 1
+              }
+            ],
+            "AssignmentType": "Auto",
+            "CreateNewVersion": true,
+            "Description": "Text value",
+            "EnableProvisioning": true,
+            "ExcludedSmartGroups": [
+              {
+                "Name": "Text value",
+                "SmartGroupId": 1
+              }
+            ],
+            "ExpirationDate": "2026-04-17T00:00:00.0000000+00:00",
+            "IsActive": true,
+            "IsManaged": true,
+            "IsProvisionedForOobe": true,
+            "ManagedLocationGroupID": 21,
+            "Name": "Text value",
+            "Password": "Text value",
+            "ProfileContext": "Text value",
+            "ProfileId": 1,
+            "ProfileScope": "Production",
+            "ProfileUuid": "75845a72-511f-486e-9dfc-26bf0cbf6c88",
+            "Version": 6,
+            "id": 1234,
+            "uuid": "9b2dbcc1-17fb-4583-b709-8990f0816ead"
+          }
+        },
+        "properties": {
+          "general": {
+            "$ref": "#/components/schemas/GeneralPayloadV4Entity"
+          }
+        },
+        "type": "object"
+      },
+      "DeviceWipeRequestModelV4": {
+        "description": "Model for device wipe request model.",
+        "properties": {
+          "notes_description": {
+            "description": "Description of the notes.",
+            "type": "string",
+            "xml": {
+              "name": "NotesDescription"
+            }
+          },
+          "reason": {
+            "description": "Device wipe reason.",
+            "type": "string",
+            "xml": {
+              "name": "Reason"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "EnableLostModeRequestModelV4": {
+        "description": "Model for enabling lost mode request model.",
+        "properties": {
+          "footnote": {
+            "description": "Gets or sets footnote.",
+            "type": "string",
+            "xml": {
+              "name": "Footnote"
+            }
+          },
+          "message": {
+            "description": "Gets or sets message.",
+            "type": "string",
+            "xml": {
+              "name": "Message"
+            }
+          },
+          "phone_number": {
+            "description": "Gets or sets phone number.",
+            "type": "string",
+            "xml": {
+              "name": "PhoneNumber"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "EnrollmentTokenResponseV3Model": {
+        "description": "Enrollment token detail.",
+        "example": {
+          "device_friendly_name": "BLCXY445TH",
+          "enrollment_token_uuid": "272147af-ab20-4ecf-9b0c-dd8e8f356310",
+          "is_an_existing_token": true
+        },
+        "properties": {
+          "device_friendly_name": {
+            "description": "Device friendly name",
+            "type": "string",
+            "xml": {
+              "name": "DeviceFriendlyName"
+            }
+          },
+          "enrollment_token_uuid": {
+            "description": "Enrollment token UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "EnrollmentTokenUuid"
+            }
+          },
+          "is_an_existing_token": {
+            "description": "Is an existing token.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsAnExistingToken"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "EnrollmentTokenV4Model": {
+        "description": "Request model to represent the device registration record",
+        "example": {
+          "add_replace_new_device": true,
+          "asset_number": "AQOPJ76G",
+          "custom_attributes": [
+            {
+              "application": "com.airwatch.agent.identity.xml",
+              "name": "identity.deviceModel",
+              "value": "TC25"
+            }
+          ],
+          "device_type": "UNKNOWN",
+          "device_udid": "827BE1C5AEC05C378C61C44103E9D3FCB2EC354D",
+          "enrollment_user_uuid": "c103ce12-bf39-4ef8-8012-6478364e94b8",
+          "friendly_name": "BLCXY445TH",
+          "imei": "351822059334112",
+          "is_migration": true,
+          "message_template_uuid": "d4f1710e-75aa-4441-960c-1aa9b1270a06",
+          "message_type": "Email",
+          "model_id": 2,
+          "model_number": "BLCA34786H",
+          "operating_system_id": 3,
+          "organization_group_uuid": "62df9a81-c3f8-4f3a-8b0b-511b455f8cb7",
+          "ownership_type": "CORPORATE_DEDICATED",
+          "serial_number": "BLCA34786H",
+          "sid": "Text value",
+          "sim": "SIM Details",
+          "tags": [
+            {
+              "name": "TagOne"
+            }
+          ],
+          "to_email_address": "support@airwatch.com",
+          "to_phone_number": "919898989898"
+        },
+        "properties": {
+          "add_replace_new_device": {
+            "description": "Add New device.",
+            "type": "boolean",
+            "xml": {
+              "name": "AddReplaceNewDevice"
+            }
+          },
+          "asset_number": {
+            "description": "Device asset number",
+            "type": "string",
+            "xml": {
+              "name": "AssetNumber"
+            }
+          },
+          "custom_attributes": {
+            "description": "Custom attributes for the device",
+            "items": {
+              "$ref": "#/components/schemas/CustomAttributeNameValueApplicationV2Model"
+            },
+            "type": "array",
+            "xml": {
+              "name": "CustomAttributes"
+            }
+          },
+          "device_type": {
+            "description": "Platform type",
+            "enum": [
+              "UNKNOWN",
+              "WINDOWS_MOBILE",
+              "APPLE",
+              "ANDROID",
+              "APPLE_OS_X",
+              "WINDOWS_PC",
+              "WIN_RT",
+              "APPLE_TV",
+              "QNX",
+              "CHROME_BOOK",
+              "CHROME_OS",
+              "LINUX"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "DeviceType"
+            }
+          },
+          "device_udid": {
+            "description": "UDID of the device",
+            "type": "string",
+            "xml": {
+              "name": "DeviceUdid"
+            }
+          },
+          "enrollment_user_uuid": {
+            "description": "UUID of enrollment user.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "EnrollmentUserUuid"
+            }
+          },
+          "friendly_name": {
+            "description": "Device friendly name",
+            "type": "string",
+            "xml": {
+              "name": "FriendlyName"
+            }
+          },
+          "imei": {
+            "description": "Device IMEI number",
+            "type": "string",
+            "xml": {
+              "name": "Imei"
+            }
+          },
+          "is_migration": {
+            "description": "Value indicating whether this instance is migration",
+            "type": "boolean",
+            "xml": {
+              "name": "IsMigration"
+            }
+          },
+          "message_template_uuid": {
+            "description": "Message template identifier",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "MessageTemplateUuid"
+            }
+          },
+          "message_type": {
+            "description": "The message type for device enrollment as NONE, EMAIL, SMS, QR_CODE",
+            "enum": [
+              "Email",
+              "SMS",
+              "QrCode",
+              "None"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "MessageType"
+            }
+          },
+          "model_id": {
+            "description": "Device model identifier",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "ModelId"
+            }
+          },
+          "model_number": {
+            "description": "Device model number",
+            "type": "string",
+            "xml": {
+              "name": "ModelNumber"
+            }
+          },
+          "operating_system_id": {
+            "description": "Device operating system identifier",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "OperatingSystemId"
+            }
+          },
+          "organization_group_uuid": {
+            "description": "Organization Group UUID",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "OrganizationGroupUuid"
+            }
+          },
+          "ownership_type": {
+            "description": "Device ownership type",
+            "enum": [
+              "CORPORATE_DEDICATED",
+              "EMPLOYEE_OWNED",
+              "CORPORATE_SHARED",
+              "NONE"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "OwnershipType"
+            }
+          },
+          "serial_number": {
+            "description": "Device serial number",
+            "type": "string",
+            "xml": {
+              "name": "SerialNumber"
+            }
+          },
+          "sid": {
+            "description": "Device security identifier.",
+            "type": "string",
+            "xml": {
+              "name": "Sid"
+            }
+          },
+          "sim": {
+            "description": "SIM details",
+            "type": "string",
+            "xml": {
+              "name": "Sim"
+            }
+          },
+          "tags": {
+            "description": "Tags for the device",
+            "items": {
+              "$ref": "#/components/schemas/TagV2Model"
+            },
+            "type": "array",
+            "xml": {
+              "name": "Tags"
+            }
+          },
+          "to_email_address": {
+            "description": "User's email address",
+            "type": "string",
+            "xml": {
+              "name": "ToEmailAddress"
+            }
+          },
+          "to_phone_number": {
+            "description": "User's phone number",
+            "type": "string",
+            "xml": {
+              "name": "ToPhoneNumber"
+            }
+          }
+        },
+        "required": [
+          "organization_group_uuid",
+          "enrollment_user_uuid"
+        ],
+        "type": "object"
+      },
+      "EnterpriseWipeRequestModelV4": {
+        "description": "Request model to initiate enterprise wipe action.",
+        "properties": {
+          "chromeos_enterprise_wipe_reason": {
+            "description": "Gets or sets end user device enterprise wipe message for ChromeOs.",
+            "type": "string",
+            "xml": {
+              "name": "ChromeEndUserWipeMessage"
+            }
+          },
+          "disable_activation_lock": {
+            "description": "Gets or sets a value indicating whether disabling Activation Lock is requested.",
+            "type": "boolean",
+            "xml": {
+              "name": "DisableActivationLock"
+            }
+          },
+          "end_user_wipe_message": {
+            "description": "Gets or sets end user device enterprise wipe message.",
+            "type": "string",
+            "xml": {
+              "name": "EndUserWipeMessage"
+            }
+          },
+          "prevent_renenrollment": {
+            "description": "Gets or sets a value indicating whether prevent ReEnrollment.",
+            "type": "boolean",
+            "xml": {
+              "name": "PreventReEnrollment"
+            }
+          },
+          "reason": {
+            "description": "Gets or sets reason.",
+            "type": "string",
+            "xml": {
+              "name": "Reason"
+            }
+          },
+          "release_device": {
+            "description": "Gets or sets a value indicating whether to release device after enterprise wipe.",
+            "type": "boolean",
+            "xml": {
+              "name": "ReleaseDevice"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "EntityId": {
+        "properties": {
+          "Value": {
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer",
+            "xml": {
+              "name": "Value"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "EntityTagHeaderValue": {
+        "properties": {
+          "IsWeak": {
+            "readOnly": true,
+            "type": "boolean",
+            "xml": {
+              "name": "IsWeak"
+            }
+          },
+          "Tag": {
+            "readOnly": true,
+            "type": "string",
+            "xml": {
+              "name": "Tag"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "GeneralPayloadV4Entity": {
+        "description": "Contains general payload information about the profile.",
+        "properties": {
+          "AfwOemSettingsEnabled": {
+            "description": "Gets or sets tracks if AFW OEM settings are enabled.",
+            "type": "boolean",
+            "xml": {
+              "name": "AfwOemSettingsEnabled"
+            }
+          },
+          "AfwOemType": {
+            "description": "Gets or sets tracks what OEM settings have been included.",
+            "enum": [
+              "Zebra",
+              "Samsung"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "AfwOemType"
+            }
+          },
+          "AllowRemoval": {
+            "description": "Gets or sets the allow removal.",
+            "type": "string",
+            "xml": {
+              "name": "AllowRemoval"
+            }
+          },
+          "AssignedGeofenceArea": {
+            "description": "Gets or sets the area ids.",
+            "items": {
+              "format": "int32",
+              "type": "integer"
+            },
+            "type": "array",
+            "xml": {
+              "name": "AreaIds"
+            }
+          },
+          "AssignedSchedule": {
+            "description": "Gets or sets the scheduled ids.",
+            "items": {
+              "format": "int32",
+              "type": "integer"
+            },
+            "type": "array",
+            "xml": {
+              "name": "ScheduledIds"
+            }
+          },
+          "AssignedSmartGroups": {
+            "description": "Gets or sets the smart groups.",
+            "items": {
+              "$ref": "#/components/schemas/SmartGroupEntity1"
+            },
+            "type": "array",
+            "xml": {
+              "name": "SmartGroups"
+            }
+          },
+          "AssignmentType": {
+            "description": "Gets or sets assignment Type.",
+            "type": "string",
+            "xml": {
+              "name": "Assignment"
+            }
+          },
+          "CreateNewVersion": {
+            "description": "Gets or sets a value indicating whether add New Version.",
+            "type": "boolean",
+            "xml": {
+              "name": "CreateNewVersion"
+            }
+          },
+          "Description": {
+            "description": "Gets or sets description.",
+            "type": "string",
+            "xml": {
+              "name": "Description"
+            }
+          },
+          "EnableProvisioning": {
+            "description": "Gets or sets a value indicating whether flag to indicate Profile will be used for Product Provisioning. Valid values: true, false.",
+            "type": "boolean",
+            "xml": {
+              "name": "ProvisioningEnabled"
+            }
+          },
+          "ExcludedSmartGroups": {
+            "description": "Gets or sets the excluded groups.",
+            "items": {
+              "$ref": "#/components/schemas/SmartGroupEntity1"
+            },
+            "type": "array",
+            "xml": {
+              "name": "ExcludedGroups"
+            }
+          },
+          "ExpirationDate": {
+            "description": "Gets or sets expiration Date of the Profile [Applicable for Apple Profiles].",
+            "type": "string",
+            "xml": {
+              "name": "RemovalDate"
+            }
+          },
+          "IsActive": {
+            "description": "Gets or sets a value indicating whether flag to indicate Profile Status.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsActive"
+            }
+          },
+          "IsManaged": {
+            "description": "Gets or sets a value indicating whether is Managed.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsManaged"
+            }
+          },
+          "IsProvisionedForOobe": {
+            "description": "Gets or sets a value indicating whether is profile to be included for oobe provisioning.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsProvisionedForOobe"
+            }
+          },
+          "ManagedLocationGroupID": {
+            "description": "Gets or sets the ID of the RootLocationGroup.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "RootLocationGroupId"
+            }
+          },
+          "Name": {
+            "description": "Gets or sets name.",
+            "type": "string",
+            "xml": {
+              "name": "Name"
+            }
+          },
+          "Password": {
+            "description": "Gets or sets unlock Password.",
+            "type": "string",
+            "xml": {
+              "name": "UnlockPassword"
+            }
+          },
+          "ProfileContext": {
+            "description": "Gets or sets the profile context.",
+            "type": "string",
+            "xml": {
+              "name": "ProfileContext"
+            }
+          },
+          "ProfileId": {
+            "description": "Gets or sets profileId.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "ProfileId"
+            }
+          },
+          "ProfileScope": {
+            "description": "Gets or sets device Profile Scope.",
+            "type": "string",
+            "xml": {
+              "name": "ProfileScope"
+            }
+          },
+          "ProfileUuid": {
+            "description": "Gets or sets the Profile Unique Identifier.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "ProfileUuid"
+            }
+          },
+          "Version": {
+            "description": "Gets or sets version.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Version"
+            }
+          },
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "HttpMethod": {
+        "properties": {
+          "Method": {
+            "readOnly": true,
+            "type": "string",
+            "xml": {
+              "name": "Method"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "IActionResult": {
+        "description": "interface for HttpActionResult.",
+        "properties": {
+          "AcceptsByteRanges": {
+            "description": "Gets or sets a value indicating whether gets or sets a value which indicates whether a range byte request for a stream is accepted or not.",
+            "type": "boolean",
+            "xml": {
+              "name": "AcceptsByteRanges"
+            }
+          },
+          "ByteArray": {
+            "description": "Gets or sets ByteArray.",
+            "format": "byte",
+            "type": "string",
+            "xml": {
+              "name": "ByteArray"
+            }
+          },
+          "CacheControlValue": {
+            "$ref": "#/components/schemas/CacheControlHeaderValue"
+          },
+          "ContentLength": {
+            "description": "Gets or sets ContentLength.",
+            "format": "int64",
+            "type": "integer",
+            "xml": {
+              "name": "ContentLength"
+            }
+          },
+          "ETagHeaderValue": {
+            "$ref": "#/components/schemas/EntityTagHeaderValue"
+          },
+          "FileName": {
+            "description": "Gets or sets FileName {Will be set in the content-disposition header}.",
+            "type": "string",
+            "xml": {
+              "name": "FileName"
+            }
+          },
+          "HttpResponseMessage": {
+            "description": "Gets or sets HttpResponseMessage.",
+            "type": "object",
+            "xml": {
+              "name": "HttpResponseMessage"
+            }
+          },
+          "HttpStatusCode": {
+            "description": "Gets or sets HttpStatusCode.",
+            "enum": [
+              "Continue",
+              "SwitchingProtocols",
+              "OK",
+              "Created",
+              "Accepted",
+              "NonAuthoritativeInformation",
+              "NoContent",
+              "ResetContent",
+              "PartialContent",
+              "MultipleChoices",
+              "Ambiguous",
+              "MovedPermanently",
+              "Moved",
+              "Found",
+              "Redirect",
+              "SeeOther",
+              "RedirectMethod",
+              "NotModified",
+              "UseProxy",
+              "Unused",
+              "TemporaryRedirect",
+              "RedirectKeepVerb",
+              "BadRequest",
+              "Unauthorized",
+              "PaymentRequired",
+              "Forbidden",
+              "NotFound",
+              "MethodNotAllowed",
+              "NotAcceptable",
+              "ProxyAuthenticationRequired",
+              "RequestTimeout",
+              "Conflict",
+              "Gone",
+              "LengthRequired",
+              "PreconditionFailed",
+              "RequestEntityTooLarge",
+              "RequestUriTooLong",
+              "UnsupportedMediaType",
+              "RequestedRangeNotSatisfiable",
+              "ExpectationFailed",
+              "UpgradeRequired",
+              "InternalServerError",
+              "NotImplemented",
+              "BadGateway",
+              "ServiceUnavailable",
+              "GatewayTimeout",
+              "HttpVersionNotSupported"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "HttpStatusCode"
+            }
+          },
+          "LocationHeaderValue": {
+            "description": "Gets or sets LocationHeaderValue.",
+            "type": "string",
+            "xml": {
+              "name": "LocationHeaderValue"
+            }
+          },
+          "MediaType": {
+            "description": "Gets or sets MediaType.",
+            "type": "string",
+            "xml": {
+              "name": "MediaType"
+            }
+          },
+          "Model": {
+            "description": "Gets or sets Model.",
+            "type": "object",
+            "xml": {
+              "name": "Model"
+            }
+          },
+          "OnStreamAvailable": {
+            "$ref": "#/components/schemas/Action`3"
+          },
+          "PartialContentRange": {
+            "$ref": "#/components/schemas/RangeHeaderValue"
+          },
+          "RequestMessage": {
+            "description": "Gets or sets the RequestMessage.",
+            "type": "object",
+            "xml": {
+              "name": "RequestMessage"
+            }
+          },
+          "RequestQuery": {
+            "$ref": "#/components/schemas/IRequestQuery"
+          },
+          "ResponseDateTimeFormat": {
+            "description": "Gets or sets dateTime format for response.",
+            "type": "string",
+            "xml": {
+              "name": "ResponseDateTimeFormat"
+            }
+          },
+          "ResponseHeaders": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Gets or sets Headers.",
+            "type": "object",
+            "xml": {
+              "name": "ResponseHeaders"
+            }
+          },
+          "RetryAfter": {
+            "description": "Gets or sets retry-after value.",
+            "type": "string",
+            "xml": {
+              "name": "RetryAfter"
+            }
+          },
+          "SendETagHeaderValue": {
+            "description": "Gets or sets a value indicating whether gets or sets the option to include ETagHeaderValue.",
+            "type": "boolean",
+            "xml": {
+              "name": "SendETagHeaderValue"
+            }
+          },
+          "Stream": {
+            "$ref": "#/components/schemas/Stream"
+          }
+        },
+        "type": "object"
+      },
+      "IRequestQuery": {
+        "description": "Interface for IAwRequestQuery\r\nThis will hold all the required data for a request and will be filled from ModelBinder.",
+        "properties": {
+          "ActionName": {
+            "description": "Gets or sets ActionName.",
+            "type": "string",
+            "xml": {
+              "name": "ActionName"
+            }
+          },
+          "AllowedUriQueryChars": {
+            "description": "Gets or sets allowed Characters in Query String.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "xml": {
+              "name": "AllowedUriQueryChars"
+            }
+          },
+          "QueryParams": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Gets or sets Query Parameters. For e.g. any query string parameters will be extracted to key,value pair and stored here.",
+            "type": "object",
+            "xml": {
+              "name": "QueryParams"
+            }
+          },
+          "RequestMethod": {
+            "$ref": "#/components/schemas/HttpMethod"
+          },
+          "TenantContext": {
+            "$ref": "#/components/schemas/ITenantContext"
+          }
+        },
+        "type": "object"
+      },
+      "ITenantContext": {
+        "description": "Contract for TenantContext. Will be exposed from RequestQuery and will be injected to every controller actions and Business method.",
+        "properties": {
+          "OrganizationgroupId": {
+            "$ref": "#/components/schemas/EntityId"
+          },
+          "TenantCode": {
+            "description": "Gets or sets TenantCode. Uniquely identify the tenant for the request.",
+            "type": "string",
+            "xml": {
+              "name": "TenantCode"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "IpRangeModel": {
+        "description": "IP address range criteria.",
+        "properties": {
+          "end": {
+            "description": "IP address range end value.",
+            "type": "string",
+            "xml": {
+              "name": "End"
+            }
+          },
+          "start": {
+            "description": "IP address range start value.",
+            "type": "string",
+            "xml": {
+              "name": "Start"
+            }
+          }
+        },
+        "required": [
+          "start",
+          "end"
+        ],
+        "type": "object"
+      },
+      "LastSeenDaysRangeV4Model": {
+        "description": "Start and end range of the property values.",
+        "properties": {
+          "end": {
+            "description": "End value of the property.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "End"
+            }
+          },
+          "start": {
+            "description": "Start value of the property.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Start"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "Link": {
+        "description": "The link.",
+        "properties": {
+          "Href": {
+            "description": "Gets or sets hyper text reference.",
+            "type": "string",
+            "xml": {
+              "name": "Href"
+            }
+          },
+          "Rel": {
+            "description": "Gets or sets relational links.",
+            "type": "string",
+            "xml": {
+              "name": "Rel"
+            }
+          },
+          "Title": {
+            "description": "Gets or sets title of the link.",
+            "type": "string",
+            "xml": {
+              "name": "Title"
+            }
+          }
+        },
+        "type": "object",
+        "xml": {
+          "name": "Link",
+          "namespace": "http://www.air-watch.com/webapi/resources"
+        }
+      },
+      "LinuxCredentialsPayloadEntity": {
+        "description": "An entity representing credentials profile payload.",
+        "properties": {
+          "CertificateAuthority": {
+            "description": "Gets or sets the certificate authority identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "CertificateAuthorityId"
+            }
+          },
+          "CertificateData": {
+            "description": "Gets or sets the certificate data.",
+            "type": "string",
+            "xml": {
+              "name": "CertificateData"
+            }
+          },
+          "CertificateID": {
+            "description": "Gets or sets the certificate identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "CertificateID"
+            }
+          },
+          "CertificateMetadata": {
+            "$ref": "#/components/schemas/CertificateMetadataModel1"
+          },
+          "CertificatePassword": {
+            "description": "Gets or sets the certificate password.",
+            "type": "string",
+            "xml": {
+              "name": "CertificatePassword"
+            }
+          },
+          "CertificateTemplate": {
+            "description": "Gets or sets the certificate template identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "CertificateTemplateId"
+            }
+          },
+          "CertificateThumbprint": {
+            "description": "Gets or sets the certificate thumbprint.",
+            "type": "string",
+            "xml": {
+              "name": "CertificateThumbprint"
+            }
+          },
+          "CertificateType": {
+            "description": "Gets or sets the type of the certificate.",
+            "type": "string",
+            "xml": {
+              "name": "CertificateType"
+            }
+          },
+          "CredentialName": {
+            "description": "Gets or sets the name of the certificate.",
+            "type": "string",
+            "xml": {
+              "name": "CertificateName"
+            }
+          },
+          "CredentialSource": {
+            "description": "Gets or sets the certificate source.",
+            "type": "string",
+            "xml": {
+              "name": "CertificateSource"
+            }
+          },
+          "KeyUsage": {
+            "description": "Gets or sets the key usage.",
+            "type": "string",
+            "xml": {
+              "name": "KeyUsage"
+            }
+          },
+          "Name": {
+            "description": "Gets or sets the name.",
+            "type": "string",
+            "xml": {
+              "name": "Name"
+            }
+          },
+          "Smime": {
+            "description": "Gets or sets the smime.",
+            "type": "string",
+            "xml": {
+              "name": "Smime"
+            }
+          },
+          "UUID": {
+            "description": "Gets or sets the UUID.",
+            "type": "string",
+            "xml": {
+              "name": "UUID"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "LinuxCustomConfigurationPayloadEntity": {
+        "description": "An entity representing Custom Configuration payload.",
+        "properties": {
+          "ConfigDependencies": {
+            "description": "Gets or sets the custom dependency.",
+            "type": "string",
+            "xml": {
+              "name": "ConfigDependencies"
+            }
+          },
+          "DependencySelected": {
+            "description": "Gets or sets a value indicating whether the DependencySelected.",
+            "type": "boolean",
+            "xml": {
+              "name": "DependencySelected"
+            }
+          },
+          "EnforceManifest": {
+            "description": "Gets or sets a value indicating whether the EnforceManifest.",
+            "type": "boolean",
+            "xml": {
+              "name": "EnforceManifest"
+            }
+          },
+          "InstallManifest": {
+            "description": "Gets or sets the InstallManifest.",
+            "type": "string",
+            "xml": {
+              "name": "InstallManifest"
+            }
+          },
+          "Name": {
+            "description": "Gets or sets the Name settings.",
+            "type": "string",
+            "xml": {
+              "name": "Name"
+            }
+          },
+          "RemoveManifest": {
+            "description": "Gets or sets the RemoveManifest.",
+            "type": "string",
+            "xml": {
+              "name": "RemoveManifest"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "LinuxDeviceProfileEntity1": {
+        "description": "An entity representing the linux device profile.",
+        "example": {
+          "CustomConfigurations": [
+            {
+              "ConfigDependencies": "Text value",
+              "DependencySelected": true,
+              "EnforceManifest": true,
+              "InstallManifest": "Text value",
+              "Name": "Text value",
+              "RemoveManifest": "Text value"
+            }
+          ],
+          "general": {
+            "AfwOemSettingsEnabled": true,
+            "AfwOemType": 0,
+            "AllowRemoval": "WithAuthorization",
+            "AssignedGeofenceArea": [
+              1
+            ],
+            "AssignedSchedule": [
+              1
+            ],
+            "AssignedSmartGroups": [
+              {
+                "Name": "Text value",
+                "SmartGroupId": 1
+              }
+            ],
+            "AssignmentType": "Auto",
+            "CreateNewVersion": true,
+            "Description": "Text value",
+            "EnableProvisioning": true,
+            "ExcludedSmartGroups": [
+              {
+                "Name": "Text value",
+                "SmartGroupId": 1
+              }
+            ],
+            "ExpirationDate": "2026-04-17T00:00:00.0000000+00:00",
+            "IsActive": true,
+            "IsManaged": true,
+            "IsProvisionedForOobe": true,
+            "ManagedLocationGroupID": 21,
+            "Name": "Text value",
+            "Password": "Text value",
+            "ProfileContext": "Text value",
+            "ProfileId": 1,
+            "ProfileScope": "Production",
+            "ProfileUuid": "aa729cff-56a9-4cc3-aa4a-b84a19397c4b",
+            "Version": 6,
+            "id": 1234,
+            "uuid": "fe1bd431-fc1f-4cad-8389-c5c5c377ef5b"
+          }
+        },
+        "properties": {
+          "Credentials": {
+            "items": {
+              "$ref": "#/components/schemas/LinuxCredentialsPayloadEntity"
+            },
+            "type": "array"
+          },
+          "CustomConfigurations": {
+            "items": {
+              "$ref": "#/components/schemas/LinuxCustomConfigurationPayloadEntity"
+            },
+            "type": "array"
+          },
+          "Wifis": {
+            "items": {
+              "$ref": "#/components/schemas/LinuxWifiPayloadEntity"
+            },
+            "type": "array"
+          },
+          "general": {
+            "$ref": "#/components/schemas/GeneralPayloadV4Entity"
+          }
+        },
+        "type": "object"
+      },
+      "LinuxWifiPayloadEntity": {
+        "description": "An entity representing wifi profile payload.",
+        "properties": {
+          "AnonymousIdentity": {
+            "description": "Gets or sets AnonymousIdentity.",
+            "type": "string",
+            "xml": {
+              "name": "AnonymousIdentity"
+            }
+          },
+          "CAPayloadCertificateName": {
+            "description": "Gets or sets cAPayloadCertificateName is used to find corresponding certificate in the LinuxCredentials payload.\r\nThat is used to store CAPayloadCertificateUUID in the DB.",
+            "type": "string",
+            "xml": {
+              "name": "CAPayloadCertificateName"
+            }
+          },
+          "EnterprisePassword": {
+            "description": "Gets or sets EnterprisePassword.",
+            "type": "string",
+            "xml": {
+              "name": "EnterprisePassword"
+            }
+          },
+          "EnterpriseUsername": {
+            "description": "Gets or sets EnterpriseUsername.",
+            "type": "string",
+            "xml": {
+              "name": "EnterpriseUsername"
+            }
+          },
+          "HiddenNetwork": {
+            "description": "Gets or sets a value indicating whether gets or sets IsHidden.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsHidden"
+            }
+          },
+          "Identity": {
+            "description": "Gets or sets Identity.",
+            "type": "string",
+            "xml": {
+              "name": "Identity"
+            }
+          },
+          "Password": {
+            "description": "Gets or sets Password.",
+            "type": "string",
+            "xml": {
+              "name": "Password"
+            }
+          },
+          "PayloadCertificateName": {
+            "description": "Gets or sets payloadCertificateName is used to find corresponding certificate in the LinuxCredentials payload.",
+            "type": "string",
+            "xml": {
+              "name": "PayloadCertificateName"
+            }
+          },
+          "ProxyAddress": {
+            "description": "Gets or sets ProxyServer.",
+            "type": "string",
+            "xml": {
+              "name": "ProxyAddress"
+            }
+          },
+          "ProxyBypass": {
+            "description": "Gets or sets ProxyBypass List.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "xml": {
+              "name": "ProxyBypass"
+            }
+          },
+          "ProxyPacUrl": {
+            "description": "Gets or sets ProxyPacUrl.",
+            "type": "string",
+            "xml": {
+              "name": "ProxyPacUrl"
+            }
+          },
+          "ProxyPort": {
+            "description": "Gets or sets ProxyMode.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "ProxyPort"
+            }
+          },
+          "SFAType": {
+            "description": "Gets or sets EAP.",
+            "type": "string",
+            "xml": {
+              "name": "EAP"
+            }
+          },
+          "SecurityType": {
+            "description": "Gets or sets EncryptionType.",
+            "type": "string",
+            "xml": {
+              "name": "EncryptionType"
+            }
+          },
+          "ServiceSetIdentifier": {
+            "description": "Gets or sets SSID_STR.",
+            "type": "string",
+            "xml": {
+              "name": "SSID_STR"
+            }
+          },
+          "SetAsActiveNetwork": {
+            "description": "Gets or sets a value indicating whether gets or sets MakeActive.",
+            "type": "boolean",
+            "xml": {
+              "name": "MakeActive"
+            }
+          },
+          "TFAType": {
+            "description": "Gets or sets SecondPhaseAuth.",
+            "type": "string",
+            "xml": {
+              "name": "SecondPhaseAuth"
+            }
+          },
+          "UseTwoFactorAuthentication": {
+            "description": "Gets or sets UseTwoFactorAuthentication.",
+            "type": "boolean",
+            "xml": {
+              "name": "UseTwoFactorAuthentication"
+            }
+          },
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "LockRequestModelV4": {
+        "description": "Model for lock request model.",
+        "properties": {
+          "message": {
+            "description": "Message to be send.",
+            "type": "string",
+            "xml": {
+              "name": "Message"
+            }
+          },
+          "phone_number": {
+            "description": "Phone number.",
+            "type": "string",
+            "xml": {
+              "name": "PhoneNumber"
+            }
+          },
+          "reason": {
+            "description": "Lock reason.",
+            "type": "string",
+            "xml": {
+              "name": "Reason"
+            }
+          },
+          "unlock_note": {
+            "description": "UnlockNote is the note that will be displayed to the user when they unlock the device.",
+            "type": "string",
+            "xml": {
+              "name": "UnlockNote"
+            }
+          },
+          "unlock_pin": {
+            "description": "UnlockPin is the pin that will be used to unlock the device after it has been locked.",
+            "type": "string",
+            "xml": {
+              "name": "UnlockPin"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "ManageTagsRequestModelV4": {
+        "description": "Manage Tags Request.",
+        "properties": {
+          "assign_tags": {
+            "description": "Tags to be Assigned.",
+            "items": {
+              "$ref": "#/components/schemas/TagV2RequestModel"
+            },
+            "type": "array",
+            "xml": {
+              "name": "AssignTags"
+            }
+          },
+          "unassign_tags": {
+            "description": "Tags to be Un-Assigned.",
+            "items": {
+              "$ref": "#/components/schemas/TagV2RequestModel"
+            },
+            "type": "array",
+            "xml": {
+              "name": "UnassignTags"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "MethodInfo": {
+        "type": "object"
+      },
+      "MinimumMaximumRangeModel": {
+        "description": "Minimum and Maximum range of the property values.",
+        "properties": {
+          "maximum_value": {
+            "description": "Maximum value of the property.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "MaximumValue"
+            }
+          },
+          "minimum_value": {
+            "description": "Minimum value of the property.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "MinimumValue"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "NameValueHeaderValue": {
+        "properties": {
+          "Name": {
+            "readOnly": true,
+            "type": "string",
+            "xml": {
+              "name": "Name"
+            }
+          },
+          "Value": {
+            "type": "string",
+            "xml": {
+              "name": "Value"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "OverrideJobLogLevelRequestModelV4": {
+        "description": "Model for override job log level action.",
+        "properties": {
+          "override_job_log_level_type": {
+            "description": "The type of the job log level.",
+            "enum": [
+              "RESET_TO_DEFAULT",
+              "ERROR",
+              "WARNING",
+              "INFORMATION",
+              "VERBOSE"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "OverrideJobLogLevelType"
+            }
+          },
+          "warning_message": {
+            "description": "Message describing the warning.",
+            "type": "string",
+            "xml": {
+              "name": "WarningMessage"
+            }
+          }
+        },
+        "required": [
+          "override_job_log_level_type"
+        ],
+        "type": "object"
+      },
+      "PlatformFilterModelV4": {
+        "description": "Platform filter model.",
+        "properties": {
+          "device_model": {
+            "$ref": "#/components/schemas/DeviceModelFilterV4"
+          },
+          "device_type": {
+            "description": "Device type.",
+            "enum": [
+              "UNKNOWN",
+              "WINDOWS_MOBILE",
+              "APPLE",
+              "ANDROID",
+              "WINDOWS_PC",
+              "APPLE_OS_X",
+              "WIN_RT",
+              "APPLE_TV",
+              "QNX",
+              "CHROME_OS",
+              "LINUX"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "DeviceType"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "PoweroffV4": {
+        "description": "Model for device reboot or shutdown request.",
+        "properties": {
+          "clear_passcode": {
+            "description": "Device clear passcode.",
+            "type": "boolean",
+            "xml": {
+              "name": "ClearPasscode"
+            }
+          },
+          "reason": {
+            "description": "Device poweroff reason.",
+            "type": "string",
+            "xml": {
+              "name": "Reason"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "ProvisionEsimV4": {
+        "description": "Model for provision eSIM request.",
+        "properties": {
+          "activate": {
+            "description": "Activate.",
+            "type": "boolean",
+            "xml": {
+              "name": "Activate"
+            }
+          },
+          "activation_code": {
+            "description": "Activation code.",
+            "type": "string",
+            "xml": {
+              "name": "ActivationCode"
+            }
+          },
+          "hostname": {
+            "description": "Hostname.",
+            "type": "string",
+            "xml": {
+              "name": "Hostname"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "RangeHeaderValue": {
+        "properties": {
+          "Ranges": {
+            "items": {
+              "$ref": "#/components/schemas/RangeItemHeaderValue"
+            },
+            "readOnly": true,
+            "type": "array",
+            "xml": {
+              "name": "Ranges"
+            }
+          },
+          "Unit": {
+            "type": "string",
+            "xml": {
+              "name": "Unit"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "RangeItemHeaderValue": {
+        "properties": {
+          "From": {
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer",
+            "xml": {
+              "name": "From"
+            }
+          },
+          "To": {
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer",
+            "xml": {
+              "name": "To"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "RemoteManagementRequestModelV4": {
+        "description": "Model for remote management actions.",
+        "properties": {
+          "register_device": {
+            "description": "Boolean value indicating if device has to be registered with remote management server.",
+            "type": "boolean",
+            "xml": {
+              "name": "RegisterDevice"
+            }
+          },
+          "remote_management_feature": {
+            "description": "Specifies the set of supported remote management features.",
+            "enum": [
+              "AllTools",
+              "DisplayCapture",
+              "EventInjection",
+              "RequestControl",
+              "Shortcut",
+              "RegistryEditor",
+              "ScreenRecording",
+              "Snapshot",
+              "Clipboard",
+              "FileManager",
+              "RemoteShell",
+              "UnattendedAccess",
+              "SessionCollaboration",
+              "Chat"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "RemoteManagementFeature"
+            }
+          },
+          "remote_management_step": {
+            "description": "Remote management step.",
+            "enum": [
+              "CheckingDeviceRegistration",
+              "DeviceContacted",
+              "RemoteSessionStarting"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "RemoteManagementStep"
+            }
+          },
+          "remote_session_correlation_id": {
+            "description": "Gets or sets a TraceCorrelationId value of a remote session.",
+            "type": "string",
+            "xml": {
+              "name": "TraceCorrelationId"
+            }
+          }
+        },
+        "required": [
+          "remote_management_step",
+          "remote_management_feature"
+        ],
+        "type": "object"
+      },
+      "RemoveEsimV4": {
+        "description": "Model for remove eSIM request.",
+        "properties": {
+          "card_id": {
+            "description": "Card ID.",
+            "type": "string",
+            "xml": {
+              "name": "CardId"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "ScheduleOsUpdateModelV4": {
+        "description": "Model for device schedule os update.",
+        "properties": {
+          "install_action": {
+            "description": "InstallAction type for DEP Devices.",
+            "enum": [
+              "DEFAULT",
+              "DOWNLOAD_ONLY",
+              "INSTALL_ASAP",
+              "NOTIFY_ONLY",
+              "INSTALL_LATER",
+              "INSTALL_FORCE_RESTART"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "InstallAction"
+            }
+          }
+        },
+        "required": [
+          "install_action"
+        ],
+        "type": "object"
+      },
+      "SendMessageRequestModelV4": {
+        "description": "Model for send message request model.",
+        "properties": {
+          "application_uuid": {
+            "description": "The unique identifier of the application.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "ApplicationUuid"
+            }
+          },
+          "email_address": {
+            "description": "Email address.",
+            "type": "string",
+            "xml": {
+              "name": "EmailAddress"
+            }
+          },
+          "is_html": {
+            "description": "A value indicating whether the message is html, only for Emails.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsHtml"
+            }
+          },
+          "is_send_message_for_application": {
+            "description": "A value indicating whether this object is send message for application.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsSendMessageForApplication"
+            }
+          },
+          "message_body": {
+            "description": "Body text of the message.",
+            "type": "string",
+            "xml": {
+              "name": "MessageBody"
+            }
+          },
+          "message_type": {
+            "description": "Message type.",
+            "enum": [
+              "NONE",
+              "SMS",
+              "APNS",
+              "EMAIL"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "MessageType"
+            }
+          },
+          "phone_number": {
+            "description": "Phone number.",
+            "type": "string",
+            "xml": {
+              "name": "PhoneNumber"
+            }
+          },
+          "subject": {
+            "description": "Subject text of the message.",
+            "type": "string",
+            "xml": {
+              "name": "Subject"
+            }
+          }
+        },
+        "required": [
+          "message_type",
+          "message_body"
+        ],
+        "type": "object"
+      },
+      "SmartGroupEntity1": {
+        "description": "Smart Group Entity.",
+        "properties": {
+          "Name": {
+            "description": "Gets or sets the name.",
+            "type": "string",
+            "xml": {
+              "name": "Name"
+            }
+          },
+          "SmartGroupId": {
+            "description": "Gets or sets the smart group identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "SmartGroupId"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "Stream": {
+        "properties": {
+          "__identity": {
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "TagV2Model": {
+        "description": "Device tag model",
+        "properties": {
+          "name": {
+            "description": "Tag name",
+            "type": "string",
+            "xml": {
+              "name": "Name"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "TagV2RequestModel": {
+        "description": "New tag request model.",
+        "properties": {
+          "organization_uuid": {
+            "description": "Gets or sets the Organization Group Id.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "OrganizationGroupUuid"
+            }
+          },
+          "tag_avatar": {
+            "description": "Gets or sets the Tag Avatar.",
+            "type": "string",
+            "xml": {
+              "name": "TagAvatar"
+            }
+          },
+          "tag_name": {
+            "description": "Gets or sets the Tag Name.",
+            "type": "string",
+            "xml": {
+              "name": "TagName"
+            }
+          },
+          "tag_type": {
+            "description": "Gets or sets the Tag Type.",
+            "enum": [
+              "Device",
+              "General"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "TagType"
+            }
+          },
+          "tag_uuid": {
+            "description": "Gets or sets the Tag Uuid.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "TagUuid"
+            }
+          }
+        },
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "description": "API Key",
+        "in": "header",
+        "name": "aw-tenant-code",
+        "type": "apiKey"
+      },
+      "BasicAuth": {
+        "scheme": "basic",
+        "type": "http"
+      },
+      "CmsAuth": {
+        "description": "CMS Authentication",
+        "in": "header",
+        "name": "Authorization",
+        "type": "apiKey"
+      },
+      "GroupIdAuth": {
+        "description": "Group ID",
+        "in": "header",
+        "name": "aw-groupid",
+        "type": "apiKey"
       }
     }
   },
-  "components": {
-    "schemas": {
-      "Device": {
-        "type": "object",
-        "properties": {
-          "DeviceID": { "type": "integer" },
-          "SerialNumber": { "type": "string" },
-          "FriendlyName": { "type": "string" },
-          "EnrollmentUser": { "type": "string" },
-          "EnrollmentStatus": { "type": "string" },
-          "Platform": { "type": "string" },
-          "OrganizationGroupID": { "type": "integer" },
-          "OrganizationGroupName": { "type": "string" }
-        }
-      },
-      "DeviceSearchResponse": {
-        "type": "object",
-        "properties": {
-          "Devices": {
-            "type": "array",
-            "items": { "$ref": "#/components/schemas/Device" }
-          },
-          "Page": { "type": "integer" },
-          "PageSize": { "type": "integer" },
-          "Total": { "type": "integer" }
-        }
-      },
-      "CommandResult": {
-        "type": "object",
-        "properties": {
-          "DeviceID": { "type": "integer" },
-          "command_uuid": { "type": "string" },
-          "status": { "type": "string" }
-        }
-      },
-      "AsyncJobAccepted": {
-        "type": "object",
-        "properties": {
-          "job_id": { "type": "string" },
-          "status": { "type": "string" },
-          "poll_url": { "type": "string" }
-        }
-      },
-      "BulkCommandRequest": {
-        "type": "object",
-        "required": ["command", "device_ids"],
-        "properties": {
-          "command": { "type": "string", "description": "Lock | Wipe | EnterpriseWipe | ClearPasscode | ..." },
-          "device_ids": { "type": "array", "items": { "type": "integer" } }
-        }
-      },
-      "BulkCommandResponse": {
-        "type": "object",
-        "properties": {
-          "successes": {
-            "type": "array",
-            "items": { "$ref": "#/components/schemas/CommandResult" }
-          },
-          "failures": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "DeviceID": { "type": "integer" },
-                "error": {
-                  "type": "object",
-                  "properties": {
-                    "code": { "type": "string" },
-                    "message": { "type": "string" }
-                  }
-                }
-              }
+  "info": {
+    "contact": {
+      "name": "Workspace ONE UEM"
+    },
+    "description": "Workspace ONE UEM MDM REST API V4",
+    "title": "MDM API V4",
+    "version": "4"
+  },
+  "openapi": "3.0.1",
+  "paths": {
+    "/profiles/{profileId}": {
+      "get": {
+        "description": "Returns the full profile details, including all payloads associated with the profile.\r\nThe only payloads supported by this API are the Linux Wi-Fi, Credentials, and Custom Configuration payloads.",
+        "operationId": "ProfilesV4_GetDeviceProfileDetailsAsync",
+        "parameters": [
+          {
+            "description": "Profile Id(Required)",
+            "in": "path",
+            "name": "profileId",
+            "required": true,
+            "schema": {
+              "format": "int32",
+              "type": "integer"
             }
           }
-        }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json;version=4": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceProfileV4Entity"
+                }
+              },
+              "application/xml;version=4": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceProfileV4Entity"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json;version=4": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseExceptionModel"
+                }
+              },
+              "application/xml;version=4": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseExceptionModel"
+                }
+              }
+            },
+            "description": "1. {Invalid request} "
+          },
+          "401": {
+            "content": {
+              "application/json;version=4": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseExceptionModel"
+                }
+              },
+              "application/xml;version=4": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseExceptionModel"
+                }
+              }
+            },
+            "description": "1. {Insufficient rights to read profile} "
+          },
+          "404": {
+            "content": {
+              "application/json;version=4": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseExceptionModel"
+                }
+              },
+              "application/xml;version=4": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseExceptionModel"
+                }
+              }
+            },
+            "description": "1. {Profile not found for this request.} "
+          }
+        },
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "CmsAuth": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "New - Retrive profile details from Profile Id.",
+        "tags": [
+          "ProfilesV4"
+        ]
       }
     }
-  }
+  },
+  "servers": [
+    {
+      "url": "https://as1831.awmdm.com/api/mdm"
+    }
+  ]
 }

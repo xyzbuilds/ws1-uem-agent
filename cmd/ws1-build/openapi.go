@@ -224,20 +224,107 @@ func deriveVerb(op openAPIOperation, httpVerb string) (verb string, warning stri
 }
 
 func disambiguateCollisions(rows []opRow, warnings *[]string) []opRow {
-	seen := map[string]int{}
+	// Pass 1: canonicalize by appending HTTP method when (op, method)
+	// pair is unique among rows sharing the op id. We track which
+	// (op, method) pairs collide WITH a different method so we know to
+	// disambiguate.
+	opMethods := map[string]map[string]int{} // op -> method -> count
 	for _, r := range rows {
-		seen[r.Op]++
-	}
-	if len(seen) == len(rows) {
-		return rows
+		if opMethods[r.Op] == nil {
+			opMethods[r.Op] = map[string]int{}
+		}
+		opMethods[r.Op][r.HTTPMethod]++
 	}
 	for i, r := range rows {
-		if seen[r.Op] > 1 {
-			rows[i].Op = r.Op + "." + strings.ToLower(r.HTTPMethod)
-			*warnings = append(*warnings, fmt.Sprintf("collision: %s -> %s (disambiguated by HTTP method)", r.Op, rows[i].Op))
+		methods := opMethods[r.Op]
+		if len(methods) > 1 {
+			newOp := r.Op + "." + strings.ToLower(r.HTTPMethod)
+			rows[i].Op = newOp
+			*warnings = append(*warnings, fmt.Sprintf("collision: %s -> %s (disambiguated by HTTP method)", r.Op, newOp))
+		}
+	}
+
+	// Pass 2: dedupe true duplicates. If two rows now have the same
+	// (op, method, path), they're the same operation appearing twice
+	// in the spec (some sections genuinely ship duplicate entries).
+	// Keep the first; drop the rest.
+	seen := map[string]struct{}{}
+	out := rows[:0]
+	dedupedOps := map[string]int{}
+	for _, r := range rows {
+		key := r.Op + "|" + r.HTTPMethod + "|" + r.PathTemplate
+		if _, ok := seen[key]; ok {
+			dedupedOps[r.Op]++
+			continue
+		}
+		seen[key] = struct{}{}
+		out = append(out, r)
+	}
+	for op, count := range dedupedOps {
+		*warnings = append(*warnings, fmt.Sprintf("duplicate-in-spec: %s appeared %d extra time(s); kept first", op, count+1))
+	}
+
+	// Pass 3: same op id but different paths (WS1 sometimes ships two
+	// distinct endpoints with the same operationId). Append a suffix
+	// derived from the path: "list" for collection paths, "by<paramname>"
+	// for parameterized ones.
+	rows = out
+	byOp := map[string][]int{}
+	for i, r := range rows {
+		byOp[r.Op] = append(byOp[r.Op], i)
+	}
+	for op, idxs := range byOp {
+		if len(idxs) < 2 {
+			continue
+		}
+		for _, i := range idxs {
+			r := rows[i]
+			suffix := pathSuffixFor(r.PathTemplate)
+			if suffix == "" {
+				continue
+			}
+			rows[i].Op = r.Op + "." + suffix
+			*warnings = append(*warnings, fmt.Sprintf("path-collision: %s on %s -> %s", op, r.PathTemplate, rows[i].Op))
+		}
+	}
+
+	// Pass 4: numeric tiebreaker for ops whose suffix-disambiguation still
+	// collides (multiple paths producing the same suffix). Append `.altN`
+	// in declaration order.
+	finalSeen := map[string]int{}
+	for i := range rows {
+		k := rows[i].Op
+		finalSeen[k]++
+		if finalSeen[k] > 1 {
+			alt := fmt.Sprintf("%s.alt%d", k, finalSeen[k]-1)
+			*warnings = append(*warnings, fmt.Sprintf("alt-suffix: %s -> %s (path %s)", k, alt, rows[i].PathTemplate))
+			rows[i].Op = alt
 		}
 	}
 	return rows
+}
+
+// pathSuffixFor turns a path template into a stable disambiguator. Picks
+// "list" for collection paths (no params) and the lowercased name of the
+// last path param otherwise.
+func pathSuffixFor(p string) string {
+	segs := strings.Split(strings.TrimPrefix(p, "/"), "/")
+	last := ""
+	hasParam := false
+	for _, s := range segs {
+		if strings.HasPrefix(s, "{") && strings.HasSuffix(s, "}") {
+			hasParam = true
+			last = strings.ToLower(s[1 : len(s)-1])
+		}
+	}
+	if !hasParam {
+		return "list"
+	}
+	if last == "" {
+		return ""
+	}
+	// Trim "id"/"uuid" suffixes for cleaner names.
+	return "by" + last
 }
 
 func stripHostFromServerURL(u string) string {

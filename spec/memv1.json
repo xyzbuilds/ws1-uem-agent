@@ -1,0 +1,4986 @@
+{
+  "components": {
+    "schemas": {
+      "AccountPolicyModel": {
+        "description": "Model to represent AccountPolicy.",
+        "properties": {
+          "Links": {
+            "description": "Gets list of hypermedia link.",
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array",
+            "xml": {
+              "name": "Links",
+              "wrapped": true
+            }
+          },
+          "allowSync": {
+            "description": "Gets or sets flag to indicate if allow sync is allowed or not.",
+            "type": "boolean",
+            "xml": {
+              "name": "AllowSync"
+            }
+          },
+          "domain": {
+            "description": "Gets or sets domain Name for UserName (Required for AWEC Mail Client).",
+            "type": "string",
+            "xml": {
+              "name": "Domain"
+            }
+          },
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "type": {
+            "description": "Gets or sets type of the account user.",
+            "enum": [
+              "Any",
+              "Enrollment",
+              "Discovered",
+              "Custom",
+              "AirwatchUserGroup"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "Type"
+            }
+          },
+          "userName": {
+            "description": "Gets or sets account username.",
+            "type": "string",
+            "xml": {
+              "name": "UserName"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          },
+          "whitelisted": {
+            "description": "Gets or sets a value indicating whether flag to indicate if the user is whitelisted.",
+            "type": "boolean",
+            "xml": {
+              "name": "Whitelisted"
+            }
+          }
+        },
+        "type": "object",
+        "xml": {
+          "name": "Info",
+          "namespace": "http://www.air-watch.com/webapi/resources"
+        }
+      },
+      "AccountPolicyPagedSearchResultModel": {
+        "description": "Representation of AccountPolicyPagedSearchResultModel.",
+        "example": {
+          "AdditionalInfo": {
+            "Links": [],
+            "id": 1234,
+            "uuid": "2edc6785-9ba9-4c8a-a43c-e7aa1374ecbf"
+          },
+          "TotalResults": 1,
+          "resultSet": [
+            {
+              "Links": [],
+              "allowSync": true,
+              "domain": "acme.com",
+              "id": 1234,
+              "type": 0,
+              "userName": "bob@acme.com",
+              "uuid": "4bcd9bc2-98ad-415e-ac41-b70baefb0417",
+              "whitelisted": true
+            }
+          ]
+        },
+        "properties": {
+          "AdditionalInfo": {
+            "$ref": "#/components/schemas/HypermediaModel"
+          },
+          "TotalResults": {
+            "description": "Gets or sets total result.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "TotalResults"
+            }
+          },
+          "resultSet": {
+            "description": "Gets or sets ResultSet\r\nArray of returned account policy search results.",
+            "items": {
+              "$ref": "#/components/schemas/AccountPolicyModel"
+            },
+            "type": "array",
+            "xml": {
+              "name": "ResultSet"
+            }
+          }
+        },
+        "type": "object",
+        "xml": {
+          "name": "AccountPolicyPagedSearchResult",
+          "namespace": "http://www.air-watch.com/webapi/resources"
+        }
+      },
+      "Action`3": {
+        "properties": {
+          "Method": {
+            "$ref": "#/components/schemas/MethodInfo"
+          },
+          "Target": {
+            "readOnly": true,
+            "type": "object",
+            "xml": {
+              "name": "Target"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "ActiveSyncPayloadModel": {
+        "description": "An ActiveSyncPayload to capture Exchange ActiveSync requests.",
+        "properties": {
+          "awDeviceId": {
+            "description": "Gets or sets This is the actual device id saved in the Device table or UnmanagedDevice table.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "AwDeviceId"
+            }
+          },
+          "bytesDown": {
+            "description": "Gets or sets Response size received from mail server in bytes.",
+            "format": "int64",
+            "type": "integer",
+            "xml": {
+              "name": "BytesDown"
+            }
+          },
+          "bytesUp": {
+            "description": "Gets or sets Request size sent to mail server in bytes.",
+            "format": "int64",
+            "type": "integer",
+            "xml": {
+              "name": "BytesUp"
+            }
+          },
+          "command": {
+            "description": "Gets or sets command to device made to ActiveSync.",
+            "type": "string",
+            "xml": {
+              "name": "Command"
+            }
+          },
+          "destinationUrl": {
+            "description": "Gets or sets the Destination URL.",
+            "type": "string",
+            "xml": {
+              "name": "DestinationUrl"
+            }
+          },
+          "deviceClientIp": {
+            "description": "Gets or sets the IP address of client's device.",
+            "type": "string",
+            "xml": {
+              "name": "DeviceClientIp"
+            }
+          },
+          "deviceOs": {
+            "description": "Gets or sets the device OS.",
+            "type": "string",
+            "xml": {
+              "name": "DeviceOs"
+            }
+          },
+          "deviceType": {
+            "description": "Gets or sets the device type defined by the EAS request.  (not the platform).",
+            "type": "string",
+            "xml": {
+              "name": "DeviceType"
+            }
+          },
+          "diagnosticPayload": {
+            "$ref": "#/components/schemas/DiagnosticPayloadModel"
+          },
+          "easDeviceIdentifier": {
+            "description": "Gets or sets this is the device identifier contained in EAS requests. e.g. for iOS device this will be \"Apple\" + serial number.",
+            "type": "string",
+            "xml": {
+              "name": "EasDeviceIdentifier"
+            }
+          },
+          "emailClient": {
+            "description": "Gets or sets the email client.",
+            "type": "string",
+            "xml": {
+              "name": "EmailClient"
+            }
+          },
+          "gatewayHostName": {
+            "description": "Gets or setsThe host name of the SEG server that processed the EAS request.",
+            "type": "string",
+            "xml": {
+              "name": "GatewayHostName"
+            }
+          },
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "listeningUrl": {
+            "description": "Gets or sets the Listening URL.",
+            "type": "string",
+            "xml": {
+              "name": "ListeningUrl"
+            }
+          },
+          "locationGroupId": {
+            "$ref": "#/components/schemas/EntityKey"
+          },
+          "managed": {
+            "description": "Gets or sets a value indicating whether IsManaged.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsManaged"
+            }
+          },
+          "memConfigId": {
+            "description": "Gets or sets the MEMConfigId the payload belongs to.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "MemConfigId"
+            }
+          },
+          "memDeviceId": {
+            "description": "Gets or sets the MEMConfigId the payload belongs to.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "MemDeviceId"
+            }
+          },
+          "policyViolations": {
+            "description": "Gets or sets Collection of policies violated by a blocked MEG request.",
+            "items": {
+              "$ref": "#/components/schemas/PolicyViolation"
+            },
+            "type": "array",
+            "xml": {
+              "name": "PolicyViolations"
+            }
+          },
+          "syncAllowed": {
+            "description": "Gets or sets a value indicating whether Sync Allowed.",
+            "type": "boolean",
+            "xml": {
+              "name": "SyncAllowed"
+            }
+          },
+          "testMode": {
+            "description": "Gets or sets a value indicating whether this request was received while MEG was running in test mode.",
+            "type": "boolean",
+            "xml": {
+              "name": "TestMode"
+            }
+          },
+          "timeOfRequest": {
+            "description": "Gets or sets the time of request.",
+            "format": "date-time",
+            "type": "string",
+            "xml": {
+              "name": "TimeOfRequest"
+            }
+          },
+          "transactionId": {
+            "description": "Gets or sets the transaction id of the request.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "TransactionId"
+            }
+          },
+          "userName": {
+            "description": "Gets or sets username of the email account user.",
+            "type": "string",
+            "xml": {
+              "name": "UserName"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "ActiveSyncPayloadReportingModel": {
+        "description": "Gateway Setting Transport Model  For ActiveSync Payload Configuration (Linux).",
+        "properties": {
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "logFilterCommands": {
+            "description": "Gets or sets list of commands which are logged in SEG during ActiveSync requests.\r\n\u003cvalue\u003e\r\n1 = FolderSync, 2 = GetItemEstimate, 4 = Settings,\r\n8 = Provision, 16 = SendMail, 32 = SmartForward,\r\n64 = Smart Reply, 128 = GetAttachment, 256 = FolderCreate,\r\n512 = FolderDelete, 1024 = FolderUpdate, 2048 = MoveItems, 4096 = MeetingResponse, 8192 = Search,\r\n16384 = ItemOperations, 32768 = ResolveRecipients,\r\n65536 = ValidateCert, 131072 = Sync, 262144 = Ping\r\n\u003c/value\u003e",
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "xml": {
+              "name": "LogFilterCommands"
+            }
+          },
+          "reportingIntervalInSeconds": {
+            "description": "Gets or sets interval of reporting the ActiveSync payload to SEG in seconds.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "PayloadReportingInterval"
+            }
+          },
+          "transferRateToConsole": {
+            "description": "Gets or sets rate of transfer to console.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "SegTranferRateToConsole"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "AttachmentDevicePolicyModel": {
+        "description": "Policy defining how to handle attachments based on device type.",
+        "properties": {
+          "allowSecureContentLocker": {
+            "description": "Gets or sets a value indicating whether to allow attachment to be stored in the Secure Content Locker.",
+            "type": "boolean",
+            "xml": {
+              "name": "AllowSecureContentLocker"
+            }
+          },
+          "customBlockMessage": {
+            "description": "Gets or sets a value indicating whether custom block message to be displayed in an email when one or more attachments fail compliance.",
+            "type": "string",
+            "xml": {
+              "name": "CustomBlockMessage"
+            }
+          },
+          "deviceType": {
+            "description": "Gets or sets DeviceType.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "DeviceType"
+            }
+          },
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "isManaged": {
+            "description": "Gets or sets a value indicating whether the policy is for managed or unmanaged devices?.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsManaged"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object",
+        "xml": {
+          "name": "AttachmentDevicePolicy",
+          "namespace": "http://www.air-watch.com/webapi/resources"
+        }
+      },
+      "AttachmentPolicyExcludedFileModel": {
+        "description": "Policy defining the attachment extension to be excluded from .",
+        "properties": {
+          "deviceType": {
+            "description": "Gets or sets device Platform Type.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "DeviceType"
+            }
+          },
+          "fileExtension": {
+            "description": "Gets or sets inidcates whether File extension to be excluded from this LG Attachment Management.",
+            "type": "string",
+            "xml": {
+              "name": "FileExtension"
+            }
+          },
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "isManaged": {
+            "description": "Gets or sets a value indicating whether indicates whether the policy is for managed or unmanaged devices?.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsManaged"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object",
+        "xml": {
+          "name": "AttachmentPolicyExcludedFile",
+          "namespace": "http://www.air-watch.com/webapi/resources"
+        }
+      },
+      "AttachmentPolicyModel": {
+        "description": "Policy defining how to handle attachments based on document type.",
+        "properties": {
+          "actionType": {
+            "description": "Gets or sets action to take for attachment [Encrypt = 0, Block = 1, Allow = 2].",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "ActionType"
+            }
+          },
+          "attachmentTypeName": {
+            "description": "Gets or sets attachment type.",
+            "type": "string",
+            "xml": {
+              "name": "AttachmentTypeName"
+            }
+          },
+          "deviceType": {
+            "description": "Gets or sets device Type.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "DeviceType"
+            }
+          },
+          "deviceTypeName": {
+            "description": "Gets or sets device platform name.",
+            "type": "string",
+            "xml": {
+              "name": "DeviceTypeName"
+            }
+          },
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "isManaged": {
+            "description": "Gets or sets a value indicating whether value indicating whether the policy is for managed or unmanaged devices?.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsManaged"
+            }
+          },
+          "mimeType": {
+            "description": "Gets or sets mime type for the document.",
+            "type": "string",
+            "xml": {
+              "name": "MimeType"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object",
+        "xml": {
+          "name": "AttachmentPolicy",
+          "namespace": "http://www.air-watch.com/webapi/resources"
+        }
+      },
+      "BaseExceptionModel": {
+        "description": "Base model for exception.",
+        "properties": {
+          "activityId": {
+            "description": "Gets or sets transactionId of the request.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "ActivityId"
+            }
+          },
+          "errorCode": {
+            "description": "Gets or sets application error code.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "ErrorCode"
+            }
+          },
+          "links": {
+            "description": "Gets or sets list of hypermedia link.",
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "type": "array",
+            "xml": {
+              "name": "Links",
+              "wrapped": true
+            }
+          },
+          "message": {
+            "description": "Gets or sets friendly error message.",
+            "type": "object",
+            "xml": {
+              "name": "Message"
+            }
+          }
+        },
+        "type": "object",
+        "xml": {
+          "name": "AirWatchFaultContract",
+          "namespace": "http://www.air-watch.com/"
+        }
+      },
+      "CacheControlHeaderValue": {
+        "properties": {
+          "Extensions": {
+            "items": {
+              "$ref": "#/components/schemas/NameValueHeaderValue"
+            },
+            "readOnly": true,
+            "type": "array",
+            "xml": {
+              "name": "Extensions"
+            }
+          },
+          "MaxAge": {
+            "type": "string",
+            "xml": {
+              "name": "MaxAge"
+            }
+          },
+          "MaxStale": {
+            "type": "boolean",
+            "xml": {
+              "name": "MaxStale"
+            }
+          },
+          "MaxStaleLimit": {
+            "type": "string",
+            "xml": {
+              "name": "MaxStaleLimit"
+            }
+          },
+          "MinFresh": {
+            "type": "string",
+            "xml": {
+              "name": "MinFresh"
+            }
+          },
+          "MustRevalidate": {
+            "type": "boolean",
+            "xml": {
+              "name": "MustRevalidate"
+            }
+          },
+          "NoCache": {
+            "type": "boolean",
+            "xml": {
+              "name": "NoCache"
+            }
+          },
+          "NoCacheHeaders": {
+            "items": {
+              "type": "string"
+            },
+            "readOnly": true,
+            "type": "array",
+            "xml": {
+              "name": "NoCacheHeaders"
+            }
+          },
+          "NoStore": {
+            "type": "boolean",
+            "xml": {
+              "name": "NoStore"
+            }
+          },
+          "NoTransform": {
+            "type": "boolean",
+            "xml": {
+              "name": "NoTransform"
+            }
+          },
+          "OnlyIfCached": {
+            "type": "boolean",
+            "xml": {
+              "name": "OnlyIfCached"
+            }
+          },
+          "Private": {
+            "type": "boolean",
+            "xml": {
+              "name": "Private"
+            }
+          },
+          "PrivateHeaders": {
+            "items": {
+              "type": "string"
+            },
+            "readOnly": true,
+            "type": "array",
+            "xml": {
+              "name": "PrivateHeaders"
+            }
+          },
+          "ProxyRevalidate": {
+            "type": "boolean",
+            "xml": {
+              "name": "ProxyRevalidate"
+            }
+          },
+          "Public": {
+            "type": "boolean",
+            "xml": {
+              "name": "Public"
+            }
+          },
+          "SharedMaxAge": {
+            "type": "string",
+            "xml": {
+              "name": "SharedMaxAge"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "CertificateAuthModel": {
+        "description": "This model contains the gateway settings related to the Certificate Authentication (Linux).",
+        "properties": {
+          "clientCertTrustStore": {
+            "description": "Gets or sets the root certificate which issues client certificates used by SEG with KCD.",
+            "type": "string",
+            "xml": {
+              "name": "CertAuthTrustStore"
+            }
+          },
+          "clientCertTrustStorePasscode": {
+            "description": "Gets or sets the password of the root certificate.",
+            "type": "string",
+            "xml": {
+              "name": "CertAuthTrustStorePasscode"
+            }
+          },
+          "domainControllerHostName": {
+            "description": "Gets or sets domain controller name used to define Kerberos realm.",
+            "type": "string",
+            "xml": {
+              "name": "SegDomainControllerName"
+            }
+          },
+          "domainName": {
+            "description": "Gets or sets the domain used to define the Kerberos realm.",
+            "type": "string",
+            "xml": {
+              "name": "SegDomainName"
+            }
+          },
+          "enableKCDAuthentication": {
+            "description": "Gets or sets a value indicating whether KCD authentication is used.",
+            "type": "boolean",
+            "xml": {
+              "name": "SegEnableKcdAuthentication"
+            }
+          },
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "requireClientCert": {
+            "description": "Gets or sets a value indicating whether basic authentication is allowed or not.",
+            "type": "boolean",
+            "xml": {
+              "name": "RequireClientCert"
+            }
+          },
+          "serviceAccountPassword": {
+            "description": "Gets or sets the service account password to generate TGT in KCD authenication.",
+            "type": "string",
+            "xml": {
+              "name": "SegServiceAccountPassword"
+            }
+          },
+          "serviceAccountUsername": {
+            "description": "Gets or sets the service account username to generate TGT in KCD authenication.",
+            "type": "string",
+            "xml": {
+              "name": "SegServiceAccountUsername"
+            }
+          },
+          "targetSPN": {
+            "description": "Gets or sets target SPN used to generate TGT in KCD authentication.",
+            "type": "string",
+            "xml": {
+              "name": "SegTargetSpn"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "ClusterModel": {
+        "description": "This model contains the gateway settings related to the Clustering.",
+        "properties": {
+          "clusterEnabled": {
+            "description": "Gets or sets a value indicating whether indicates if cluster is enabled or not.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsClusterEnabled"
+            }
+          },
+          "clusterHosts": {
+            "description": "Gets or sets list of hosts/nodes in the cluster.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "xml": {
+              "name": "ClusterHosts"
+            }
+          },
+          "clusterPort": {
+            "description": "Gets or sets port used to communicate with nodes over event bus.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "ClusterPort"
+            }
+          },
+          "distributedCachePort": {
+            "description": "Gets or sets port used by distributed cache.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "DistributedCachePort"
+            }
+          },
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "ComplianceRequestV1Model": {
+        "description": "Model contains information to start the compliance engine.",
+        "example": {
+          "id": 1234,
+          "memConfigurationUuids": [
+            "7202f0cd-4eec-4a30-965c-36b178bc16c1"
+          ],
+          "uuid": "7262e3ba-0f03-403e-8c5d-3b988a26186d"
+        },
+        "properties": {
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "memConfigurationUuids": {
+            "description": "A list of MEM configuration Uuids.",
+            "items": {
+              "example": "00000000-0000-0000-0000-000000000000",
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array",
+            "xml": {
+              "name": "MemConfigurationUuids"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "ComplianceResponseV1Model": {
+        "description": "Model contains the basic information about the current status of the compliance engine.",
+        "example": {
+          "Links": [],
+          "id": 1234,
+          "startedOn": "2026-04-17T06:06:39.2584242-07:00",
+          "status": "Running",
+          "uuid": "d052bf2b-0b2a-4942-a29b-946376bc10d3"
+        },
+        "properties": {
+          "Links": {
+            "description": "Gets list of hypermedia link.",
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array",
+            "xml": {
+              "name": "Links",
+              "wrapped": true
+            }
+          },
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "startedOn": {
+            "description": "Date and time when compliance engine was started.",
+            "format": "date-time",
+            "type": "string",
+            "xml": {
+              "name": "StartedOn"
+            }
+          },
+          "status": {
+            "description": "Current status of the email compliance engine.",
+            "type": "string",
+            "xml": {
+              "name": "Status"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object",
+        "xml": {
+          "name": "Info",
+          "namespace": "http://www.air-watch.com/webapi/resources"
+        }
+      },
+      "ComplianceStateV1Model": {
+        "description": "Model contains state information about the compliance engine.",
+        "example": {
+          "id": 1234,
+          "startedBy": 2,
+          "startedOn": "2026-04-17T06:06:39.2790559-07:00",
+          "state": "Compliance engine is processing the last batch.",
+          "status": "Running",
+          "taskIdentifier": "Run Compliance",
+          "uuid": "735f20cf-946b-4ed5-b10f-85ce7bb14269"
+        },
+        "properties": {
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "startedBy": {
+            "description": "Identifier of the user who started the compliance engine.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "StartedBy"
+            }
+          },
+          "startedOn": {
+            "description": "Date and time when compliance engine was started.",
+            "format": "date-time",
+            "type": "string",
+            "xml": {
+              "name": "StartedOn"
+            }
+          },
+          "state": {
+            "description": "State information or descriptive information about the task.",
+            "type": "string",
+            "xml": {
+              "name": "State"
+            }
+          },
+          "status": {
+            "description": "Current status of the task (Running, Complete, Fail, Ignore, Success, Ignore )",
+            "type": "string",
+            "xml": {
+              "name": "Status"
+            }
+          },
+          "taskIdentifier": {
+            "description": "Free text description of the task.",
+            "type": "string",
+            "xml": {
+              "name": "TaskIdentifier"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "ConsoleApiModel": {
+        "description": "This model contains the gateway settings related to the Console API (Linux).",
+        "properties": {
+          "awTenantCode": {
+            "description": "Gets or sets the AirWatch tenant code to access the API.",
+            "type": "string",
+            "xml": {
+              "name": "AwTenantCode"
+            }
+          },
+          "cmsCert": {
+            "description": "Gets or sets the CMS certificate used to access the API.",
+            "type": "string",
+            "xml": {
+              "name": "CmsCertificate"
+            }
+          },
+          "cmsCertPasscode": {
+            "description": "Gets or sets the passcode to decrypt the CMS certificate.",
+            "type": "string",
+            "xml": {
+              "name": "CmsCertificatePasscode"
+            }
+          },
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "ignoreSslErrorsWithAW": {
+            "description": "Gets or sets a value indicating whether to ignore the SSL certificate errors when communicating with API or MEG Queue.",
+            "type": "boolean",
+            "xml": {
+              "name": "SegIgnoreSslErrorsWithAw"
+            }
+          },
+          "serverConnectionPoolSize": {
+            "description": "Gets or sets the size of the connection pool of the API server.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "ApiServerConnectionPoolSize"
+            }
+          },
+          "serverTimeoutInMillis": {
+            "description": "Gets or sets the API server timeout in milliseconds.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "ApiServerTimeout"
+            }
+          },
+          "transferRateToGateway": {
+            "description": "Gets or sets the rate of transactions with the gateway.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "SegTransferRateToGateway"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "ContentTransformationModel": {
+        "description": "This model contains the gateway settings related to content transformation of email.",
+        "properties": {
+          "allowAttachmentUntilPolicyIsDataReady": {
+            "description": "Gets or sets a value indicating whether attachment should be allowed or stripped.",
+            "type": "boolean",
+            "xml": {
+              "name": "AllowAttachmentUntilPolicyIsDataReady"
+            }
+          },
+          "defaultBlockMessage": {
+            "description": "Gets or sets the default message that will be added to the email body when an attachment is stripped.",
+            "type": "string",
+            "xml": {
+              "name": "DefaultBlockMessage"
+            }
+          },
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "ignoreSMIMEContentTransform": {
+            "description": "Gets or sets a value indicating whether the SMIME content transformation will be ignored or not.",
+            "type": "boolean",
+            "xml": {
+              "name": "SegIgnoreSmimeContentTransform"
+            }
+          },
+          "sharedSecretKey": {
+            "description": "Gets or sets the key to decrypt the attachment encryption.",
+            "type": "string",
+            "xml": {
+              "name": "SharedSecretKey"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "DevicePolicyModel": {
+        "description": "The device policy model.",
+        "properties": {
+          "allowSync": {
+            "description": "Gets or sets indicates whether the Mobile Email Gateway request allowed.",
+            "type": "boolean",
+            "xml": {
+              "name": "AllowSync"
+            }
+          },
+          "awDeviceId": {
+            "description": "Gets or sets internal airwatch managed or unmanaged device id.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "AwDeviceId"
+            }
+          },
+          "daysSinceLastActivity": {
+            "description": "Gets or sets last recorded activity of the device in days.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "DaysSinceLastActivity"
+            }
+          },
+          "deviceType": {
+            "description": "Gets or sets type of device such as Apple, Android,...",
+            "enum": [
+              "Unknown",
+              "WindowsMobile",
+              "Apple",
+              "Symbian",
+              "Android",
+              "Athena",
+              "Motorola",
+              "WindowsPhone",
+              "WindowsPc",
+              "AppleOsX",
+              "WindowsPhone8",
+              "WinRT",
+              "AppleTv",
+              "Qnx",
+              "ChromeBook",
+              "MaxTypeValue",
+              "ZebraPrinter",
+              "ToshibaPrinter",
+              "AveryDennisonPrinter",
+              "DataMaxONeilPrinter"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "DeviceType"
+            }
+          },
+          "easDeviceIdentifier": {
+            "description": "Gets or sets device identifier contained in EAS requests. e.g. for iOS device this will be \"Appl\" + serial number.",
+            "type": "string",
+            "xml": {
+              "name": "EasDeviceIdentifier"
+            }
+          },
+          "easProfileInstall": {
+            "description": "Gets or sets determines whether EasProfileInstall was triggered for the device or not.",
+            "type": "boolean",
+            "xml": {
+              "name": "EasProfileInstall"
+            }
+          },
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "isCompromised": {
+            "description": "Gets or sets a value indicating whether indicates whether the device compromised.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsCompromised"
+            }
+          },
+          "isDataProtected": {
+            "description": "Gets or sets a value indicating whether indicates whether device adhere to data protection requirements.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsDataProtected"
+            }
+          },
+          "isEnrolled": {
+            "description": "Gets or sets a value indicating whether indicates whether the device currently enrolled in MDM.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsEnrolled"
+            }
+          },
+          "isManaged": {
+            "description": "Gets or sets a value indicating whether value indicating whether the device managed by AW.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsManaged"
+            }
+          },
+          "isModelCompliant": {
+            "description": "Gets or sets a value indicating whether indicates whether the device violate any defined model policies.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsModelCompliant"
+            }
+          },
+          "isNotMDMCompliant": {
+            "description": "Gets or sets a value indicating whether indicates whether the device is Compliant or not.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsNotMDMCompliant"
+            }
+          },
+          "isOsCompliant": {
+            "description": "Gets or sets a value indicating whether indicates whether the device violate any defined operating system policies.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsOsCompliant"
+            }
+          },
+          "memConfigId": {
+            "description": "Gets or sets memConfigId the payload belongs to.",
+            "format": "int64",
+            "type": "integer",
+            "xml": {
+              "name": "MemConfigId"
+            }
+          },
+          "memDeviceId": {
+            "description": "Gets or sets memDeviceId the payload belongs to.",
+            "format": "int64",
+            "type": "integer",
+            "xml": {
+              "name": "MemDeviceId"
+            }
+          },
+          "mobileEmailDiagnosticsEnabled": {
+            "description": "Gets or sets a value indicating whether indicates whether the device is in Diagnostic Mode.",
+            "type": "boolean",
+            "xml": {
+              "name": "MobileEmailDiagnosticsEnabled"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "DevicePolicyPagedResultsV1Model": {
+        "description": "Paged Result set of devices with the profile installation status information",
+        "example": {
+          "additional_info": {
+            "id": 1234,
+            "links": [],
+            "uuid": "13f81d9f-6927-43e6-94c9-8ba9c38f1e92"
+          },
+          "device_policies": [
+            {
+              "allow_sync": true,
+              "aw_device_id": 1234,
+              "compromised": true,
+              "data_protected": true,
+              "days_since_last_activity": 1,
+              "device_type": "UNKNOWN",
+              "device_uuid": "0e75a5a8-99c8-4d39-874f-e877703a9ac6",
+              "eas_device_identifier": "Apq34ssks",
+              "eas_profile_install": true,
+              "enrolled": true,
+              "id": 1234,
+              "managed": false,
+              "mdm_compliant": true,
+              "mem_device_id": 1234,
+              "mem_device_uuid": "b25d4345-1ddc-497a-9c5c-17a1c1d6ed2b",
+              "mobile_email_diagnostics_enabled": true,
+              "model_compliant": true,
+              "os_compliant": true,
+              "uuid": "5f8d071d-f308-41a5-b438-fb9551951adc"
+            }
+          ],
+          "total_results": 2500
+        },
+        "properties": {
+          "additional_info": {
+            "$ref": "#/components/schemas/HypermediaV2Model"
+          },
+          "device_policies": {
+            "description": "List of Mem Device Policies",
+            "items": {
+              "$ref": "#/components/schemas/DevicePolicyV1Model"
+            },
+            "type": "array",
+            "xml": {
+              "name": "DevicePolicies"
+            }
+          },
+          "total_results": {
+            "description": "Total Number of records.",
+            "format": "int64",
+            "type": "integer",
+            "xml": {
+              "name": "TotalResults"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "DevicePolicyPagedSearchResultModel": {
+        "description": "The device policy paged search result model.",
+        "example": {
+          "AdditionalInfo": {
+            "Links": [],
+            "id": 1234,
+            "uuid": "8b22b8d3-6258-45f4-8b48-80f4b86e7e2e"
+          },
+          "DbSyncTime": "2026-04-17T06:06:39.3198016-07:00",
+          "TotalResults": 1,
+          "resultSet": [
+            {
+              "allowSync": true,
+              "awDeviceId": 1234,
+              "daysSinceLastActivity": 1,
+              "deviceType": 0,
+              "easDeviceIdentifier": "Apq34ssks",
+              "easProfileInstall": true,
+              "id": 1234,
+              "isCompromised": true,
+              "isDataProtected": true,
+              "isEnrolled": true,
+              "isManaged": false,
+              "isModelCompliant": true,
+              "isNotMDMCompliant": true,
+              "isOsCompliant": true,
+              "memConfigId": 123,
+              "memDeviceId": 1234,
+              "mobileEmailDiagnosticsEnabled": true,
+              "uuid": "69e3a99d-30a4-4799-9345-19c9055b0b28"
+            }
+          ]
+        },
+        "properties": {
+          "AdditionalInfo": {
+            "$ref": "#/components/schemas/HypermediaModel"
+          },
+          "DbSyncTime": {
+            "description": "Gets or sets last time when policies were pulled from DB.",
+            "format": "date-time",
+            "type": "string",
+            "xml": {
+              "name": "DbSyncTime"
+            }
+          },
+          "TotalResults": {
+            "description": "Gets or sets total result.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "TotalResults"
+            }
+          },
+          "resultSet": {
+            "description": "Gets or sets array of returned Device Policies.",
+            "items": {
+              "$ref": "#/components/schemas/DevicePolicyModel"
+            },
+            "type": "array",
+            "xml": {
+              "name": "ResultSet"
+            }
+          }
+        },
+        "type": "object",
+        "xml": {
+          "name": "DevicePolicyPagedSearchResultModel",
+          "namespace": "http://www.air-watch.com/webapi/resources"
+        }
+      },
+      "DevicePolicyV1Model": {
+        "description": "This model is used to retrieve the email attributes of an enrollment user.",
+        "properties": {
+          "allow_sync": {
+            "description": "Gets or sets a value indicating whether sync is allowed or not(depending on the whether the value is set to WhiteList/BlackList/Default this field will be present in response).",
+            "type": "boolean",
+            "xml": {
+              "name": "AllowSync"
+            }
+          },
+          "aw_device_id": {
+            "description": "Gets or sets the internal Airwatch managed or unmanaged device id(will be deprecated in future release, please use device_uuid).",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "DeviceId"
+            }
+          },
+          "compromised": {
+            "description": "Gets or sets a value indicating whether indicates whether the device compromised.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsCompromised"
+            }
+          },
+          "data_protected": {
+            "description": "Gets or sets a value indicating whether the device adheres to data protection requirements.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsDataProtected"
+            }
+          },
+          "days_since_last_activity": {
+            "description": "Gets or sets the last recorded activity of the device in days.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "DaysSinceLastActivity"
+            }
+          },
+          "device_type": {
+            "description": "Gets or sets type of device such as Apple, Android,...",
+            "enum": [
+              "UNKNOWN",
+              "APPLE",
+              "ANDROID",
+              "WINDOWS_PHONE_8"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "DeviceType"
+            }
+          },
+          "device_uuid": {
+            "description": "Gets or sets the device uuid.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "DeviceUuid"
+            }
+          },
+          "eas_device_identifier": {
+            "description": "Gets or sets device identifier contained in EAS requests. e.g. for iOS device this will be \"Appl\" + serial number.",
+            "type": "string",
+            "xml": {
+              "name": "EasDeviceIdentifier"
+            }
+          },
+          "eas_profile_install": {
+            "description": "Gets or sets a value indicating whether the EAS profile install was triggered for the device or not.",
+            "type": "boolean",
+            "xml": {
+              "name": "EasProfileInstall"
+            }
+          },
+          "enrolled": {
+            "description": "Gets or sets a value indicating whether the device is currently enrolled in MDM.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsEnrolled"
+            }
+          },
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "managed": {
+            "description": "Gets or sets a value indicating whether the device is managed by Airwatch.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsManaged"
+            }
+          },
+          "mdm_compliant": {
+            "description": "Gets or sets a value indicating whether the device is MDM compliant or not.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsMDMCompliant"
+            }
+          },
+          "mem_device_id": {
+            "description": "Gets or sets the MEM device id the payload belongs to.",
+            "format": "int64",
+            "type": "integer",
+            "xml": {
+              "name": "MemDeviceId"
+            }
+          },
+          "mem_device_uuid": {
+            "description": "Gets or sets the MEM device uuid the payload belongs to.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "MemDeviceUuid"
+            }
+          },
+          "mobile_email_diagnostics_enabled": {
+            "description": "Gets or sets a value indicating whether the device is in diagnostic mode.",
+            "type": "boolean",
+            "xml": {
+              "name": "MobileEmailDiagnosticsEnabled"
+            }
+          },
+          "model_compliant": {
+            "description": "Gets or sets a value indicating whether the device violates any defined model policies.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsModelCompliant"
+            }
+          },
+          "os_compliant": {
+            "description": "Gets or sets a value indicating whether the device violates any defined operating system policies.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsOsCompliant"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "DiagnosticPayloadModel": {
+        "description": "Diagnostic payload model.",
+        "properties": {
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "reason": {
+            "description": "Gets or sets reason for the Device being blocked.",
+            "type": "string",
+            "xml": {
+              "name": "Reason"
+            }
+          },
+          "responseStatus": {
+            "description": "Gets or sets ResponseStatus.",
+            "type": "string",
+            "xml": {
+              "name": "ResponseStatus"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "EasDeviceIdentifiersV1Model": {
+        "description": "Request model for the list of EAS device identifiers",
+        "example": {
+          "eas_device_identifiers": [
+            "Text value"
+          ]
+        },
+        "properties": {
+          "eas_device_identifiers": {
+            "description": "The list of EAS device identifiers",
+            "items": {
+              "type": "string"
+            },
+            "maxLength": 256,
+            "minLength": 0,
+            "type": "array",
+            "xml": {
+              "name": "EasDeviceIdentifiers"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "EasDeviceTypePolicyPagedSearchResultModel": {
+        "description": "The eas device type policy payload paged search result model.",
+        "example": {
+          "AdditionalInfo": {
+            "Links": [],
+            "id": 1234,
+            "uuid": "8ff49332-3686-431a-a7cc-61684933fec4"
+          },
+          "TotalResults": 1,
+          "resultSet": [
+            {
+              "allowSync": true,
+              "easDeviceType": "ios",
+              "easDeviceTypePolicyId": 123,
+              "id": 1234,
+              "uuid": "c8a76e4f-f5de-4e2d-9a74-ee90704856ae",
+              "whitelisted": false
+            }
+          ]
+        },
+        "properties": {
+          "AdditionalInfo": {
+            "$ref": "#/components/schemas/HypermediaModel"
+          },
+          "TotalResults": {
+            "description": "Gets or sets total result.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "TotalResults"
+            }
+          },
+          "resultSet": {
+            "description": "Gets or sets array of returned Eas device type policy payloads.",
+            "items": {
+              "$ref": "#/components/schemas/EasDeviceTypePolicyPayloadModel"
+            },
+            "type": "array",
+            "xml": {
+              "name": "ResultSet",
+              "wrapped": true
+            }
+          }
+        },
+        "type": "object",
+        "xml": {
+          "name": "EasDeviceTypePolicyPagedSearchResult",
+          "namespace": "http://www.air-watch.com/webapi/resources"
+        }
+      },
+      "EasDeviceTypePolicyPayloadModel": {
+        "description": "The eas device type policy payload model.",
+        "properties": {
+          "allowSync": {
+            "description": "Gets or sets indicates whether the Mobile Email Gateway request allowed.",
+            "type": "boolean",
+            "xml": {
+              "name": "AllowSync"
+            }
+          },
+          "easDeviceType": {
+            "description": "Gets or sets eas Device Type name.",
+            "type": "string",
+            "xml": {
+              "name": "EasDeviceType"
+            }
+          },
+          "easDeviceTypePolicyId": {
+            "description": "Gets or sets eas Device Type Policy ID.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "EasDeviceTypePolicyId"
+            }
+          },
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          },
+          "whitelisted": {
+            "description": "Gets or sets a value indicating whether indicates whether this is EAS device type Whitelisted.",
+            "type": "boolean",
+            "xml": {
+              "name": "Whitelisted"
+            }
+          }
+        },
+        "type": "object",
+        "xml": {
+          "name": "EasDeviceTypePolicyPayloadModel",
+          "namespace": "http://www.air-watch.com/webapi/resources"
+        }
+      },
+      "EmailSecurityTagPolicyModel": {
+        "description": "Policy defining how to handle email security tags.",
+        "example": {
+          "active": true,
+          "emailsActions": [
+            {
+              "awMailClientAction": 0,
+              "otherMailClientsAction": 0
+            }
+          ],
+          "id": 1234,
+          "unmarkedEmailsAction": {
+            "awMailClientAction": 2,
+            "awMailClientMessageBody": "Some text in message body.",
+            "id": 1234,
+            "otherMailClientMessageBody": "Some text in message body.",
+            "otherMailClientsAction": 3,
+            "tagName": "Text value",
+            "uuid": "7172cd4d-656e-4ec2-98d4-57feb35fdeaf"
+          },
+          "uuid": "b6ad7f52-c804-4a87-b7c2-d0dcda06d779"
+        },
+        "properties": {
+          "active": {
+            "description": "Gets or sets a value indicating whether this policy is active or not.",
+            "type": "boolean",
+            "xml": {
+              "name": "Active"
+            }
+          },
+          "emailsActions": {
+            "description": "Gets or sets SecurityTagsAction.",
+            "items": {
+              "$ref": "#/components/schemas/SecurityTagsActionModel"
+            },
+            "type": "array",
+            "xml": {
+              "name": "SecurityTagsAction",
+              "wrapped": true
+            }
+          },
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "unmarkedEmailsAction": {
+            "$ref": "#/components/schemas/SecurityTagsActionModel"
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object",
+        "xml": {
+          "name": "EmailSecurityTagPolicy",
+          "namespace": "http://www.air-watch.com/webapi/resources"
+        }
+      },
+      "EmailServerModel": {
+        "description": "Gateway Setting Transport Model For Email Server Configuration (Linux).",
+        "properties": {
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "ignoreSslErrorsWithExch": {
+            "description": "Gets or sets a value indicating whether gateway module will ignore SSL certificate errors when proxying to the Exchange active server.",
+            "type": "boolean",
+            "xml": {
+              "name": "SegIgnoreSslErrorsWithExch"
+            }
+          },
+          "serverConnectionPoolSize": {
+            "description": "Gets or sets the number of concurrent open sockets to email server.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "EmailServerConnectionPoolSize"
+            }
+          },
+          "serverHostAndPort": {
+            "description": "Gets or sets the email server URL (host and port with protocol).",
+            "type": "string",
+            "xml": {
+              "name": "EmailServerUrl"
+            }
+          },
+          "serverTimeoutInMillis": {
+            "description": "Gets or sets timeout duration of the email server.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "EmailServerTimeout"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "EncryptionKeyDataPayloadModel": {
+        "description": "Model to represent the encryption key data information for email attachment.",
+        "properties": {
+          "deviceId": {
+            "description": "Gets or sets managed Device Id.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "DeviceId"
+            }
+          },
+          "encryptionKey": {
+            "description": "Gets or sets encryption Key.",
+            "format": "byte",
+            "type": "string",
+            "xml": {
+              "name": "EncryptionKey"
+            }
+          },
+          "enrollmentUserId": {
+            "description": "Gets or sets enrollment user id.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "EnrollmentUserId"
+            }
+          },
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "modifiedDate": {
+            "description": "Gets or sets date-time the encryption key was last updated.",
+            "format": "date-time",
+            "type": "string",
+            "xml": {
+              "name": "ModifiedDate"
+            }
+          },
+          "salt": {
+            "description": "Gets or sets salt is used to encrypt/decrypt the encryption key.",
+            "format": "byte",
+            "type": "string",
+            "xml": {
+              "name": "Salt"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object",
+        "xml": {
+          "name": "encryptionkeydatapayload",
+          "namespace": "http://www.air-watch.com/webapi/resources"
+        }
+      },
+      "EncryptionKeyDataPayloadPagedSearchResultModel": {
+        "description": "Representation of EncryptionKeyDataPayloadPagedSearchResultModel.",
+        "example": {
+          "AdditionalInfo": {
+            "Links": [],
+            "id": 1234,
+            "uuid": "e5c9776d-e9f0-412c-a063-8feb391ac57b"
+          },
+          "DbSyncTime": "2026-04-17T06:06:39.2381807-07:00",
+          "TotalResults": 1,
+          "resultSet": [
+            {
+              "deviceId": 1234,
+              "encryptionKey": "QA==",
+              "enrollmentUserId": 123,
+              "id": 1234,
+              "modifiedDate": "2026-04-17T06:06:39.2381807-07:00",
+              "salt": "QA==",
+              "uuid": "b67b9bce-f3c1-4c0d-98a2-bd3e448e4540"
+            }
+          ]
+        },
+        "properties": {
+          "AdditionalInfo": {
+            "$ref": "#/components/schemas/HypermediaModel"
+          },
+          "DbSyncTime": {
+            "description": "Gets or sets last date time when polices obtained from DB.",
+            "format": "date-time",
+            "type": "string",
+            "xml": {
+              "name": "DbSyncTime"
+            }
+          },
+          "TotalResults": {
+            "description": "Gets or sets total result.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "TotalResults"
+            }
+          },
+          "resultSet": {
+            "description": "Gets or sets array of returned account policy search results.",
+            "items": {
+              "$ref": "#/components/schemas/EncryptionKeyDataPayloadModel"
+            },
+            "type": "array",
+            "xml": {
+              "name": "ResultSet"
+            }
+          }
+        },
+        "type": "object",
+        "xml": {
+          "name": "encryptionkeydatapayloadpagedsearchresult",
+          "namespace": "http://www.air-watch.com/webapi/resources"
+        }
+      },
+      "EnrollmentUserEmailAttributesV1Model": {
+        "description": "This model is used to retrieve email attributes of the enrollment user.",
+        "example": {
+          "emailAddress": "noreply@airwatch.com",
+          "emailAutoGeneratedPassword": "Password 2",
+          "emailAutoGeneratedPasswordLastReset": "2017-10-22T23:20:50.52Z",
+          "emailPassword": "Password 1",
+          "emailUserName": "emailUser1",
+          "enrollmentUserUuid": "c2faabbc-fd22-4e49-a37f-c557f531e415"
+        },
+        "properties": {
+          "emailAddress": {
+            "description": "Email address of the enrollment user.",
+            "type": "string",
+            "xml": {
+              "name": "EmailAddress"
+            }
+          },
+          "emailAutoGeneratedPassword": {
+            "description": "System generated password for the email account of the enrollment user.",
+            "type": "string",
+            "xml": {
+              "name": "EmailAutoGeneratedPassword"
+            }
+          },
+          "emailAutoGeneratedPasswordLastReset": {
+            "description": "Last date time when the system generated password was reset in the format ('YYYY-MM-DDThh:mm:ssZ')",
+            "type": "string",
+            "xml": {
+              "name": "EmailAutoGeneratedPasswordLastReset"
+            }
+          },
+          "emailPassword": {
+            "description": "Password for the email account of the enrollment user.",
+            "type": "string",
+            "xml": {
+              "name": "EmailPassword"
+            }
+          },
+          "emailUserName": {
+            "description": "Email user name of the enrollment user.",
+            "type": "string",
+            "xml": {
+              "name": "EmailUserName"
+            }
+          },
+          "enrollmentUserUuid": {
+            "description": "Unique identifier (GUID) of the enrollment user.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "EnrollmentUserUuid"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "EnsConfigSettingsV1Model": {
+        "description": "ENS API Token for the given Organization Group and ENS Server URL.",
+        "example": {
+          "ens2_api_token": "17413c19c729ce3152b53358c3d88c08"
+        },
+        "properties": {
+          "ens2_api_token": {
+            "description": "ENS API Token for the given Organization Group and ENS Server URL if successfully retrieved. Empty string otherwise.",
+            "type": "string",
+            "xml": {
+              "name": "Ens2ApiToken"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "EntityId": {
+        "properties": {
+          "Value": {
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer",
+            "xml": {
+              "name": "Value"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "EntityKey": {
+        "properties": {
+          "value": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "EntityTagHeaderValue": {
+        "properties": {
+          "IsWeak": {
+            "readOnly": true,
+            "type": "boolean",
+            "xml": {
+              "name": "IsWeak"
+            }
+          },
+          "Tag": {
+            "readOnly": true,
+            "type": "string",
+            "xml": {
+              "name": "Tag"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "GatewayInstallationModel": {
+        "description": "model of Gateway Installation Settings.",
+        "example": {
+          "id": 1234,
+          "payload": {
+            "activeSyncPayloadReportingConfig": {
+              "id": 1234,
+              "logFilterCommands": [
+                "Text value"
+              ],
+              "reportingIntervalInSeconds": 20,
+              "transferRateToConsole": 500,
+              "uuid": "e0edfca1-6651-4d27-b692-8fd21a6eb679"
+            },
+            "certAuthConfig": {
+              "clientCertTrustStore": "Local",
+              "clientCertTrustStorePasscode": "Text value",
+              "domainControllerHostName": "MyDController",
+              "domainName": "MyDomain.com",
+              "enableKCDAuthentication": false,
+              "id": 1234,
+              "requireClientCert": false,
+              "serviceAccountPassword": "MyPassword",
+              "serviceAccountUsername": "RAHUL@domain.com.",
+              "targetSPN": "HTTP/myservice.",
+              "uuid": "6fff3ccd-80fc-4d68-8592-05713166d8d4"
+            },
+            "clusterConfig": {
+              "clusterEnabled": false,
+              "clusterHosts": [
+                "Text value"
+              ],
+              "clusterPort": 41232,
+              "distributedCachePort": 5701,
+              "id": 1234,
+              "uuid": "06cec834-7851-45d0-9b40-31e9bfee9ddb"
+            },
+            "consoleApiConfig": {
+              "awTenantCode": "Text value",
+              "cmsCert": "Text value",
+              "cmsCertPasscode": "Text value",
+              "id": 1234,
+              "ignoreSslErrorsWithAW": true,
+              "serverConnectionPoolSize": 20,
+              "serverTimeoutInMillis": 40000,
+              "transferRateToGateway": 500,
+              "uuid": "8465931d-ea15-4626-845a-0242975064f9"
+            },
+            "contentTransformationConfig": {
+              "allowAttachmentUntilPolicyIsDataReady": false,
+              "defaultBlockMessage": "Attachment removed by mobile email policy.",
+              "id": 1234,
+              "ignoreSMIMEContentTransform": false,
+              "sharedSecretKey": "Text value",
+              "uuid": "ef30b132-4158-40ef-879e-04d02137e7ec"
+            },
+            "emailServerConfig": {
+              "id": 1234,
+              "ignoreSslErrorsWithExch": true,
+              "serverConnectionPoolSize": 50000,
+              "serverHostAndPort": "https://mail.acme.com",
+              "serverTimeoutInMillis": 1200000,
+              "uuid": "a4f31285-daf7-4105-8a30-7aeba2f362f5"
+            },
+            "generalConfig": {
+              "allowEmailUntilPolicyIsReady": true,
+              "easGatewayHostAndPortWithProtocol": "https://seg.acme.com",
+              "enableTestMode": false,
+              "id": 1234,
+              "isEnabled": true,
+              "memConfigId": 1,
+              "singlePolicyUpdateContextPath": "/segconsole/management.ashx",
+              "uuid": "77b7fa2d-e3cf-40df-9313-6a8d090ce79c"
+            },
+            "id": 1234,
+            "jwtAuthConfig": {
+              "audience": "Text value",
+              "id": 1234,
+              "issuer": "Text value",
+              "publicKeyExponent": "Text value",
+              "publicKeyModulus": "Text value",
+              "uuid": "40ea57d6-68a7-490c-951c-7b893a88b483"
+            },
+            "memUrls": [
+              {
+                "Name": "Text value",
+                "UrlPath": "Text value"
+              }
+            ],
+            "policyUpdateConfig": {
+              "bulkUpdateCompletionThresholdInSeconds": 600,
+              "deltaPolicyRefreshIntervalInMinutes": 10,
+              "enableDeltaSync": true,
+              "id": 1234,
+              "policyRefreshIntervalInMinutes": 60,
+              "policyUpdateErrorRetryCount": 3,
+              "segConfigRetryIntervalInMinutes": 5,
+              "uuid": "a315189a-08cc-4732-b682-c995936c5e32"
+            },
+            "segHttpServerConfig": {
+              "httpsKeyStore": "Text value",
+              "httpsKeyStorePasscode": "Text value",
+              "id": 1234,
+              "segHttpServerPort": 443,
+              "segServerIsSsl": false,
+              "uploadSslLocally": false,
+              "uuid": "e851173a-09d7-4c57-b29d-2f684481ee0d"
+            },
+            "uuid": "8b19424b-6958-40ce-846a-1ea1ee006449"
+          },
+          "payloadType": "SEG",
+          "uuid": "24049daf-d851-49a2-b36f-68c11a811618"
+        },
+        "properties": {
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "payload": {
+            "$ref": "#/components/schemas/GatewaySettingsModel"
+          },
+          "payloadType": {
+            "description": "Gets or sets type of the payload.",
+            "type": "string",
+            "xml": {
+              "name": "PayloadType"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "GatewaySettingsModel": {
+        "description": "Complex object containing all the required settings of SEG.",
+        "example": {
+          "activeSyncPayloadReportingConfig": {
+            "id": 1234,
+            "logFilterCommands": [
+              "Text value"
+            ],
+            "reportingIntervalInSeconds": 20,
+            "transferRateToConsole": 500,
+            "uuid": "7ad95c49-584e-43fe-970d-637aa03f4672"
+          },
+          "certAuthConfig": {
+            "clientCertTrustStore": "Local",
+            "clientCertTrustStorePasscode": "Text value",
+            "domainControllerHostName": "MyDController",
+            "domainName": "MyDomain.com",
+            "enableKCDAuthentication": false,
+            "id": 1234,
+            "requireClientCert": false,
+            "serviceAccountPassword": "MyPassword",
+            "serviceAccountUsername": "RAHUL@domain.com.",
+            "targetSPN": "HTTP/myservice.",
+            "uuid": "d26f3b58-0f9d-46e6-96cb-bb176b3d67ec"
+          },
+          "clusterConfig": {
+            "clusterEnabled": false,
+            "clusterHosts": [
+              "Text value"
+            ],
+            "clusterPort": 41232,
+            "distributedCachePort": 5701,
+            "id": 1234,
+            "uuid": "bb0ec1e5-8952-43d1-93c0-e41b2025348f"
+          },
+          "consoleApiConfig": {
+            "awTenantCode": "Text value",
+            "cmsCert": "Text value",
+            "cmsCertPasscode": "Text value",
+            "id": 1234,
+            "ignoreSslErrorsWithAW": true,
+            "serverConnectionPoolSize": 20,
+            "serverTimeoutInMillis": 40000,
+            "transferRateToGateway": 500,
+            "uuid": "ef2ad771-0a54-46a1-8ab7-517d7ac1854b"
+          },
+          "contentTransformationConfig": {
+            "allowAttachmentUntilPolicyIsDataReady": false,
+            "defaultBlockMessage": "Attachment removed by mobile email policy.",
+            "id": 1234,
+            "ignoreSMIMEContentTransform": false,
+            "sharedSecretKey": "Text value",
+            "uuid": "44e966d4-b991-41ff-8f3c-5250a36b11eb"
+          },
+          "emailServerConfig": {
+            "id": 1234,
+            "ignoreSslErrorsWithExch": true,
+            "serverConnectionPoolSize": 50000,
+            "serverHostAndPort": "https://mail.acme.com",
+            "serverTimeoutInMillis": 1200000,
+            "uuid": "068b2d55-d8ef-4ca2-983d-677419c2c5a9"
+          },
+          "generalConfig": {
+            "allowEmailUntilPolicyIsReady": true,
+            "easGatewayHostAndPortWithProtocol": "https://seg.acme.com",
+            "enableTestMode": false,
+            "id": 1234,
+            "isEnabled": true,
+            "memConfigId": 1,
+            "singlePolicyUpdateContextPath": "/segconsole/management.ashx",
+            "uuid": "20748ac8-d2cb-4202-9d07-5d3554523005"
+          },
+          "id": 1234,
+          "jwtAuthConfig": {
+            "audience": "Text value",
+            "id": 1234,
+            "issuer": "Text value",
+            "publicKeyExponent": "Text value",
+            "publicKeyModulus": "Text value",
+            "uuid": "4d8ef8de-48c4-4673-b178-78761e173b8c"
+          },
+          "memUrls": [
+            {
+              "Name": "Text value",
+              "UrlPath": "Text value"
+            }
+          ],
+          "policyUpdateConfig": {
+            "bulkUpdateCompletionThresholdInSeconds": 600,
+            "deltaPolicyRefreshIntervalInMinutes": 10,
+            "enableDeltaSync": true,
+            "id": 1234,
+            "policyRefreshIntervalInMinutes": 60,
+            "policyUpdateErrorRetryCount": 3,
+            "segConfigRetryIntervalInMinutes": 5,
+            "uuid": "009476c9-99a4-40b1-add9-48e8cab84f79"
+          },
+          "segHttpServerConfig": {
+            "httpsKeyStore": "Text value",
+            "httpsKeyStorePasscode": "Text value",
+            "id": 1234,
+            "segHttpServerPort": 443,
+            "segServerIsSsl": false,
+            "uploadSslLocally": false,
+            "uuid": "7881827a-74a8-450c-871f-8f36309d5deb"
+          },
+          "uuid": "fdc8f84f-8af2-4984-add3-ead31014a6de"
+        },
+        "properties": {
+          "activeSyncPayloadReportingConfig": {
+            "$ref": "#/components/schemas/ActiveSyncPayloadReportingModel"
+          },
+          "certAuthConfig": {
+            "$ref": "#/components/schemas/CertificateAuthModel"
+          },
+          "clusterConfig": {
+            "$ref": "#/components/schemas/ClusterModel"
+          },
+          "consoleApiConfig": {
+            "$ref": "#/components/schemas/ConsoleApiModel"
+          },
+          "contentTransformationConfig": {
+            "$ref": "#/components/schemas/ContentTransformationModel"
+          },
+          "emailServerConfig": {
+            "$ref": "#/components/schemas/EmailServerModel"
+          },
+          "generalConfig": {
+            "$ref": "#/components/schemas/GeneralConfigModel"
+          },
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "jwtAuthConfig": {
+            "$ref": "#/components/schemas/JwtAuthModel"
+          },
+          "memUrls": {
+            "description": "Gets or sets list of MemUrls.",
+            "items": {
+              "$ref": "#/components/schemas/MemUrlModel"
+            },
+            "type": "array",
+            "xml": {
+              "name": "MemUrls"
+            }
+          },
+          "policyUpdateConfig": {
+            "$ref": "#/components/schemas/PolicyUpdateModel"
+          },
+          "segHttpServerConfig": {
+            "$ref": "#/components/schemas/SegHttpServerModel"
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "GeneralAccessPolicyModel": {
+        "description": "The general access policy model.",
+        "example": {
+          "IsTestModeEnabled": true,
+          "Links": [],
+          "blockCompromisedDevices": true,
+          "blockDiscoveredEasDeviceTypes": true,
+          "blockInactiveDevices": true,
+          "daysBeforeInactive": 8,
+          "defaultEasDeviceTypePolicy": true,
+          "defaultEmailAccountPolicy": true,
+          "defaultEmailClientPolicy": true,
+          "gatewayStatus": true,
+          "id": 1234,
+          "requireDataProtection": true,
+          "requireEasProfile": true,
+          "requireEnrollment": true,
+          "unmanagedAttachmentEncryptionKey": "QA==",
+          "useManagedAttachmentPolicy": true,
+          "useUnmanagedAttachmentPolicy": true,
+          "uuid": "84e1b60c-6e96-48d4-afa4-1846ca56aac1"
+        },
+        "properties": {
+          "IsTestModeEnabled": {
+            "description": "Gets or sets a value indicating whether indicates whether test mode is enabled or not.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsTestModeEnabled"
+            }
+          },
+          "Links": {
+            "description": "Gets list of hypermedia link.",
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array",
+            "xml": {
+              "name": "Links",
+              "wrapped": true
+            }
+          },
+          "blockCompromisedDevices": {
+            "description": "Gets or sets a value indicating whether indicates whether to Block device that are compromised (e.g. Jailbroken).",
+            "type": "boolean",
+            "xml": {
+              "name": "BlockCompromisedDevices"
+            }
+          },
+          "blockDiscoveredEasDeviceTypes": {
+            "description": "Gets or sets a value indicating whether indicates whether to block requests coming from unknown eas device types.",
+            "type": "boolean",
+            "xml": {
+              "name": "BlockDiscoveredEasDeviceTypes"
+            }
+          },
+          "blockInactiveDevices": {
+            "description": "Gets or sets a value indicating whether indicates whether to Block requests coming from device that have been inactive for x number of days.",
+            "type": "boolean",
+            "xml": {
+              "name": "BlockInactiveDevices"
+            }
+          },
+          "daysBeforeInactive": {
+            "description": "Gets or sets the number of days before a device is considered inactive.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "DaysBeforeInactive"
+            }
+          },
+          "defaultEasDeviceTypePolicy": {
+            "description": "Gets or sets a value indicating whether indicates the default behavior of EAS Device Type Policy.",
+            "type": "boolean",
+            "xml": {
+              "name": "DefaultEasDeviceTypePolicy"
+            }
+          },
+          "defaultEmailAccountPolicy": {
+            "description": "Gets or sets a value indicating whether indicates the default access behavior for all email user accounts not explicitly allowed or blocked.",
+            "type": "boolean",
+            "xml": {
+              "name": "DefaultEmailAccountPolicy"
+            }
+          },
+          "defaultEmailClientPolicy": {
+            "description": "Gets or sets a value indicating whether indicates the default access behavior for all email clients not explicitly allowed or blocked.",
+            "type": "boolean",
+            "xml": {
+              "name": "DefaultEmailClientPolicy"
+            }
+          },
+          "gatewayStatus": {
+            "description": "Gets or sets a value indicating whether indicates whether gateway is in enable mode or bypass mode.",
+            "type": "boolean",
+            "xml": {
+              "name": "GatewayStatus"
+            }
+          },
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "requireDataProtection": {
+            "description": "Gets or sets a value indicating whether indicates whether Device must adhere to data protection requirements.",
+            "type": "boolean",
+            "xml": {
+              "name": "RequireDataProtection"
+            }
+          },
+          "requireEasProfile": {
+            "description": "Gets or sets a value indicating whether indicates whether require Eas profile is enabled in the current LG.",
+            "type": "boolean",
+            "xml": {
+              "name": "RequireEasProfile"
+            }
+          },
+          "requireEnrollment": {
+            "description": "Gets or sets a value indicating whether indicates whether Device is required to be enrolled or not.",
+            "type": "boolean",
+            "xml": {
+              "name": "RequireEnrollment"
+            }
+          },
+          "unmanagedAttachmentEncryptionKey": {
+            "description": "Gets or sets indicates whether to encrypt/decrypt attachment for unmanaged devcies.",
+            "format": "byte",
+            "type": "string",
+            "xml": {
+              "name": "UnmanagedAttachmentEncryptionKey"
+            }
+          },
+          "useManagedAttachmentPolicy": {
+            "description": "Gets or sets a value indicating whether indicates specific document types are encrypted or blocked for managed devices.",
+            "type": "boolean",
+            "xml": {
+              "name": "UseManagedAttachmentPolicy"
+            }
+          },
+          "useUnmanagedAttachmentPolicy": {
+            "description": "Gets or sets a value indicating whether indicates if unmanaged attachement policy is on or not.",
+            "type": "boolean",
+            "xml": {
+              "name": "UseUnmanagedAttachmentPolicy"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object",
+        "xml": {
+          "name": "GeneralAccessPolicy",
+          "namespace": "http://www.air-watch.com/webapi/resources"
+        }
+      },
+      "GeneralAttachmentPolicyModel": {
+        "description": "Policy defining how to handle attachments in general.",
+        "example": {
+          "Links": [],
+          "attachmentDevicePolicies": [
+            {
+              "allowSecureContentLocker": true,
+              "customBlockMessage": "Text value",
+              "deviceType": 1,
+              "id": 1234,
+              "isManaged": true,
+              "uuid": "7d155560-433d-46e5-b505-bdb821a9ff0c"
+            }
+          ],
+          "attachmentPolicies": [
+            {
+              "actionType": 1,
+              "attachmentTypeName": "pdf",
+              "deviceType": 2,
+              "deviceTypeName": "iphone",
+              "id": 1234,
+              "isManaged": false,
+              "mimeType": "image/gif",
+              "uuid": "bfa728de-e57e-4fb2-995a-79ff1f4c4fac"
+            }
+          ],
+          "attachmentPolicyExcludedFilePolicies": [
+            {
+              "deviceType": 1,
+              "fileExtension": "txt",
+              "id": 1234,
+              "isManaged": true,
+              "uuid": "716d98e5-b5eb-461b-abb8-c5129af2e41d"
+            }
+          ],
+          "id": 1234,
+          "uuid": "56c2b738-0987-453a-a28a-86d352f6e6f2"
+        },
+        "properties": {
+          "Links": {
+            "description": "Gets list of hypermedia link.",
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array",
+            "xml": {
+              "name": "Links",
+              "wrapped": true
+            }
+          },
+          "attachmentDevicePolicies": {
+            "description": "Gets or sets all the attachment device policies.",
+            "items": {
+              "$ref": "#/components/schemas/AttachmentDevicePolicyModel"
+            },
+            "type": "array",
+            "xml": {
+              "name": "AttachmentDevicePolicies",
+              "wrapped": true
+            }
+          },
+          "attachmentPolicies": {
+            "description": "Gets or sets all the attachment policies.",
+            "items": {
+              "$ref": "#/components/schemas/AttachmentPolicyModel"
+            },
+            "type": "array",
+            "xml": {
+              "name": "AttachmentPolicies",
+              "wrapped": true
+            }
+          },
+          "attachmentPolicyExcludedFilePolicies": {
+            "description": "Gets or sets all the attachment policy excluded files.",
+            "items": {
+              "$ref": "#/components/schemas/AttachmentPolicyExcludedFileModel"
+            },
+            "type": "array",
+            "xml": {
+              "name": "AttachmentPolicyExcludedFilePolicies",
+              "wrapped": true
+            }
+          },
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object",
+        "xml": {
+          "name": "GeneralAttachmentPolicy",
+          "namespace": "http://www.air-watch.com/webapi/resources"
+        }
+      },
+      "GeneralConfigModel": {
+        "description": "Gateway setting transport model for general configuration (Linux).",
+        "properties": {
+          "allowEmailUntilPolicyIsReady": {
+            "description": "Gets or sets a value indicating whether gateway should allow email access until policy update is completed successfully at least once.",
+            "type": "boolean",
+            "xml": {
+              "name": "AllowEmailUntilPolicyIsReady"
+            }
+          },
+          "easGatewayHostAndPortWithProtocol": {
+            "description": "Gets or sets the SEG URL.",
+            "type": "string",
+            "xml": {
+              "name": "EasGatewayHostAndPortWithProtocol"
+            }
+          },
+          "enableTestMode": {
+            "description": "Gets or sets a value indicating whether to block any request or not.",
+            "type": "boolean",
+            "xml": {
+              "name": "EnableTestMode"
+            }
+          },
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "isEnabled": {
+            "description": "Gets or sets a value indicating whether MemConfig is enabled.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsEnabled"
+            }
+          },
+          "memConfigId": {
+            "description": "Gets or sets the unique configuration id.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "MemConfigId"
+            }
+          },
+          "singlePolicyUpdateContextPath": {
+            "description": "Gets or sets the context path of the SEG URL.",
+            "type": "string",
+            "xml": {
+              "name": "SinglePolicyUpdateContextPath"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "HttpMethod": {
+        "properties": {
+          "Method": {
+            "readOnly": true,
+            "type": "string",
+            "xml": {
+              "name": "Method"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "HyperLinkPolicyModel": {
+        "description": "Model to represent HyperLinkPolicy.",
+        "example": {
+          "Links": [],
+          "domain": [
+            "Text value"
+          ],
+          "id": 1234,
+          "ignoreHyperlinkForAndroidAWInbox": true,
+          "ignoreHyperlinkForIosAWInbox": true,
+          "modificationType": "0",
+          "openHyperlinksInSecureApplication": true,
+          "uuid": "15ab6733-db9f-4b7e-90d0-07265c0401bc"
+        },
+        "properties": {
+          "Links": {
+            "description": "Gets list of hypermedia link.",
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array",
+            "xml": {
+              "name": "Links",
+              "wrapped": true
+            }
+          },
+          "domain": {
+            "description": "Gets or sets list of domains to open in Secure browser.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "xml": {
+              "name": "Domain",
+              "wrapped": true
+            }
+          },
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "ignoreHyperlinkForAndroidAWInbox": {
+            "description": "Gets or sets a value indicating whether indicates whether to Ignore Hyperlink transformation if Android device has aiwatch inbox or boxer.",
+            "type": "boolean",
+            "xml": {
+              "name": "IgnoreHyperlinkForAndroid"
+            }
+          },
+          "ignoreHyperlinkForIosAWInbox": {
+            "description": "Gets or sets a value indicating whether indicates whether to Ignore Hyperlink transformation if IOS device has aiwatch inbox or boxer.",
+            "type": "boolean",
+            "xml": {
+              "name": "IgnoreHyperlinkForIos"
+            }
+          },
+          "modificationType": {
+            "description": "Gets or sets type of modification to be applied on hyperlinks.",
+            "enum": [
+              "All",
+              "Include",
+              "Exclude"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "ModificationType"
+            }
+          },
+          "openHyperlinksInSecureApplication": {
+            "description": "Gets or sets a value indicating whether indicates whether secure hyper links within email content to be opened within native brower.",
+            "type": "boolean",
+            "xml": {
+              "name": "OpenHyperLinksInSecureApplication"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object",
+        "xml": {
+          "name": "Info",
+          "namespace": "http://www.air-watch.com/webapi/resources"
+        }
+      },
+      "HyperLinkPolicyModelV2": {
+        "description": "This class acts as a response model for HyperLink Policy Model for version 2.",
+        "example": {
+          "Links": [],
+          "concurrencyId": "Text value",
+          "domain": [
+            "Text value"
+          ],
+          "id": 1234,
+          "ignoreHyperlinkForAndroidAWInbox": true,
+          "ignoreHyperlinkForIosAWInbox": true,
+          "modificationType": "0",
+          "openHyperlinksInSecureApplication": true,
+          "uuid": "1044d972-1ed2-48bd-9133-bfdbf61e9324"
+        },
+        "properties": {
+          "Links": {
+            "description": "Gets list of hypermedia link.",
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array",
+            "xml": {
+              "name": "Links",
+              "wrapped": true
+            }
+          },
+          "concurrencyId": {
+            "description": "Gets or sets concurrency Id.",
+            "type": "string",
+            "xml": {
+              "name": "ConcurrencyId"
+            }
+          },
+          "domain": {
+            "description": "Gets or sets list of domains to open in Secure browser.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "xml": {
+              "name": "Domain",
+              "wrapped": true
+            }
+          },
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "ignoreHyperlinkForAndroidAWInbox": {
+            "description": "Gets or sets a value indicating whether indicates whether to Ignore Hyperlink transformation if Android device has aiwatch inbox or boxer.",
+            "type": "boolean",
+            "xml": {
+              "name": "IgnoreHyperlinkForAndroid"
+            }
+          },
+          "ignoreHyperlinkForIosAWInbox": {
+            "description": "Gets or sets a value indicating whether indicates whether to Ignore Hyperlink transformation if IOS device has aiwatch inbox or boxer.",
+            "type": "boolean",
+            "xml": {
+              "name": "IgnoreHyperlinkForIos"
+            }
+          },
+          "modificationType": {
+            "description": "Gets or sets type of modification to be applied on hyperlinks.",
+            "enum": [
+              "All",
+              "Include",
+              "Exclude"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "ModificationType"
+            }
+          },
+          "openHyperlinksInSecureApplication": {
+            "description": "Gets or sets a value indicating whether indicates whether secure hyper links within email content to be opened within native brower.",
+            "type": "boolean",
+            "xml": {
+              "name": "OpenHyperLinksInSecureApplication"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object",
+        "xml": {
+          "name": "Info",
+          "namespace": "http://www.air-watch.com/webapi/resources"
+        }
+      },
+      "HypermediaModel": {
+        "description": "The aw hypermedia model.",
+        "properties": {
+          "Links": {
+            "description": "Gets list of hypermedia link.",
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array",
+            "xml": {
+              "name": "Links",
+              "wrapped": true
+            }
+          },
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object",
+        "xml": {
+          "name": "Info",
+          "namespace": "http://www.air-watch.com/webapi/resources"
+        }
+      },
+      "HypermediaV2Model": {
+        "description": "The aw hypermedia model.",
+        "properties": {
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "links": {
+            "description": "Gets list of hypermedia link.",
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array",
+            "xml": {
+              "name": "Links"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "IActionResult": {
+        "description": "interface for HttpActionResult.",
+        "properties": {
+          "AcceptsByteRanges": {
+            "description": "Gets or sets a value indicating whether gets or sets a value which indicates whether a range byte request for a stream is accepted or not.",
+            "type": "boolean",
+            "xml": {
+              "name": "AcceptsByteRanges"
+            }
+          },
+          "ByteArray": {
+            "description": "Gets or sets ByteArray.",
+            "format": "byte",
+            "type": "string",
+            "xml": {
+              "name": "ByteArray"
+            }
+          },
+          "CacheControlValue": {
+            "$ref": "#/components/schemas/CacheControlHeaderValue"
+          },
+          "ContentLength": {
+            "description": "Gets or sets ContentLength.",
+            "format": "int64",
+            "type": "integer",
+            "xml": {
+              "name": "ContentLength"
+            }
+          },
+          "ETagHeaderValue": {
+            "$ref": "#/components/schemas/EntityTagHeaderValue"
+          },
+          "FileName": {
+            "description": "Gets or sets FileName {Will be set in the content-disposition header}.",
+            "type": "string",
+            "xml": {
+              "name": "FileName"
+            }
+          },
+          "HttpResponseMessage": {
+            "description": "Gets or sets HttpResponseMessage.",
+            "type": "object",
+            "xml": {
+              "name": "HttpResponseMessage"
+            }
+          },
+          "HttpStatusCode": {
+            "description": "Gets or sets HttpStatusCode.",
+            "enum": [
+              "Continue",
+              "SwitchingProtocols",
+              "OK",
+              "Created",
+              "Accepted",
+              "NonAuthoritativeInformation",
+              "NoContent",
+              "ResetContent",
+              "PartialContent",
+              "MultipleChoices",
+              "Ambiguous",
+              "MovedPermanently",
+              "Moved",
+              "Found",
+              "Redirect",
+              "SeeOther",
+              "RedirectMethod",
+              "NotModified",
+              "UseProxy",
+              "Unused",
+              "TemporaryRedirect",
+              "RedirectKeepVerb",
+              "BadRequest",
+              "Unauthorized",
+              "PaymentRequired",
+              "Forbidden",
+              "NotFound",
+              "MethodNotAllowed",
+              "NotAcceptable",
+              "ProxyAuthenticationRequired",
+              "RequestTimeout",
+              "Conflict",
+              "Gone",
+              "LengthRequired",
+              "PreconditionFailed",
+              "RequestEntityTooLarge",
+              "RequestUriTooLong",
+              "UnsupportedMediaType",
+              "RequestedRangeNotSatisfiable",
+              "ExpectationFailed",
+              "UpgradeRequired",
+              "InternalServerError",
+              "NotImplemented",
+              "BadGateway",
+              "ServiceUnavailable",
+              "GatewayTimeout",
+              "HttpVersionNotSupported"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "HttpStatusCode"
+            }
+          },
+          "LocationHeaderValue": {
+            "description": "Gets or sets LocationHeaderValue.",
+            "type": "string",
+            "xml": {
+              "name": "LocationHeaderValue"
+            }
+          },
+          "MediaType": {
+            "description": "Gets or sets MediaType.",
+            "type": "string",
+            "xml": {
+              "name": "MediaType"
+            }
+          },
+          "Model": {
+            "description": "Gets or sets Model.",
+            "type": "object",
+            "xml": {
+              "name": "Model"
+            }
+          },
+          "OnStreamAvailable": {
+            "$ref": "#/components/schemas/Action`3"
+          },
+          "PartialContentRange": {
+            "$ref": "#/components/schemas/RangeHeaderValue"
+          },
+          "RequestMessage": {
+            "description": "Gets or sets the RequestMessage.",
+            "type": "object",
+            "xml": {
+              "name": "RequestMessage"
+            }
+          },
+          "RequestQuery": {
+            "$ref": "#/components/schemas/IRequestQuery"
+          },
+          "ResponseDateTimeFormat": {
+            "description": "Gets or sets dateTime format for response.",
+            "type": "string",
+            "xml": {
+              "name": "ResponseDateTimeFormat"
+            }
+          },
+          "ResponseHeaders": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Gets or sets Headers.",
+            "type": "object",
+            "xml": {
+              "name": "ResponseHeaders"
+            }
+          },
+          "RetryAfter": {
+            "description": "Gets or sets retry-after value.",
+            "type": "string",
+            "xml": {
+              "name": "RetryAfter"
+            }
+          },
+          "SendETagHeaderValue": {
+            "description": "Gets or sets a value indicating whether gets or sets the option to include ETagHeaderValue.",
+            "type": "boolean",
+            "xml": {
+              "name": "SendETagHeaderValue"
+            }
+          },
+          "Stream": {
+            "$ref": "#/components/schemas/Stream"
+          }
+        },
+        "type": "object"
+      },
+      "IRequestQuery": {
+        "description": "Interface for IAwRequestQuery\r\nThis will hold all the required data for a request and will be filled from ModelBinder.",
+        "properties": {
+          "ActionName": {
+            "description": "Gets or sets ActionName.",
+            "type": "string",
+            "xml": {
+              "name": "ActionName"
+            }
+          },
+          "AllowedUriQueryChars": {
+            "description": "Gets or sets allowed Characters in Query String.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "xml": {
+              "name": "AllowedUriQueryChars"
+            }
+          },
+          "QueryParams": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Gets or sets Query Parameters. For e.g. any query string parameters will be extracted to key,value pair and stored here.",
+            "type": "object",
+            "xml": {
+              "name": "QueryParams"
+            }
+          },
+          "RequestMethod": {
+            "$ref": "#/components/schemas/HttpMethod"
+          },
+          "TenantContext": {
+            "$ref": "#/components/schemas/ITenantContext"
+          }
+        },
+        "type": "object"
+      },
+      "ITenantContext": {
+        "description": "Contract for TenantContext. Will be exposed from RequestQuery and will be injected to every controller actions and Business method.",
+        "properties": {
+          "OrganizationgroupId": {
+            "$ref": "#/components/schemas/EntityId"
+          },
+          "TenantCode": {
+            "description": "Gets or sets TenantCode. Uniquely identify the tenant for the request.",
+            "type": "string",
+            "xml": {
+              "name": "TenantCode"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "JwtAuthModel": {
+        "description": "This model contains the gateway settings related to the JWT Authenication.",
+        "properties": {
+          "audience": {
+            "description": "Gets or sets audience of the JWT key.",
+            "type": "string",
+            "xml": {
+              "name": "JwtAudience"
+            }
+          },
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "issuer": {
+            "description": "Gets or sets issuer of the JWT key.",
+            "type": "string",
+            "xml": {
+              "name": "JwtKeyIssuer"
+            }
+          },
+          "publicKeyExponent": {
+            "description": "Gets or sets console public key exponent.",
+            "type": "string",
+            "xml": {
+              "name": "JwtPublicKeyExponent"
+            }
+          },
+          "publicKeyModulus": {
+            "description": "Gets or sets console public key modulus.",
+            "type": "string",
+            "xml": {
+              "name": "JwtPublicKeyModulus"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "Link": {
+        "description": "The link.",
+        "properties": {
+          "Href": {
+            "description": "Gets or sets hyper text reference.",
+            "type": "string",
+            "xml": {
+              "name": "Href"
+            }
+          },
+          "Rel": {
+            "description": "Gets or sets relational links.",
+            "type": "string",
+            "xml": {
+              "name": "Rel"
+            }
+          },
+          "Title": {
+            "description": "Gets or sets title of the link.",
+            "type": "string",
+            "xml": {
+              "name": "Title"
+            }
+          }
+        },
+        "type": "object",
+        "xml": {
+          "name": "Link",
+          "namespace": "http://www.air-watch.com/webapi/resources"
+        }
+      },
+      "MEMDevice": {
+        "description": "Contains information about Email Management Device.",
+        "properties": {
+          "EASDeviceID": {
+            "description": "Gets or sets eAS Device Identifier.",
+            "type": "string",
+            "xml": {
+              "name": "EASDeviceID"
+            }
+          },
+          "EasDeviceType": {
+            "description": "Gets or sets specifies the EasDeviceType Name.",
+            "type": "string",
+            "xml": {
+              "name": "EasDeviceType"
+            }
+          },
+          "EmailAddress": {
+            "description": "Gets or sets email Address of the user.",
+            "type": "string",
+            "xml": {
+              "name": "EmailAddress"
+            }
+          },
+          "FriendlyName": {
+            "description": "Gets or sets device Friendly Name.",
+            "type": "string",
+            "xml": {
+              "name": "FriendlyName"
+            }
+          },
+          "MEMDeviceID": {
+            "description": "Gets or sets mEM Device Identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "MEMDeviceID"
+            }
+          },
+          "Managed": {
+            "description": "Gets or sets flag to specify whether device-email is managed or not\r\nValid values: TRUE, FALSE.",
+            "type": "string",
+            "xml": {
+              "name": "Managed"
+            }
+          },
+          "Platform": {
+            "description": "Gets or sets device Platform, This value will be not null only for Managed Device. For Unmanaged Devices this will be null.",
+            "type": "string",
+            "xml": {
+              "name": "Platform"
+            }
+          },
+          "Reason": {
+            "description": "Gets or sets reason which tells why the email-action commands were Blocked or Allowed.",
+            "type": "string",
+            "xml": {
+              "name": "Reason"
+            }
+          },
+          "Status": {
+            "description": "Gets or sets status of the email-action commands with Email-Server.",
+            "type": "string",
+            "xml": {
+              "name": "Status"
+            }
+          }
+        },
+        "type": "object",
+        "xml": {
+          "name": "MEMDevice",
+          "namespace": "http://www.air-watch.com/servicemodel/resources"
+        }
+      },
+      "MEMDeviceSearchResult": {
+        "description": "This holds the resultset of MEM-Device search operation.",
+        "example": {
+          "MEMDevices": [
+            {
+              "EASDeviceID": "ApplCCQLR90LFFCJ",
+              "EasDeviceType": "iPhone",
+              "EmailAddress": "abc@xyz.com",
+              "FriendlyName": "qa1 iPhone iOS 9.3.5 FRC4",
+              "MEMDeviceID": 1,
+              "Managed": "FALSE",
+              "Platform": "Apple",
+              "Reason": "Compliant",
+              "Status": "Allowed"
+            }
+          ],
+          "Page": 1,
+          "PageSize": 2,
+          "Total": 3
+        },
+        "properties": {
+          "MEMDevices": {
+            "description": "Gets or sets list of MEM Devices.",
+            "items": {
+              "$ref": "#/components/schemas/MEMDevice"
+            },
+            "type": "array",
+            "xml": {
+              "name": "MEMDevices",
+              "wrapped": true
+            }
+          },
+          "Page": {
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Page"
+            }
+          },
+          "PageSize": {
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "PageSize"
+            }
+          },
+          "Total": {
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Total"
+            }
+          }
+        },
+        "type": "object",
+        "xml": {
+          "name": "MEMDeviceSearchResult",
+          "namespace": "http://www.air-watch.com/servicemodel/resources"
+        }
+      },
+      "MailClientPolicyModel": {
+        "description": "Model to represent MailClientPolicy.",
+        "properties": {
+          "allowSync": {
+            "description": "Gets or sets indicates if the Mobile Email Gateway request should be allowed.",
+            "type": "boolean",
+            "xml": {
+              "name": "AllowSync"
+            }
+          },
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "mailClient": {
+            "description": "Gets or sets mail client name.",
+            "type": "string",
+            "xml": {
+              "name": "MailClient"
+            }
+          },
+          "mailClientPolicyId": {
+            "description": "Gets or sets mailClient Policy ID.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "MailClientPolicyId"
+            }
+          },
+          "type": {
+            "description": "Gets or sets type of Mail client.",
+            "enum": [
+              "Any",
+              "Discovered",
+              "Custom"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "Type"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "MailClientPolicyPagedSearchResultModel": {
+        "description": "Representation of MailClientPolicyPagedSearchResultModel.",
+        "example": {
+          "AdditionalInfo": {
+            "Links": [],
+            "id": 1234,
+            "uuid": "a84e51e3-9ce5-43a5-82a1-cbdd52bd77a5"
+          },
+          "TotalResults": 1,
+          "resultSet": [
+            {
+              "allowSync": false,
+              "id": 1234,
+              "mailClient": "AirWatch Boxer (Apple iPad; iOS 10.1.1) Version 4.2.0/944",
+              "mailClientPolicyId": 123,
+              "type": 0,
+              "uuid": "454a5810-85a6-4f6a-ae30-785c28588419"
+            }
+          ]
+        },
+        "properties": {
+          "AdditionalInfo": {
+            "$ref": "#/components/schemas/HypermediaModel"
+          },
+          "TotalResults": {
+            "description": "Gets or sets total result.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "TotalResults"
+            }
+          },
+          "resultSet": {
+            "description": "Gets or sets array of returned mail client policy search results.",
+            "items": {
+              "$ref": "#/components/schemas/MailClientPolicyModel"
+            },
+            "type": "array",
+            "xml": {
+              "name": "ResultSet",
+              "wrapped": true
+            }
+          }
+        },
+        "type": "object",
+        "xml": {
+          "name": "MailClientPolicyPagedSearchResult",
+          "namespace": "http://www.air-watch.com/webapi/resources"
+        }
+      },
+      "MemConfigProfileV1Model": {
+        "description": "This model has the details of the MEM config and profile association",
+        "example": [
+          {
+            "deviceProfileId": 3,
+            "memConfigId": 2,
+            "memConfigProfileId": 1
+          }
+        ],
+        "properties": {
+          "deviceProfileId": {
+            "description": "Unique identifier for the associated device profile",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "DeviceProfileId"
+            }
+          },
+          "memConfigId": {
+            "description": "Unique identifier for the MEM config",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "MemConfigId"
+            }
+          },
+          "memConfigProfileId": {
+            "description": "Unique identifier for the MEM config and profile association",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "MemConfigProfileId"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "MemConfigSettingsV1Model": {
+        "description": "This model is used to fetch MEM Configuration(s) for an Organization Group.",
+        "example": {
+          "mem_config_uuid": "c6e34042-511b-4eb1-a243-d11fda2ebc5c",
+          "name": "mem_dep01"
+        },
+        "properties": {
+          "mem_config_uuid": {
+            "description": "Unique identifier for the MEM configuration setting",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "MemConfigUuid"
+            }
+          },
+          "name": {
+            "description": "Name of the MEM configuration setting",
+            "type": "string",
+            "xml": {
+              "name": "Name"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "MemDeviceModel": {
+        "description": "Model containing all the attributes of a device related to MEM.",
+        "example": [
+          {
+            "accessState": true,
+            "agentReportedPackageName": "APPLE",
+            "createdOn": "2026-04-17T06:06:39.8061479-07:00",
+            "dateWhenDiagnosticWasEnabled": "2026-04-17T06:06:39.8061479-07:00",
+            "deviceFriendlyName": "Iphone",
+            "deviceIdentity": 5,
+            "deviceImei": "990000862471854",
+            "deviceOs": "iOS 9.3.5 13G36",
+            "deviceTypeId": 4,
+            "deviceTypeName": "IPhone",
+            "deviceUserAgent": "Apple-iPhone; AWInbox/iOS/2.5.9",
+            "deviceUuid": "61407fd9-94c6-47d5-9369-f87a61898684",
+            "easDeviceGuid": "44a76ff3-4d8b-4600-9c26-c4bf1585245a",
+            "easDeviceIdentifier": "A57B8F9C99904168B43F77D494309B76",
+            "emailAddress": "acme@acme.com",
+            "id": 1234,
+            "isCompromised": true,
+            "isDiagnosticEnabled": true,
+            "isEnrolled": true,
+            "isManaged": true,
+            "isMdmCompliant": true,
+            "isModelCompliant": true,
+            "isOsCompliant": true,
+            "mailboxDisplayName": "acmeBoxer",
+            "mailboxIdentity": "acmeinbox2",
+            "memDeviceId": 1221,
+            "modifiedOn": "2026-04-17T06:06:39.8061479-07:00",
+            "organizationGroupUuid": "accf960d-c193-4d25-ba92-7c0b7a9ce6b2",
+            "uuid": "5951ca5f-33f9-4a1b-ac28-0d4fa8309f68"
+          }
+        ],
+        "properties": {
+          "accessState": {
+            "description": "Indicates if the device can be accessed or not.",
+            "type": "boolean",
+            "xml": {
+              "name": "AccessState"
+            }
+          },
+          "agentReportedPackageName": {
+            "description": "Package name of the agent on the device.",
+            "type": "string",
+            "xml": {
+              "name": "AgentReportedPackageName"
+            }
+          },
+          "createdOn": {
+            "description": "Date when the MEM device was created in YYYY-MM-DDTHH:MM:SSZ format.",
+            "format": "date-time",
+            "type": "string",
+            "xml": {
+              "name": "CreatedOn"
+            }
+          },
+          "dateWhenDiagnosticWasEnabled": {
+            "description": "Date when diagnostic was enabled in YYYY-MM-DDTHH:MM:SSZ format.",
+            "format": "date-time",
+            "type": "string",
+            "xml": {
+              "name": "DateWhenDiagnosticWasEnabled"
+            }
+          },
+          "deviceFriendlyName": {
+            "description": "Friendly name of the device.",
+            "type": "string",
+            "xml": {
+              "name": "DeviceFriendlyName"
+            }
+          },
+          "deviceIdentity": {
+            "description": "Device identity in the email server.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "DeviceIdentity"
+            }
+          },
+          "deviceImei": {
+            "description": "IMEI number of the device.",
+            "type": "string",
+            "xml": {
+              "name": "DeviceImei"
+            }
+          },
+          "deviceOs": {
+            "description": "Operating system of the device.",
+            "type": "string",
+            "xml": {
+              "name": "DeviceOs"
+            }
+          },
+          "deviceTypeId": {
+            "description": "Identifier of device type.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "DeviceTypeId"
+            }
+          },
+          "deviceTypeName": {
+            "description": "Name of the device type.",
+            "type": "string",
+            "xml": {
+              "name": "DeviceTypeName"
+            }
+          },
+          "deviceUserAgent": {
+            "description": "Mail client agent installed on the device.",
+            "type": "string",
+            "xml": {
+              "name": "DeviceUserAgent"
+            }
+          },
+          "deviceUuid": {
+            "description": "Unique identifier of a managed device.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "DeviceUuid"
+            }
+          },
+          "easDeviceGuid": {
+            "description": "Unique identifier of the mail client on the device.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "EasDeviceGuid"
+            }
+          },
+          "easDeviceIdentifier": {
+            "description": "Unique identifier of the mail client on the device.",
+            "type": "string",
+            "xml": {
+              "name": "EasDeviceIdentifier"
+            }
+          },
+          "emailAddress": {
+            "description": "Email address of the user.",
+            "type": "string",
+            "xml": {
+              "name": "EmailAddress"
+            }
+          },
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "isCompromised": {
+            "description": "Indicates if the device is compromised or not.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsCompromised"
+            }
+          },
+          "isDiagnosticEnabled": {
+            "description": "Indicates if the diagnostic is enabled or not.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsDiagnosticEnabled"
+            }
+          },
+          "isEnrolled": {
+            "description": "Indicates if the device is enrolled or not.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsEnrolled"
+            }
+          },
+          "isManaged": {
+            "description": "Indicates if the device is managed or not.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsManaged"
+            }
+          },
+          "isMdmCompliant": {
+            "description": "Indicates if the device is MDM compliant or not.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsMdmCompliant"
+            }
+          },
+          "isModelCompliant": {
+            "description": "Indicates if the device is model compliant or not.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsModelCompliant"
+            }
+          },
+          "isOsCompliant": {
+            "description": "Indicates if the device is OS compliant or not.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsOsCompliant"
+            }
+          },
+          "mailboxDisplayName": {
+            "description": "Display name of the mailbox.",
+            "type": "string",
+            "xml": {
+              "name": "MailboxDisplayName"
+            }
+          },
+          "mailboxIdentity": {
+            "description": "Identity of the mailbox.",
+            "type": "string",
+            "xml": {
+              "name": "MailboxIdentity"
+            }
+          },
+          "memDeviceId": {
+            "description": "Unique identifier of a MEM enrolled device.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "MemDeviceId"
+            }
+          },
+          "modifiedOn": {
+            "description": "Date when the MEM device was last modified in YYYY-MM-DDTHH:MM:SSZ format.",
+            "format": "date-time",
+            "type": "string",
+            "xml": {
+              "name": "ModifiedOn"
+            }
+          },
+          "organizationGroupUuid": {
+            "description": "Unique identifier of an organization in which device is enrolled.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "OrganizationGroupUuid"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "MemUrlModel": {
+        "description": "Urls used by SEG.",
+        "properties": {
+          "Name": {
+            "description": "Gets or sets Name of the Url.",
+            "type": "string",
+            "xml": {
+              "name": "Name"
+            }
+          },
+          "UrlPath": {
+            "description": "Gets or sets Url Path.",
+            "type": "string",
+            "xml": {
+              "name": "UrlPath"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "MethodInfo": {
+        "type": "object"
+      },
+      "NameValueHeaderValue": {
+        "properties": {
+          "Name": {
+            "readOnly": true,
+            "type": "string",
+            "xml": {
+              "name": "Name"
+            }
+          },
+          "Value": {
+            "type": "string",
+            "xml": {
+              "name": "Value"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "PolicyUpdateModel": {
+        "description": "This model contains the gateway settings related to the policy update.",
+        "properties": {
+          "bulkUpdateCompletionThresholdInSeconds": {
+            "description": "Gets or sets the max time for bulk policy update. If bulk update process exceeds this time limit then the process is considered failed.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "BulkUpdateCompletionThreshold"
+            }
+          },
+          "deltaPolicyRefreshIntervalInMinutes": {
+            "description": "Gets or sets the delta sync interval to refresh the gateway policy in minutes.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "SegPolicyRefreshDeltaInterval"
+            }
+          },
+          "enableDeltaSync": {
+            "description": "Gets or sets a value indicating whether delta sync is enabled or not.",
+            "type": "boolean",
+            "xml": {
+              "name": "SegEnableDeltaSync"
+            }
+          },
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "policyRefreshIntervalInMinutes": {
+            "description": "Gets or sets the interval to refresh the gateway policy in minutes.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "SegPolicyRefreshInterval"
+            }
+          },
+          "policyUpdateErrorRetryCount": {
+            "description": "Gets or sets the number of times the gateway should retry updating the policy after it fails.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "PolicyUpdateErrorRetryCount"
+            }
+          },
+          "segConfigRetryIntervalInMinutes": {
+            "description": "Gets or sets the interval to update the gateway policy once it fails in minutes.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "SegConfigPolicyRetryInterval"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "PolicyViolation": {
+        "properties": {
+          "AllowedReasons": {
+            "enum": [
+              "None",
+              "AllowedByDefault",
+              "Whitelisted",
+              "Compliant",
+              "AccountWhitelisted",
+              "EASDeviceTypeWhitelisted"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "AllowedReasons"
+            }
+          },
+          "BlockedReasons": {
+            "enum": [
+              "None",
+              "BlockedByDefault",
+              "Blacklisted",
+              "NotEnrolled",
+              "Compromised",
+              "UnapprovedModel",
+              "UnapprovedOperatingSystem",
+              "NotDataProtected",
+              "UnapprovedEmailAccount",
+              "UnapprovedMailClient",
+              "DeviceInactive",
+              "UnapprovedEasDeviceType",
+              "NotMDMCompliant",
+              "EasProfileMissing"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "BlockedReasons"
+            }
+          },
+          "Information": {
+            "type": "string",
+            "xml": {
+              "name": "Information"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "PowerShellSettingsCreateRequestV1Model": {
+        "description": "This model is used to create MEM flavor Configuration that uses Exchange PowerShell.",
+        "example": {
+          "authenticationMechanism": "0",
+          "emailServer": "https://server.com/powershell",
+          "emailServerAdminPassword": "serviceAccountUserPassword",
+          "emailServerAdminUser": "domain/serviceAccountUser",
+          "enabled": true,
+          "exchangeVersion": "1",
+          "friendlyName": "PowerShell 1",
+          "ignoreSslErrors": false,
+          "useServiceAccountCredentials": false,
+          "viewEntireForest": false
+        },
+        "properties": {
+          "authenticationMechanism": {
+            "description": "Supported Authentication type for Exchange PowerShell.",
+            "enum": [
+              "Basic",
+              "Negotiate",
+              "Kerberos"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "AuthenticationMechanism"
+            }
+          },
+          "emailServer": {
+            "description": "Exchange PowerShell server domain address.",
+            "type": "string",
+            "xml": {
+              "name": "EmailServer"
+            }
+          },
+          "emailServerAdminPassword": {
+            "description": "Exchange PowerShell server domain service account user password.",
+            "type": "string",
+            "xml": {
+              "name": "EmailServerAdminPassword"
+            }
+          },
+          "emailServerAdminUser": {
+            "description": "Exchange PowerShell server domain service account user name.",
+            "type": "string",
+            "xml": {
+              "name": "EmailServerAdminUser"
+            }
+          },
+          "enabled": {
+            "description": "Indicates if the configuration is enabled.",
+            "type": "boolean",
+            "xml": {
+              "name": "Enabled"
+            }
+          },
+          "exchangeVersion": {
+            "description": "Supported Exchange Version",
+            "enum": [
+              "None",
+              "Exch2003",
+              "Exch2007",
+              "Exch2010",
+              "Exch2013",
+              "Exch2016",
+              "O365",
+              "Exch2019"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "ExchangeVersion"
+            }
+          },
+          "friendlyName": {
+            "description": "General Name of the PowerShell configuration.",
+            "type": "string",
+            "xml": {
+              "name": "FriendlyName"
+            }
+          },
+          "ignoreSslErrors": {
+            "description": "Indicates whether the SSL errors should be ignored while interacting with Exchange.",
+            "type": "boolean",
+            "xml": {
+              "name": "IgnoreSslErrors"
+            }
+          },
+          "useServiceAccountCredentials": {
+            "description": "Indicates whether the service account user's credentials to be used to create PowerShell session.",
+            "type": "boolean",
+            "xml": {
+              "name": "UseServiceAccountCredentials"
+            }
+          },
+          "viewEntireForest": {
+            "description": "Indicates whether to set the PowerShell session to the entire active directory forest.",
+            "type": "boolean",
+            "xml": {
+              "name": "ViewEntireForest"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "PowerShellSettingsSaveResponseV1Model": {
+        "description": "This model is used to configure MEM flavor that uses Exchange PowerShell.",
+        "example": {
+          "memConfigUuid": "afb19f52-1351-4791-ad4d-1874c4e74877",
+          "organizationGroupUuid": "74f98980-c5be-473d-a800-b9582aa1331f"
+        },
+        "properties": {
+          "memConfigUuid": {
+            "description": "Unique identifier (GUID) of the configuration.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "MemConfigUuid"
+            }
+          },
+          "organizationGroupUuid": {
+            "description": "Location Group identifier of the PowerShell configuration.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "OrganizationGroupUuid"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "PowerShellSettingsUpdateRequestV1Model": {
+        "description": "This model is used to make changes to the existing MEM Configuration that uses Exchange PowerShell.",
+        "example": {
+          "authenticationMechanism": "0",
+          "customBaseDN": "OU=Group1,DC=MEM13,DC=ORG",
+          "emailServer": "https://server.com/powershell",
+          "emailServerAdminPassword": "serviceAccountUserPassword",
+          "emailServerAdminUser": "domain/serviceAccountUser",
+          "enabled": true,
+          "exchangeVersion": "1",
+          "filterDNs": "user 1; user 2; user 3",
+          "friendlyName": "PowerShell 1",
+          "ignoreSslErrors": false,
+          "limitSyncResult": "0",
+          "manageMailboxActiveSync": false,
+          "removeActiveSyncPartnership": false,
+          "syncBatchSize": 25000,
+          "useRecommendedSettings": true,
+          "useServiceAccountCredentials": false,
+          "viewEntireForest": false
+        },
+        "properties": {
+          "authenticationMechanism": {
+            "description": "Supported Authentication type for Exchange PowerShell.",
+            "enum": [
+              "Basic",
+              "Negotiate",
+              "Kerberos"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "AuthenticationMechanism"
+            }
+          },
+          "customBaseDN": {
+            "description": "Custom Base DN specified by the user when searching user groups.",
+            "type": "string",
+            "xml": {
+              "name": "CustomBaseDN"
+            }
+          },
+          "emailServer": {
+            "description": "Exchange PowerShell server domain address.",
+            "type": "string",
+            "xml": {
+              "name": "EmailServer"
+            }
+          },
+          "emailServerAdminPassword": {
+            "description": "Exchange PowerShell server domain service account user password.",
+            "type": "string",
+            "xml": {
+              "name": "EmailServerAdminPassword"
+            }
+          },
+          "emailServerAdminUser": {
+            "description": "Exchange PowerShell server domain service account user name.",
+            "type": "string",
+            "xml": {
+              "name": "EmailServerAdminUser"
+            }
+          },
+          "enabled": {
+            "description": "Indicates if the configuration is enabled.",
+            "type": "boolean",
+            "xml": {
+              "name": "Enabled"
+            }
+          },
+          "exchangeVersion": {
+            "description": "Supported Exchange server version used in the configuration.",
+            "enum": [
+              "None",
+              "Exch2003",
+              "Exch2007",
+              "Exch2010",
+              "Exch2013",
+              "Exch2016",
+              "O365",
+              "Exch2019"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "ExchangeVersion"
+            }
+          },
+          "filterDNs": {
+            "description": "Semicolon separated filters for syncing mailboxes.",
+            "type": "string",
+            "xml": {
+              "name": "FilterDNs"
+            }
+          },
+          "friendlyName": {
+            "description": "General Name of the PowerShell configuration.",
+            "type": "string",
+            "xml": {
+              "name": "FriendlyName"
+            }
+          },
+          "ignoreSslErrors": {
+            "description": "Indicates whether the SSL errors should be ignored while interacting with Exchange.",
+            "type": "boolean",
+            "xml": {
+              "name": "IgnoreSslErrors"
+            }
+          },
+          "limitSyncResult": {
+            "description": "Supported options for limiting sync mailboxes results",
+            "enum": [
+              "None",
+              "UserGroupConfiguration",
+              "Custom"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "LimitSyncResult"
+            }
+          },
+          "manageMailboxActiveSync": {
+            "description": "Indicates whether to manage the Mailbox of the ActiveSync device user.",
+            "type": "boolean",
+            "xml": {
+              "name": "ManageMailboxActiveSync"
+            }
+          },
+          "removeActiveSyncPartnership": {
+            "description": "Indicates whether to remove activesync partnership between the device and mailbox upon unenrollment.",
+            "type": "boolean",
+            "xml": {
+              "name": "RemoveActiveSyncPartnership"
+            }
+          },
+          "syncBatchSize": {
+            "description": "Number of records to sync in one pass.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "SyncBatchSize"
+            }
+          },
+          "useRecommendedSettings": {
+            "description": "Indicates the use of recommended settings.",
+            "type": "boolean",
+            "xml": {
+              "name": "UseRecommendedSettings"
+            }
+          },
+          "useServiceAccountCredentials": {
+            "description": "Indicates whether the service account user's credentials to be used to create PowerShell session.",
+            "type": "boolean",
+            "xml": {
+              "name": "UseServiceAccountCredentials"
+            }
+          },
+          "viewEntireForest": {
+            "description": "Indicates whether to set the PowerShell session to the entire active directory forest.",
+            "type": "boolean",
+            "xml": {
+              "name": "ViewEntireForest"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "PowerShellSettingsV1Model": {
+        "description": "This model is used to configure MEM flavor that uses Exchange PowerShell.",
+        "example": {
+          "authenticationMechanism": "0",
+          "customBaseDN": "OU=Group1,DC=MEM13,DC=ORG",
+          "emailServer": "https://server.com/powershell",
+          "emailServerAdminPassword": "serviceAccountUserPassword",
+          "emailServerAdminUser": "domain/serviceAccountUser",
+          "enabled": true,
+          "exchangeVersion": "1",
+          "filterDNs": "user 1; user 2; user 3",
+          "friendlyName": "PowerShell 1",
+          "ignoreSslErrors": false,
+          "limitSyncResult": "0",
+          "manageMailboxActiveSync": false,
+          "memConfigUuid": "de30e4e8-f6bf-4ae8-bb6b-6120eb349e5a",
+          "organizationGroupUuid": "c505aa6f-c247-4caf-bf8d-1fd54f740d05",
+          "removeActiveSyncPartnership": false,
+          "syncBatchSize": 25000,
+          "useRecommendedSettings": true,
+          "useServiceAccountCredentials": false,
+          "viewEntireForest": false
+        },
+        "properties": {
+          "authenticationMechanism": {
+            "description": "Supported Authentication type for Exchange PowerShell.",
+            "enum": [
+              "Basic",
+              "Negotiate",
+              "Kerberos"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "AuthenticationMechanism"
+            }
+          },
+          "customBaseDN": {
+            "description": "Custom Base DN specified by the user when searching user groups.",
+            "type": "string",
+            "xml": {
+              "name": "CustomBaseDN"
+            }
+          },
+          "emailServer": {
+            "description": "Exchange PowerShell server domain address.",
+            "type": "string",
+            "xml": {
+              "name": "EmailServer"
+            }
+          },
+          "emailServerAdminPassword": {
+            "description": "Exchange PowerShell server domain service account user password.",
+            "type": "string",
+            "xml": {
+              "name": "EmailServerAdminPassword"
+            }
+          },
+          "emailServerAdminUser": {
+            "description": "Exchange PowerShell server domain service account user name.",
+            "type": "string",
+            "xml": {
+              "name": "EmailServerAdminUser"
+            }
+          },
+          "enabled": {
+            "description": "Indicates if the configuration is enabled.",
+            "type": "boolean",
+            "xml": {
+              "name": "Enabled"
+            }
+          },
+          "exchangeVersion": {
+            "description": "Supported Exchange Version",
+            "enum": [
+              "None",
+              "Exch2003",
+              "Exch2007",
+              "Exch2010",
+              "Exch2013",
+              "Exch2016",
+              "O365",
+              "Exch2019"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "ExchangeVersion"
+            }
+          },
+          "filterDNs": {
+            "description": "Semicolon separated filters for syncing mailboxes.",
+            "type": "string",
+            "xml": {
+              "name": "FilterDNs"
+            }
+          },
+          "friendlyName": {
+            "description": "General Name of the PowerShell configuration.",
+            "type": "string",
+            "xml": {
+              "name": "FriendlyName"
+            }
+          },
+          "ignoreSslErrors": {
+            "description": "Indicates whether the SSL errors should be ignored while interacting with Exchange.",
+            "type": "boolean",
+            "xml": {
+              "name": "IgnoreSslErrors"
+            }
+          },
+          "limitSyncResult": {
+            "description": "Supported options for limiting sync mailboxes results",
+            "enum": [
+              "None",
+              "UserGroupConfiguration",
+              "Custom"
+            ],
+            "type": "string",
+            "xml": {
+              "name": "LimitSyncResult"
+            }
+          },
+          "manageMailboxActiveSync": {
+            "description": "Indicates whether to manage the Mailbox of the ActiveSync device user.",
+            "type": "boolean",
+            "xml": {
+              "name": "ManageMailboxActiveSync"
+            }
+          },
+          "memConfigUuid": {
+            "description": "Unique identifier (GUID) of the configuration.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "MemConfigUuid"
+            }
+          },
+          "organizationGroupUuid": {
+            "description": "Location Group identifier of the PowerShell configuration.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "OrganizationGroupUuid"
+            }
+          },
+          "removeActiveSyncPartnership": {
+            "description": "Indicates whether to remove activesync partnership between the device and mailbox upon unenrollment.",
+            "type": "boolean",
+            "xml": {
+              "name": "RemoveActiveSyncPartnership"
+            }
+          },
+          "syncBatchSize": {
+            "description": "Number of records to sync in one pass.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "SyncBatchSize"
+            }
+          },
+          "useRecommendedSettings": {
+            "description": "Indicates the use of recommended settings.",
+            "type": "boolean",
+            "xml": {
+              "name": "UseRecommendedSettings"
+            }
+          },
+          "useServiceAccountCredentials": {
+            "description": "Indicates whether the service account user's credentials to be used to create PowerShell session.",
+            "type": "boolean",
+            "xml": {
+              "name": "UseServiceAccountCredentials"
+            }
+          },
+          "viewEntireForest": {
+            "description": "Indicates whether to set the PowerShell session to the entire active directory forest.",
+            "type": "boolean",
+            "xml": {
+              "name": "ViewEntireForest"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "ProfileV1Model": {
+        "description": "This model has the id of the profile to be added/removed association and the corresponding action",
+        "example": [
+          {
+            "profileId": "1b198d3f-4d01-446d-b3b9-ad81a64550a2"
+          }
+        ],
+        "properties": {
+          "profileId": {
+            "description": "Unique identifier for the profile",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "ProfileId"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "RangeHeaderValue": {
+        "properties": {
+          "Ranges": {
+            "items": {
+              "$ref": "#/components/schemas/RangeItemHeaderValue"
+            },
+            "readOnly": true,
+            "type": "array",
+            "xml": {
+              "name": "Ranges"
+            }
+          },
+          "Unit": {
+            "type": "string",
+            "xml": {
+              "name": "Unit"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "RangeItemHeaderValue": {
+        "properties": {
+          "From": {
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer",
+            "xml": {
+              "name": "From"
+            }
+          },
+          "To": {
+            "format": "int64",
+            "readOnly": true,
+            "type": "integer",
+            "xml": {
+              "name": "To"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "RequestQuery": {
+        "description": "Implementation for RequestQuery.",
+        "type": "object"
+      },
+      "SecurityTagsActionModel": {
+        "description": "Defines actions to be taken for each security tag.",
+        "properties": {
+          "awMailClientAction": {
+            "description": "Gets or sets flag to indicate inbox action. [Encrypt / Block / Do Nothing].",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "AwInboxAction"
+            }
+          },
+          "awMailClientMessageBody": {
+            "description": "Gets or sets body of the message.",
+            "type": "string",
+            "xml": {
+              "name": "AwInboxMessageBody"
+            }
+          },
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "otherMailClientMessageBody": {
+            "description": "Gets or sets body of other mail client's message.",
+            "type": "string",
+            "xml": {
+              "name": "OtherMailClientsMessageBody"
+            }
+          },
+          "otherMailClientsAction": {
+            "description": "Gets or sets flag to indicate mail client action [0 = Follow Attachment/Hyperlink policies, 1 = Encrypt, 2 = Block].",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "OtherMailClientsAction"
+            }
+          },
+          "tagName": {
+            "description": "Gets or sets tag Name.",
+            "type": "string",
+            "xml": {
+              "name": "Tag"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object",
+        "xml": {
+          "name": "SecurityTagsAction",
+          "namespace": "http://www.air-watch.com/webapi/resources"
+        }
+      },
+      "SegHttpServerModel": {
+        "description": "Gateway Setting Transport Model For SEG HTTP Server Configuration (Linux).",
+        "properties": {
+          "httpsKeyStore": {
+            "description": "Gets or sets the SSL cert that is uploaded into the console.",
+            "type": "string",
+            "xml": {
+              "name": "HttpsKeyStore"
+            }
+          },
+          "httpsKeyStorePasscode": {
+            "description": "Gets or sets the password of the SSL cert uploaded.",
+            "type": "string",
+            "xml": {
+              "name": "HttpsKeyStorePasscode"
+            }
+          },
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "segHttpServerPort": {
+            "description": "Gets or sets port on which SEG's HTTP listener is listening.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "SegHttpServerPort"
+            }
+          },
+          "segServerIsSsl": {
+            "description": "Gets or sets a value indicating whether HTTP listener is runnning on SSL.",
+            "type": "boolean",
+            "xml": {
+              "name": "IsSegServerSsl"
+            }
+          },
+          "uploadSslLocally": {
+            "description": "Gets or sets a value indicating whether SSL certificate is uploaded locally from the console.",
+            "type": "boolean",
+            "xml": {
+              "name": "UploadSslLocally"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "Stream": {
+        "properties": {
+          "__identity": {
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "SyncFiltersPolicyModel": {
+        "description": "The sync filters policy model.",
+        "example": {
+          "active": true,
+          "calendarSyncAllow": true,
+          "contactSyncAllow": true,
+          "id": 1234,
+          "journalSyncAllow": true,
+          "mailSyncAllow": true,
+          "noteSyncAllow": true,
+          "taskSyncAllow": true,
+          "uuid": "662eedc2-feb6-4a5f-88d7-562ca5ddd2fe"
+        },
+        "properties": {
+          "active": {
+            "description": "Gets or sets a value indicating whether indicates whether policy is active.",
+            "type": "boolean",
+            "xml": {
+              "name": "Active"
+            }
+          },
+          "calendarSyncAllow": {
+            "description": "Gets or sets a value indicating whether indicates whether calendar sync is allowed.",
+            "type": "boolean",
+            "xml": {
+              "name": "CalendarSyncAllow"
+            }
+          },
+          "contactSyncAllow": {
+            "description": "Gets or sets a value indicating whether indicates whether contact sync is allowed.",
+            "type": "boolean",
+            "xml": {
+              "name": "ContactSyncAllow"
+            }
+          },
+          "id": {
+            "description": "Gets or sets identifier.",
+            "format": "int32",
+            "type": "integer",
+            "xml": {
+              "name": "Id"
+            }
+          },
+          "journalSyncAllow": {
+            "description": "Gets or sets a value indicating whether indicates whether journal sync is allowed.",
+            "type": "boolean",
+            "xml": {
+              "name": "JournalSyncAllow"
+            }
+          },
+          "mailSyncAllow": {
+            "description": "Gets or sets a value indicating whether indicates whether mail sync is allowed.",
+            "type": "boolean",
+            "xml": {
+              "name": "MailSyncAllow"
+            }
+          },
+          "noteSyncAllow": {
+            "description": "Gets or sets a value indicating whether indicates whether note sync is allowed.",
+            "type": "boolean",
+            "xml": {
+              "name": "NoteSyncAllow"
+            }
+          },
+          "taskSyncAllow": {
+            "description": "Gets or sets a value indicating whether indicates whether task sync is allowed.",
+            "type": "boolean",
+            "xml": {
+              "name": "TaskSyncAllow"
+            }
+          },
+          "uuid": {
+            "description": "Gets or sets current objects UUID.",
+            "example": "00000000-0000-0000-0000-000000000000",
+            "format": "uuid",
+            "type": "string",
+            "xml": {
+              "name": "Uuid"
+            }
+          }
+        },
+        "type": "object",
+        "xml": {
+          "name": "SyncFiltersPolicy",
+          "namespace": "http://www.air-watch.com/webapi/resources"
+        }
+      }
+    },
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "description": "API Key",
+        "in": "header",
+        "name": "aw-tenant-code",
+        "type": "apiKey"
+      },
+      "BasicAuth": {
+        "scheme": "basic",
+        "type": "http"
+      },
+      "CmsAuth": {
+        "description": "CMS Authentication",
+        "in": "header",
+        "name": "Authorization",
+        "type": "apiKey"
+      },
+      "GroupIdAuth": {
+        "description": "Group ID",
+        "in": "header",
+        "name": "aw-groupid",
+        "type": "apiKey"
+      }
+    }
+  },
+  "info": {
+    "contact": {
+      "name": "Workspace ONE UEM"
+    },
+    "description": "Workspace ONE UEM MEM REST API",
+    "title": "MEM API",
+    "version": "1"
+  },
+  "openapi": "3.0.1",
+  "paths": {
+    "/memdevices/search": {
+      "get": {
+        "description": "Given a page index (row index) and page size, it gets the MEM Devices for a particular Organization Group.",
+        "operationId": "MEMDevices_Search",
+        "parameters": [
+          {
+            "description": "Organization group id.",
+            "in": "query",
+            "name": "organizationgroupid",
+            "schema": {
+              "format": "int32",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Specific page number to get. 0 based index.",
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "format": "int32",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Maximumm records per page. Default 500.",
+            "in": "query",
+            "name": "pagesize",
+            "schema": {
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json;version=1": {
+                "schema": {
+                  "$ref": "#/components/schemas/MEMDeviceSearchResult"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "204": {
+            "content": {
+              "application/json;version=1": {}
+            },
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json;version=1": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseExceptionModel"
+                }
+              }
+            },
+            "description": "{6:User doesn't have access to organization group or organization group not found."
+          }
+        },
+        "security": [
+          {
+            "BasicAuth": []
+          },
+          {
+            "CmsAuth": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Searches for the MEM Devices.",
+        "tags": [
+          "MEMDevices"
+        ]
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://as1831.awmdm.com/api/mem"
+    }
+  ]
+}

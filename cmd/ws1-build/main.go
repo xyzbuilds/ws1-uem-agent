@@ -33,6 +33,7 @@ End-users never run this; only maintainers do, when refreshing specs.`,
 		newCodegenCLICmd(),
 		newCodegenSkillCmd(),
 		newClassifyCheckCmd(),
+		newBulkClassifyCmd(),
 	)
 	if err := root.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, "ws1-build:", err)

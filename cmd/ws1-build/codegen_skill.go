@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -74,8 +75,9 @@ func loadOpIndexJSONFull(path string) ([]fullOpIndex, error) {
 		return nil, err
 	}
 	var raw []fullOpIndex
-	if err := yaml.Unmarshal(b, &raw); err != nil {
-		// JSON is a YAML subset; this works fine for both.
+	// Use JSON, not YAML — fullOpIndex's tags are `json:` and yaml.Unmarshal
+	// would silently drop fields it doesn't see by exact case-matching name.
+	if err := json.Unmarshal(b, &raw); err != nil {
 		return nil, fmt.Errorf("parse ops index: %w", err)
 	}
 	return raw, nil

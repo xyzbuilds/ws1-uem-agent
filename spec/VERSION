@@ -1,13 +1,24 @@
 tenant: as1831.awmdm.com
-api_explorer_version: 2025.11.6.68-v0demo
-fetched_at: 2026-04-30T00:00:00Z
-note: |
-  This is a minimal hand-curated slice of the WS1 UEM API surface, sufficient
-  for the alice-lock end-to-end demo (spec section 11). Real specs are pulled
-  via `make sync-specs` once the maintainer has a tenant bearer token; see
-  docs/build-pipeline.md and docs/spec-acquisition.md.
+api_explorer_version: 2025.11.6.68
+fetched_at: "2026-04-30T13:59:32Z"
 sections:
-  - slug: mdmv4
-    sha256: hand-curated
-  - slug: systemv2
-    sha256: hand-curated
+    - slug: mamv1
+      sha256: 06d0a36c17957ac82a8c604f036d47d9b9c9ee1dabbe8d37b2493f48ae49ea51
+    - slug: mamv2
+      sha256: 306af9bbe6e9d5be5d9fb5d3325295b8fa16881355c9c4955d4610ab41196eac
+    - slug: mcmv1
+      sha256: 79a022acc77816ea9aaa12526515a5d5cce75c6ccdc36ec4aa9690b4922b78e6
+    - slug: mdmv1
+      sha256: 2f3b354d7b914e0e178e3443f9f05ab4d0711060732763b7263ab49c47e21186
+    - slug: mdmv2
+      sha256: b8c13689b4bf39d2d8c6d00686f9e20e0f0dc057ed878357aea11d9ba6904ad8
+    - slug: mdmv3
+      sha256: 714d2eabe9e212534307c3eb4e77de93045f73c9fbae27b5a86d76424b65c8a3
+    - slug: mdmv4
+      sha256: a013530bd79719058094950fb7d6a5154bd50e23ad11d0364f88c3be016fa99b
+    - slug: memv1
+      sha256: 21e6f72dde49092000136773375f4783baa67e2f6a29d729a292ef5d1d5941f8
+    - slug: systemv1
+      sha256: eaee1ef735d3859a4348d7e9ad68c1391d796afa510252f9e7a88012948c7030
+    - slug: systemv2
+      sha256: 790af613274473cb9cb969c00b3438eca1a1bc5c13a746b3654fef66d5566aad

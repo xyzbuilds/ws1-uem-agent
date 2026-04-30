@@ -7,23 +7,28 @@ import (
 	"testing"
 )
 
-func TestExtractOpsFromMinimalSpec(t *testing.T) {
+// TestExtractOpsFromRealSpec confirms a small set of well-known real ops
+// survive the codegen pipeline. These are pinned: a future spec sync that
+// renames or drops one will fail this test, prompting the maintainer to
+// review the change.
+func TestExtractOpsFromRealSpec(t *testing.T) {
 	specs, err := loadSpecs("../../spec")
 	if err != nil {
 		t.Fatalf("loadSpecs: %v", err)
 	}
-	if len(specs) < 2 {
-		t.Fatalf("expected >= 2 specs, got %d", len(specs))
+	if len(specs) < 10 {
+		t.Fatalf("expected >= 10 sections from real spec, got %d", len(specs))
 	}
 
-	wantOps := map[string]string{
-		"mdmv4.devices.search":      "GET",
-		"mdmv4.devices.get":         "GET",
-		"mdmv4.devices.lock":        "POST",
-		"mdmv4.devices.wipe":        "POST",
-		"mdmv4.devices.bulkcommand": "POST",
-		"systemv2.users.search":     "GET",
-		"systemv2.users.get":        "GET",
+	wantPinned := map[string]string{
+		// Read paths the alice-lock demo + integration tests rely on.
+		"mdmv1.devices.search":         "GET",
+		"systemv2.usersv2.searchusers": "GET",
+		"systemv2.usersv2.read":        "GET",
+		// State-changing ops the lock + wipe paths use.
+		"mdmv1.commandsv1.execute":     "POST",
+		"mdmv1.commandsv1.bulkexecute": "POST",
+		"mdmv2.commandsv2.execute":     "POST",
 	}
 	got := map[string]string{}
 	for _, s := range specs {
@@ -36,22 +41,21 @@ func TestExtractOpsFromMinimalSpec(t *testing.T) {
 		}
 	}
 
-	for op, method := range wantOps {
+	for op, method := range wantPinned {
 		if got[op] != method {
-			t.Errorf("op %q: HTTP method = %q, want %q", op, got[op], method)
+			t.Errorf("op %q: HTTP method = %q, want %q (real spec drift?)", op, got[op], method)
 		}
 	}
-	if len(got) != len(wantOps) {
-		extras := []string{}
-		for op := range got {
-			if _, want := wantOps[op]; !want {
-				extras = append(extras, op)
-			}
-		}
-		sort.Strings(extras)
-		t.Errorf("unexpected ops: %v", extras)
+	if len(got) < 800 {
+		// Rough lower bound — current spec has 980 ops; this catches
+		// catastrophic codegen regression without being brittle to small
+		// upstream changes.
+		t.Errorf("op count = %d, want >= 800 for the full spec", len(got))
 	}
 }
+
+// helper kept to satisfy the unused-import detector if sort drops out elsewhere.
+var _ = sort.Strings
 
 func TestSlugify(t *testing.T) {
 	cases := map[string]string{
