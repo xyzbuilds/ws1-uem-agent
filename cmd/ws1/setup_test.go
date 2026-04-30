@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -399,6 +400,42 @@ func TestSetupNonInteractiveAllFlags(t *testing.T) {
 	}
 	if len(stub.AskedLabels) != 0 {
 		t.Errorf("non-interactive should not call Ask; saw %v", stub.AskedLabels)
+	}
+}
+
+func TestSetupAuthExhaustedMapsToInsufficientCode(t *testing.T) {
+	// Sanity-check that errAuthExhausted is wrapped through to the
+	// configureOneProfile failure path. Direct error-type test (not
+	// driving the cobra wrapper); the cobra wrapper's switch on
+	// errors.Is is a one-liner whose mapping table is the contract.
+	cfg := t.TempDir()
+	t.Setenv("WS1_CONFIG_DIR", cfg)
+	t.Setenv("HOME", cfg)
+	t.Setenv("WS1_ALLOW_DISK_SECRETS", "1")
+	t.Setenv("WS1_FORCE_INTERACTIVE", "1")
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/oauth", func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, `{"error":"invalid_client"}`, http.StatusUnauthorized)
+	})
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+
+	stub := &StubPrompter{
+		AskAnswers: map[string]string{
+			"Tenant hostname":   "x",
+			"Client ID":         "cid",
+			"Client ID (retry)": "cid2",
+		},
+		SecretAnswers: []string{"a", "b", "c"},
+	}
+	opts := SetupOptions{Profile: "operator", AuthURL: srv.URL + "/oauth", Quick: true}
+	err := RunSetup(context.Background(), opts, stub)
+	if err == nil {
+		t.Fatal("expected error after 3 failed attempts")
+	}
+	if !errors.Is(err, errAuthExhausted) {
+		t.Errorf("err = %v, want errors.Is(_, errAuthExhausted)", err)
 	}
 }
 

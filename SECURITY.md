@@ -58,7 +58,7 @@ the CLI's in-process state.
 
 | Secret | Storage | Why |
 |---|---|---|
-| OAuth `client_id` / `client_secret` | OS keychain (macOS Keychain / Windows DPAPI / Linux secret-service via libsecret) | Same-user processes can't read other apps' keychain entries without explicit grant. Linux without secret-service: opt-in disk fallback under `WS1_ALLOW_DISK_SECRETS`. |
+| OAuth `client_id` / `client_secret` | OS keychain (macOS Keychain / Windows DPAPI / Linux secret-service via libsecret) | Same-user processes can't read other apps' keychain entries without explicit grant. Production users get keychain-only behavior; behavior is unchanged from v0. **Escape hatch:** `WS1_ALLOW_DISK_SECRETS=1` bypasses the keychain entirely on any platform — secrets land in `~/.config/ws1/secrets.json` at mode 0600. Intended for CI / unattended testing where the OS keychain prompt would block the runner. Plaintext on disk; rotate the OAuth client if the env var is ever set in a shared environment. |
 | Active profile selection | `~/.config/ws1/profile` (plaintext, name only) | Not sensitive; no creds in this file. |
 | Active OG | `~/.config/ws1/og` (plaintext, ID only) | Not sensitive. |
 | In-flight approval state | CLI process memory only | Dies with the process; cannot be replayed. |

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/sha256"
 	"errors"
 	"fmt"
 	"strconv"
@@ -11,10 +12,20 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/xyzbuilds/ws1-uem-agent/internal/api"
+	"github.com/xyzbuilds/ws1-uem-agent/internal/audit"
 	"github.com/xyzbuilds/ws1-uem-agent/internal/auth"
 	"github.com/xyzbuilds/ws1-uem-agent/internal/envelope"
 	"github.com/xyzbuilds/ws1-uem-agent/internal/generated"
 )
+
+// errAuthExhausted signals the OAuth retry loop ran out of attempts.
+// The cobra wrapper maps it to CodeAuthInsufficientForOp.
+var errAuthExhausted = errors.New("auth: max retries exhausted")
+
+// errNonInteractiveMissingFlag signals a flag is required because the
+// caller is non-interactive and the wizard cannot prompt. Maps to
+// CodeIdentifierAmbiguous in the cobra wrapper.
+var errNonInteractiveMissingFlag = errors.New("non-interactive: missing required flag")
 
 // SetupOptions holds the values that may come from flags. The wizard
 // fills in any unset string from prompts (in interactive mode) or
@@ -72,8 +83,14 @@ the OAuth role is the API-side enforcer.`,
 				}
 			}
 			if err := RunSetup(context.Background(), opts, prompter); err != nil {
-				emitAndExit(envelope.NewError("ws1.setup",
-					envelope.CodeInternalError, err.Error()).
+				code := envelope.CodeInternalError
+				switch {
+				case errors.Is(err, errAuthExhausted):
+					code = envelope.CodeAuthInsufficientForOp
+				case errors.Is(err, errNonInteractiveMissingFlag):
+					code = envelope.CodeIdentifierAmbiguous
+				}
+				emitAndExit(envelope.NewError("ws1.setup", code, err.Error()).
 					WithDuration(time.Since(start)))
 				return
 			}
@@ -142,7 +159,7 @@ func RunSetup(ctx context.Context, opts SetupOptions, p Prompter) error {
 	if opts.AuthURL == "" {
 		if opts.Region == "" {
 			if !auth.IsInteractive() {
-				return fmt.Errorf("non-interactive: --region or --auth-url required")
+				return fmt.Errorf("%w: --region or --auth-url", errNonInteractiveMissingFlag)
 			}
 			region, err := pickRegion(p)
 			if err != nil {
@@ -199,6 +216,7 @@ func RunSetup(ctx context.Context, opts SetupOptions, p Prompter) error {
 	}
 
 	printExitSummary(profileNames, configured, og)
+	writeSetupAudit(profileNames, configured, og)
 	return nil
 }
 
@@ -321,7 +339,7 @@ func configureOneProfile(ctx context.Context, p Prompter, opts SetupOptions, nam
 			return auth.Profile{}, fmt.Errorf("save secret on retry: %w", err)
 		}
 	}
-	return auth.Profile{}, fmt.Errorf("auth failed after %d attempts for %s: %w", maxAttempts, name, lastErr)
+	return auth.Profile{}, fmt.Errorf("%w (profile %s, %d attempts): %w", errAuthExhausted, name, maxAttempts, lastErr)
 }
 
 // selectOGFetchProfile picks operator > admin > ro from the configured
@@ -387,6 +405,35 @@ func summarySeparator() string {
 		return strings.Repeat("─", 50)
 	}
 	return strings.Repeat("-", 50)
+}
+
+// writeSetupAudit appends a single ws1.setup row to the audit log.
+// Best-effort: a failure here doesn't fail the wizard (the setup is
+// already done; the user shouldn't see a misleading error).
+func writeSetupAudit(profileNames []string, configured []auth.Profile, og string) {
+	path, err := audit.DefaultPath()
+	if err != nil {
+		return
+	}
+	logger, err := audit.New(path)
+	if err != nil {
+		return
+	}
+	tenant := ""
+	if len(configured) > 0 {
+		tenant = configured[0].Tenant
+	}
+	hashSeed := strings.Join(profileNames, ",") + "|" + og + "|" + tenant
+	hash := fmt.Sprintf("%x", sha256.Sum256([]byte(hashSeed)))
+	_, _ = logger.Append(audit.Entry{
+		Caller:    "ws1.setup",
+		Operation: "ws1.setup",
+		ArgsHash:  hash[:16],
+		Class:     "configuration",
+		Profile:   strings.Join(profileNames, ","),
+		Tenant:    tenant,
+		Result:    "ok",
+	})
 }
 
 func pickRegion(p Prompter) (string, error) {
