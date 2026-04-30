@@ -153,10 +153,14 @@ func RunSetup(ctx context.Context, opts SetupOptions, p Prompter) error {
 		// Non-interactive: keep the value as-is, no prompt.
 	} else {
 		helpText(
-			"Your Workspace ONE UEM tenant URL — the hostname you log",
-			"into in the browser (e.g. cn1506.awmdm.com or",
-			"as1784.awmdm.com). The CLI calls https://<that-hostname>",
-			"for every API request.",
+			"Your Workspace ONE UEM tenant URL — the hostname the CLI",
+			"will call for every API request. Best practice is the",
+			"\"as\" hostname (API Service), e.g. as1784.awmdm.com — NOT",
+			"the \"cn\" hostname (Console UI), e.g. cn1506.awmdm.com.",
+			"The console URL also works but is not the recommended",
+			"endpoint for programmatic access. Find the as-URL in the",
+			"WS1 console > Groups & Settings > All Settings > System >",
+			"Advanced > Site URLs > REST API URL.",
 		)
 		tenant, err := p.Ask("Tenant hostname", opts.Tenant)
 		if err != nil {
@@ -193,6 +197,9 @@ func RunSetup(ctx context.Context, opts SetupOptions, p Prompter) error {
 	}
 
 	// Step 3: Profiles to configure.
+	if auth.IsInteractive() {
+		printProfileModel(opts.Quick)
+	}
 	profileNames, err := selectProfilesToConfigure(p, opts)
 	if err != nil {
 		return err
@@ -250,21 +257,9 @@ func selectProfilesToConfigure(p Prompter, opts SetupOptions) ([]string, error) 
 		return []string{name}, nil
 	}
 	helpText(
-		"Pick which capability profiles to configure. Profiles",
-		"control which class of operations the CLI can run; the",
-		"OAuth client you provision in the WS1 console MUST have",
-		"a matching console role/account, or the API will reject",
-		"the call regardless of CLI gating.",
-		"",
-		"  ro        Read-only (list, get, search). Safe default",
-		"            for agent sessions.",
-		"  operator  Read + write (lock, unenroll, install). Some",
-		"            destructive ops require browser approval.",
-		"  admin     Operator + tenant-level config (groups,",
-		"            policies, OAuth clients). Use sparingly.",
-		"",
-		"Comma-separated list, e.g. \"ro,operator\". Each profile",
-		"below gets its own client_id + secret prompt.",
+		"Comma-separated list of profiles to configure (e.g.",
+		"\"ro,operator\"). Each gets its own client_id + secret",
+		"prompt below.",
 	)
 	answer, err := p.Ask("Profiles to configure", "operator")
 	if err != nil {
@@ -313,14 +308,11 @@ func configureOneProfile(ctx context.Context, p Prompter, opts SetupOptions, nam
 	}
 	if clientID == "" {
 		helpText(
-			"OAuth client_id from your WS1 console:",
-			"  Groups & Settings > Configurations > OAuth Client",
-			"  Management > Add",
-			"The console role/account assigned to this client must",
-			"match this profile ("+name+") — e.g. a Console",
-			"Administrator role for admin, a Read-Only role for ro.",
-			"Mismatched roles will validate at OAuth but fail at the",
-			"API call.",
+			"OAuth client_id for the \""+name+"\" profile. Provision in:",
+			"  WS1 console > Groups & Settings > Configurations >",
+			"  OAuth Client Management > Add",
+			"Make sure the role/account assigned to this client matches",
+			"the \""+name+"\" profile (see profile model above).",
 		)
 		var err error
 		clientID, err = p.Ask(clientIDLabel, "")
@@ -448,8 +440,10 @@ func printExitSummary(profileNames []string, configured []auth.Profile, og strin
 	fmt.Fprintln(stderrWriter, "    ws1 status                Snapshot of current profile + OG")
 	fmt.Fprintln(stderrWriter)
 	fmt.Fprintln(stderrWriter, "  Explore the API —")
-	fmt.Fprintln(stderrWriter, "    ws1 ops list              All supported operations (~980)")
-	fmt.Fprintln(stderrWriter, "    ws1 ops describe <op>     Required + optional params for one op")
+	fmt.Fprintln(stderrWriter, "    ws1 ops search <pattern>  Find ops by substring (op id or summary)")
+	fmt.Fprintln(stderrWriter, "    ws1 ops list --section mdmv1 --tag devices --summary")
+	fmt.Fprintln(stderrWriter, "                              Filter ops by section / tag / class")
+	fmt.Fprintln(stderrWriter, "    ws1 ops describe <op>     Full schema for one op (params, class)")
 	fmt.Fprintln(stderrWriter, "    ws1 mdmv1 devices search --pagesize 5")
 	fmt.Fprintln(stderrWriter, "                              First page of devices in this OG")
 	fmt.Fprintln(stderrWriter)
@@ -504,6 +498,37 @@ func printWelcomeBanner() {
 // typically don't have a TTY on stderr, so this returns false there.
 func stderrIsTTY() bool {
 	return term.IsTerminal(int(os.Stderr.Fd()))
+}
+
+// printProfileModel explains the ro/operator/admin construct and the
+// multi-profile / switch workflow. Fires before Step 3 in both Quick
+// and Advanced flows so a first-time user understands what profile
+// they're about to configure (Quick) or pick from (Advanced).
+func printProfileModel(quick bool) {
+	fmt.Fprintln(stderrWriter)
+	fmt.Fprintln(stderrWriter, "Profile model")
+	fmt.Fprintln(stderrWriter, "-------------")
+	fmt.Fprintln(stderrWriter, "ws1 supports three capability profiles. Each profile is a")
+	fmt.Fprintln(stderrWriter, "separate OAuth client_id + secret pair, and the WS1 console")
+	fmt.Fprintln(stderrWriter, "role assigned to that OAuth client must match the profile:")
+	fmt.Fprintln(stderrWriter)
+	fmt.Fprintln(stderrWriter, "  ro        Read-only (list, get, search). Safest for agents")
+	fmt.Fprintln(stderrWriter, "            and dashboards. Use a Read-Only console role.")
+	fmt.Fprintln(stderrWriter, "  operator  Read + write (lock, unenroll, install apps).")
+	fmt.Fprintln(stderrWriter, "            Destructive ops require browser approval. Use a")
+	fmt.Fprintln(stderrWriter, "            Console Administrator (or equivalent write) role.")
+	fmt.Fprintln(stderrWriter, "  admin     Operator + tenant-level config (groups, policies,")
+	fmt.Fprintln(stderrWriter, "            OAuth clients). Use sparingly. Use an elevated")
+	fmt.Fprintln(stderrWriter, "            console-admin role.")
+	fmt.Fprintln(stderrWriter)
+	fmt.Fprintln(stderrWriter, "Configure multiple profiles and switch any time:")
+	if quick {
+		fmt.Fprintln(stderrWriter, "  ws1 setup --advanced     Configure ro/admin alongside this one")
+	} else {
+		fmt.Fprintln(stderrWriter, "  ws1 setup                Re-run; existing values offered as defaults")
+	}
+	fmt.Fprintln(stderrWriter, "  ws1 profile use <name>   Switch active profile (terminal-only)")
+	fmt.Fprintln(stderrWriter, "  ws1 profile list         Show what's configured")
 }
 
 // helpText writes a multi-line explanatory block to stderrWriter,

@@ -1,11 +1,14 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"golang.org/x/term"
 
 	"github.com/xyzbuilds/ws1-uem-agent/internal/envelope"
 	"github.com/xyzbuilds/ws1-uem-agent/internal/version"
@@ -36,6 +39,16 @@ func emitAndExit(env *envelope.Envelope) {
 		fmt.Fprintln(os.Stderr, "ws1: envelope marshal failed:", err)
 		fmt.Fprintln(os.Stdout, `{"envelope_version":1,"ok":false,"operation":"unknown","error":{"code":"INTERNAL_ERROR","message":"envelope marshal failed"},"meta":{"duration_ms":0}}`)
 		os.Exit(envelope.ExitInternalError)
+	}
+	// Human-friendly pretty-print when stdout is a TTY; preserves the
+	// original byte-for-byte field order via json.Indent (no remarshal).
+	// Piped/agent runs (no TTY) keep the compact one-line form so token
+	// counts and downstream parsers are unchanged.
+	if term.IsTerminal(int(os.Stdout.Fd())) {
+		var pretty bytes.Buffer
+		if err := json.Indent(&pretty, b, "", "  "); err == nil {
+			b = pretty.Bytes()
+		}
 	}
 	fmt.Fprintln(os.Stdout, string(b))
 	os.Exit(env.ExitCode())

@@ -2,6 +2,7 @@ package main
 
 import (
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -50,15 +51,37 @@ carries a class (read/write/destructive), reversibility, and approval rules
 from operations.policy.yaml. Use 'ops list' for a top-level catalog and
 'ops describe <op>' for a single op's full schema.`,
 	}
-	cmd.AddCommand(newOpsListCmd(), newOpsDescribeCmd())
+	cmd.AddCommand(newOpsListCmd(), newOpsDescribeCmd(), newOpsSearchCmd())
 	return cmd
 }
 
 func newOpsListCmd() *cobra.Command {
-	return &cobra.Command{
+	var (
+		section string
+		tag     string
+		class   string
+		filter  string
+		summary bool
+	)
+	cmd := &cobra.Command{
 		Use:   "list",
-		Short: "List all operations with class + reversibility + identifier",
-		Args:  cobra.NoArgs,
+		Short: "List operations (filterable by section / tag / class / substring)",
+		Long: `List operations from the compiled-in catalog. Without filters this
+returns the full set (~980 ops on a typical sync). Use the flags
+to narrow:
+
+  --section <slug>    e.g. mdmv1, systemv2, mcmv1, mamv2
+  --tag <name>        e.g. devices, users, organizationgroups
+  --class <class>     read | write | destructive
+  --filter <text>     substring match on the op id (case-insensitive)
+  --summary           compact output: only op + class + summary
+
+Examples:
+  ws1 ops list --section mdmv1 --tag devices --summary
+  ws1 ops list --class destructive --summary
+  ws1 ops list --filter wipe --summary
+`,
+		Args: cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
 			start := time.Now()
 			pol := loadActivePolicy()
@@ -69,10 +92,33 @@ func newOpsListCmd() *cobra.Command {
 			}
 			sort.Strings(ids)
 
+			classWant := strings.ToLower(strings.TrimSpace(class))
+			filterWant := strings.ToLower(strings.TrimSpace(filter))
+
 			rows := make([]map[string]any, 0, len(ids))
 			for _, id := range ids {
 				meta := generated.Ops[id]
 				e := pol.Classify(id)
+				if section != "" && meta.Section != section {
+					continue
+				}
+				if tag != "" && !strings.EqualFold(meta.Tag, tag) {
+					continue
+				}
+				if classWant != "" && string(e.Class) != classWant {
+					continue
+				}
+				if filterWant != "" && !strings.Contains(strings.ToLower(id), filterWant) {
+					continue
+				}
+				if summary {
+					rows = append(rows, map[string]any{
+						"op":      id,
+						"class":   string(e.Class),
+						"summary": meta.Summary,
+					})
+					continue
+				}
 				rows = append(rows, map[string]any{
 					"op":           id,
 					"section":      meta.Section,
@@ -92,6 +138,63 @@ func newOpsListCmd() *cobra.Command {
 					"ops":      rows,
 					"sections": generated.Sections(),
 					"count":    len(rows),
+					"filters": map[string]any{
+						"section": section,
+						"tag":     tag,
+						"class":   classWant,
+						"filter":  filterWant,
+						"summary": summary,
+					},
+				}).
+				WithDuration(time.Since(start)))
+		},
+	}
+	cmd.Flags().StringVar(&section, "section", "", "filter by section slug (e.g. mdmv1, systemv2)")
+	cmd.Flags().StringVar(&tag, "tag", "", "filter by tag (e.g. devices, users)")
+	cmd.Flags().StringVar(&class, "class", "", "filter by class (read | write | destructive)")
+	cmd.Flags().StringVar(&filter, "filter", "", "substring match on op id (case-insensitive)")
+	cmd.Flags().BoolVar(&summary, "summary", false, "compact output: only op + class + summary")
+	return cmd
+}
+
+// newOpsSearchCmd is sugar for `ops list --filter <pattern> --summary`.
+// Most users reach for this when they remember a verb or a fragment
+// of a path and want to find the matching op.
+func newOpsSearchCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "search <pattern>",
+		Short: "Search operations by substring (sugar for `list --filter <pattern> --summary`)",
+		Args:  cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			start := time.Now()
+			pol := loadActivePolicy()
+			needle := strings.ToLower(args[0])
+
+			ids := make([]string, 0, len(generated.Ops))
+			for id := range generated.Ops {
+				ids = append(ids, id)
+			}
+			sort.Strings(ids)
+
+			rows := make([]map[string]any, 0)
+			for _, id := range ids {
+				if !strings.Contains(strings.ToLower(id), needle) &&
+					!strings.Contains(strings.ToLower(generated.Ops[id].Summary), needle) {
+					continue
+				}
+				meta := generated.Ops[id]
+				e := pol.Classify(id)
+				rows = append(rows, map[string]any{
+					"op":      id,
+					"class":   string(e.Class),
+					"summary": meta.Summary,
+				})
+			}
+			emitAndExit(envelope.New("ws1.ops.search").
+				WithData(map[string]any{
+					"matches": rows,
+					"count":   len(rows),
+					"pattern": args[0],
 				}).
 				WithDuration(time.Since(start)))
 		},
