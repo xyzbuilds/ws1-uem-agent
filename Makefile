@@ -1,4 +1,4 @@
-.PHONY: all build test test-race lint fmt vet generate sync-specs demo clean tools tools-build help
+.PHONY: all build install uninstall test test-race lint fmt vet generate sync-specs demo clean tools tools-build help
 
 # ----- Identity -------------------------------------------------------------
 MODULE       := github.com/xyzbuilds/ws1-uem-agent
@@ -26,6 +26,27 @@ help:  ## Show this help
 build:  ## Build the ws1 binary
 	@mkdir -p $(BIN)
 	$(GO) build -ldflags '$(LDFLAGS)' -o $(BIN)/ws1 ./cmd/ws1
+
+# INSTALL_DIR: where `make install` drops ws1. Override on the command
+# line (e.g. INSTALL_DIR=~/.local/bin make install). Defaults to
+# /usr/local/bin (system-wide, needs sudo on most setups).
+INSTALL_DIR ?= /usr/local/bin
+
+install: build  ## Install ws1 to $(INSTALL_DIR) (default /usr/local/bin)
+	@if [ ! -d "$(INSTALL_DIR)" ]; then \
+	  echo "$(INSTALL_DIR) does not exist; create it or override INSTALL_DIR=~/.local/bin"; \
+	  exit 1; \
+	fi
+	@if [ ! -w "$(INSTALL_DIR)" ]; then \
+	  echo "$(INSTALL_DIR) is not writable; rerun with sudo, or set INSTALL_DIR=~/.local/bin"; \
+	  exit 1; \
+	fi
+	install -m 0755 $(BIN)/ws1 $(INSTALL_DIR)/ws1
+	@echo "installed: $(INSTALL_DIR)/ws1 (version $(VERSION))"
+
+uninstall:  ## Remove ws1 from $(INSTALL_DIR)
+	rm -f $(INSTALL_DIR)/ws1
+	@echo "removed: $(INSTALL_DIR)/ws1"
 
 tools-build:  ## Build the maintainer toolchain (ws1-build)
 	@mkdir -p $(BIN)
