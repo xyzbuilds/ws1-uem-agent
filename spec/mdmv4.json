@@ -1,0 +1,207 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "MDM API",
+    "description": "Workspace ONE UEM MDM REST API V4 (minimal slice for v0 demo)",
+    "contact": { "name": "Workspace ONE UEM" },
+    "version": "4"
+  },
+  "servers": [
+    { "url": "https://example.awmdm.com/api/mdm" }
+  ],
+  "paths": {
+    "/devices/search": {
+      "get": {
+        "tags": ["Devices"],
+        "summary": "Search devices",
+        "description": "Search managed devices, optionally filtered by user, organization group, or platform.",
+        "operationId": "Devices_Search",
+        "parameters": [
+          { "name": "user", "in": "query", "schema": { "type": "string" }, "description": "Username or email of enrolled user" },
+          { "name": "organizationgroupid", "in": "query", "schema": { "type": "integer" }, "description": "OG ID to scope the search" },
+          { "name": "platform", "in": "query", "schema": { "type": "string" }, "description": "Platform filter (Apple, Android, etc.)" },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 0 } },
+          { "name": "pagesize", "in": "query", "schema": { "type": "integer", "default": 100 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of devices",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DeviceSearchResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/devices/{id}": {
+      "get": {
+        "tags": ["Devices"],
+        "summary": "Get device by ID",
+        "description": "Fetch a single device record.",
+        "operationId": "Devices_Get",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Device record",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Device" }
+              }
+            }
+          },
+          "404": { "description": "Device not found" }
+        }
+      }
+    },
+    "/devices/{id}/commands/lock": {
+      "post": {
+        "tags": ["Devices"],
+        "summary": "Lock device",
+        "description": "Queue a device-lock command. Reversible: the device unlocks on the next user authentication.",
+        "operationId": "Devices_Lock",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "202": {
+            "description": "Command queued",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CommandResult" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/devices/{id}/commands/wipe": {
+      "post": {
+        "tags": ["Devices"],
+        "summary": "Wipe device (enterprise)",
+        "description": "Queue an enterprise-wipe command. Removes all corporate data and unenrolls the device. IRREVERSIBLE.",
+        "operationId": "Devices_Wipe",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "202": {
+            "description": "Wipe job started",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AsyncJobAccepted" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/devices/commands/bulk": {
+      "post": {
+        "tags": ["Devices"],
+        "summary": "Bulk command on devices",
+        "description": "Queue the same command across multiple devices in one call. Per-target outcomes returned in the response.",
+        "operationId": "Devices_BulkCommand",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/BulkCommandRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Bulk result with per-target outcomes",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/BulkCommandResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Device": {
+        "type": "object",
+        "properties": {
+          "DeviceID": { "type": "integer" },
+          "SerialNumber": { "type": "string" },
+          "FriendlyName": { "type": "string" },
+          "EnrollmentUser": { "type": "string" },
+          "EnrollmentStatus": { "type": "string" },
+          "Platform": { "type": "string" },
+          "OrganizationGroupID": { "type": "integer" },
+          "OrganizationGroupName": { "type": "string" }
+        }
+      },
+      "DeviceSearchResponse": {
+        "type": "object",
+        "properties": {
+          "Devices": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Device" }
+          },
+          "Page": { "type": "integer" },
+          "PageSize": { "type": "integer" },
+          "Total": { "type": "integer" }
+        }
+      },
+      "CommandResult": {
+        "type": "object",
+        "properties": {
+          "DeviceID": { "type": "integer" },
+          "command_uuid": { "type": "string" },
+          "status": { "type": "string" }
+        }
+      },
+      "AsyncJobAccepted": {
+        "type": "object",
+        "properties": {
+          "job_id": { "type": "string" },
+          "status": { "type": "string" },
+          "poll_url": { "type": "string" }
+        }
+      },
+      "BulkCommandRequest": {
+        "type": "object",
+        "required": ["command", "device_ids"],
+        "properties": {
+          "command": { "type": "string", "description": "Lock | Wipe | EnterpriseWipe | ClearPasscode | ..." },
+          "device_ids": { "type": "array", "items": { "type": "integer" } }
+        }
+      },
+      "BulkCommandResponse": {
+        "type": "object",
+        "properties": {
+          "successes": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/CommandResult" }
+          },
+          "failures": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "DeviceID": { "type": "integer" },
+                "error": {
+                  "type": "object",
+                  "properties": {
+                    "code": { "type": "string" },
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

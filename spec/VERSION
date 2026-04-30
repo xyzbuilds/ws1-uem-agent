@@ -1,0 +1,13 @@
+tenant: as1831.awmdm.com
+api_explorer_version: 2025.11.6.68-v0demo
+fetched_at: 2026-04-30T00:00:00Z
+note: |
+  This is a minimal hand-curated slice of the WS1 UEM API surface, sufficient
+  for the alice-lock end-to-end demo (spec section 11). Real specs are pulled
+  via `make sync-specs` once the maintainer has a tenant bearer token; see
+  docs/build-pipeline.md and docs/spec-acquisition.md.
+sections:
+  - slug: mdmv4
+    sha256: hand-curated
+  - slug: systemv2
+    sha256: hand-curated

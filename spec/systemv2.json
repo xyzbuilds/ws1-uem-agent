@@ -1,0 +1,90 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "System API",
+    "description": "Workspace ONE UEM System REST API V2 (minimal slice for v0 demo)",
+    "contact": { "name": "Workspace ONE UEM" },
+    "version": "2"
+  },
+  "servers": [
+    { "url": "https://example.awmdm.com/api/system" }
+  ],
+  "paths": {
+    "/users/search": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Search enrolled users",
+        "description": "Search enrolled users by username, email, or organization group.",
+        "operationId": "Users_Search",
+        "parameters": [
+          { "name": "username", "in": "query", "schema": { "type": "string" } },
+          { "name": "email", "in": "query", "schema": { "type": "string" } },
+          { "name": "firstname", "in": "query", "schema": { "type": "string" } },
+          { "name": "lastname", "in": "query", "schema": { "type": "string" } },
+          { "name": "organizationgroupid", "in": "query", "schema": { "type": "integer" } },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 0 } },
+          { "name": "pagesize", "in": "query", "schema": { "type": "integer", "default": 100 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of users",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UserSearchResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get user by ID",
+        "description": "Fetch a single enrolled user record.",
+        "operationId": "Users_Get",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "User record",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/User" }
+              }
+            }
+          },
+          "404": { "description": "User not found" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "UserID": { "type": "integer" },
+          "Username": { "type": "string" },
+          "Email": { "type": "string" },
+          "FirstName": { "type": "string" },
+          "LastName": { "type": "string" },
+          "OrganizationGroupID": { "type": "integer" }
+        }
+      },
+      "UserSearchResponse": {
+        "type": "object",
+        "properties": {
+          "Users": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/User" }
+          },
+          "Page": { "type": "integer" },
+          "PageSize": { "type": "integer" },
+          "Total": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

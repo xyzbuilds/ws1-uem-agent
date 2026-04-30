@@ -1,0 +1,205 @@
+[
+  {
+    "op": "mdmv4.devices.bulkcommand",
+    "section": "mdmv4",
+    "tag": "devices",
+    "verb": "bulkcommand",
+    "http_method": "POST",
+    "path_template": "/devices/commands/bulk",
+    "base_path": "/api/mdm",
+    "operation_id": "Devices_BulkCommand",
+    "summary": "Bulk command on devices",
+    "description": "Queue the same command across multiple devices in one call. Per-target outcomes returned in the response.",
+    "has_request_body": true,
+    "parameters": null
+  },
+  {
+    "op": "mdmv4.devices.get",
+    "section": "mdmv4",
+    "tag": "devices",
+    "verb": "get",
+    "http_method": "GET",
+    "path_template": "/devices/{id}",
+    "base_path": "/api/mdm",
+    "operation_id": "Devices_Get",
+    "summary": "Get device by ID",
+    "description": "Fetch a single device record.",
+    "has_request_body": false,
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "type": "integer"
+      }
+    ]
+  },
+  {
+    "op": "mdmv4.devices.lock",
+    "section": "mdmv4",
+    "tag": "devices",
+    "verb": "lock",
+    "http_method": "POST",
+    "path_template": "/devices/{id}/commands/lock",
+    "base_path": "/api/mdm",
+    "operation_id": "Devices_Lock",
+    "summary": "Lock device",
+    "description": "Queue a device-lock command. Reversible: the device unlocks on the next user authentication.",
+    "has_request_body": false,
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "type": "integer"
+      }
+    ]
+  },
+  {
+    "op": "mdmv4.devices.search",
+    "section": "mdmv4",
+    "tag": "devices",
+    "verb": "search",
+    "http_method": "GET",
+    "path_template": "/devices/search",
+    "base_path": "/api/mdm",
+    "operation_id": "Devices_Search",
+    "summary": "Search devices",
+    "description": "Search managed devices, optionally filtered by user, organization group, or platform.",
+    "has_request_body": false,
+    "parameters": [
+      {
+        "name": "user",
+        "in": "query",
+        "required": false,
+        "type": "string",
+        "description": "Username or email of enrolled user"
+      },
+      {
+        "name": "organizationgroupid",
+        "in": "query",
+        "required": false,
+        "type": "integer",
+        "description": "OG ID to scope the search"
+      },
+      {
+        "name": "platform",
+        "in": "query",
+        "required": false,
+        "type": "string",
+        "description": "Platform filter (Apple, Android, etc.)"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "type": "integer"
+      },
+      {
+        "name": "pagesize",
+        "in": "query",
+        "required": false,
+        "type": "integer"
+      }
+    ]
+  },
+  {
+    "op": "mdmv4.devices.wipe",
+    "section": "mdmv4",
+    "tag": "devices",
+    "verb": "wipe",
+    "http_method": "POST",
+    "path_template": "/devices/{id}/commands/wipe",
+    "base_path": "/api/mdm",
+    "operation_id": "Devices_Wipe",
+    "summary": "Wipe device (enterprise)",
+    "description": "Queue an enterprise-wipe command. Removes all corporate data and unenrolls the device. IRREVERSIBLE.",
+    "has_request_body": false,
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "type": "integer"
+      }
+    ]
+  },
+  {
+    "op": "systemv2.users.get",
+    "section": "systemv2",
+    "tag": "users",
+    "verb": "get",
+    "http_method": "GET",
+    "path_template": "/users/{id}",
+    "base_path": "/api/system",
+    "operation_id": "Users_Get",
+    "summary": "Get user by ID",
+    "description": "Fetch a single enrolled user record.",
+    "has_request_body": false,
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "type": "integer"
+      }
+    ]
+  },
+  {
+    "op": "systemv2.users.search",
+    "section": "systemv2",
+    "tag": "users",
+    "verb": "search",
+    "http_method": "GET",
+    "path_template": "/users/search",
+    "base_path": "/api/system",
+    "operation_id": "Users_Search",
+    "summary": "Search enrolled users",
+    "description": "Search enrolled users by username, email, or organization group.",
+    "has_request_body": false,
+    "parameters": [
+      {
+        "name": "username",
+        "in": "query",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "name": "email",
+        "in": "query",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "name": "firstname",
+        "in": "query",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "name": "lastname",
+        "in": "query",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "name": "organizationgroupid",
+        "in": "query",
+        "required": false,
+        "type": "integer"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "type": "integer"
+      },
+      {
+        "name": "pagesize",
+        "in": "query",
+        "required": false,
+        "type": "integer"
+      }
+    ]
+  }
+]
