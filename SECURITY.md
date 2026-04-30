@@ -53,6 +53,23 @@ the CLI's in-process state.
   per-invocation in-memory approval state is not coordinated across
   concurrent CLI processes. v2 considers a daemon for cross-invocation
   state.
+- **Active-profile state is OS-user-scoped, not shell-scoped.** When the
+  user runs `ws1 profile use operator`, the new profile is written to
+  `~/.config/ws1/profile`. Any process running as that OS user — other
+  terminals, background daemons, agents (Claude Code, Copilot CLI, etc.),
+  cron jobs, CI runners — picks up the new profile on its next CLI call.
+  The interactive-only guard on `profile use` (locked decision #5) stops
+  an agent from *escalating itself* via argv; it does NOT stop an
+  already-running agent from *using* the operator profile after the user
+  has switched. If the user switches and walks away, every process on
+  that account runs as operator until they switch back. v2 mitigations
+  to tighten next phase:
+  - TTL on the elevated profile (auto-revert to `ro` after N minutes
+    idle so an unattended terminal doesn't stay elevated)
+  - per-invocation `--profile <name>` override that does NOT mutate the
+    persisted active-profile file
+  - daemon-mediated short-lived elevation tokens scoped to the
+    requesting CLI process tree
 
 ## Where each secret lives
 
