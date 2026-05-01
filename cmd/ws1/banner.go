@@ -171,18 +171,30 @@ func printBanner(infoLines []string) {
 	}
 }
 
+// brandTagline is the one-line product tagline shown under the title
+// in every banner surface. Kept in one constant so updates ripple
+// across `ws1 setup`, bare `ws1`, and any future banner consumer.
+const brandTagline = "Workspace ONE UEM — agent-first CLI"
+
+// titleLine returns the canonical first banner line: bold "ws1 CLI"
+// + dim version. Used by every banner surface so the brand reads
+// the same way at every entry point.
+func titleLine() string {
+	return bold("ws1 CLI") + "  " + dim("v"+version.Version)
+}
+
 // showBareWS1Greeter renders the banner with state-aware info + a
 // heads-up line. Fires when the user runs `ws1` with no subcommand.
 // Pure UX surface — no JSON envelope, no exit code drama.
 func showBareWS1Greeter() {
 	info := []string{
-		bold("ws1") + " " + dim("v"+version.Version),
+		titleLine(),
+		dim(brandTagline),
 	}
 
 	profiles, _ := auth.LoadProfiles()
 	if len(profiles) == 0 {
 		// Pre-config greeter.
-		info = append(info, dim("Workspace ONE UEM agent · agent-first CLI"))
 		printBanner(info)
 		fmt.Fprintln(stderrWriter)
 		fmt.Fprintf(stderrWriter, "%s  No configuration found. Run %s to set up your tenant.\n",
@@ -200,7 +212,7 @@ func showBareWS1Greeter() {
 		}
 	}
 
-	info = append(info, dim(fmt.Sprintf("Workspace ONE UEM agent · %d profile(s) configured", len(profiles))))
+	info = append(info, "")
 	if tenant != "" {
 		profileColor := green(active)
 		if active == "operator" || active == "admin" {
@@ -211,6 +223,8 @@ func showBareWS1Greeter() {
 			ogStr = "(none)"
 		}
 		info = append(info, dim(tenant+" · profile ")+profileColor+dim(" · OG "+ogStr))
+	} else {
+		info = append(info, dim(fmt.Sprintf("%d profile(s) configured", len(profiles))))
 	}
 	printBanner(info)
 
@@ -232,7 +246,9 @@ func printSetupBanner() {
 		return
 	}
 	printBanner([]string{
-		bold("ws1") + " " + dim("v"+version.Version),
+		titleLine(),
+		dim(brandTagline),
+		"",
 		dim("Welcome — let's set up your tenant."),
 	})
 }
