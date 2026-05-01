@@ -418,37 +418,97 @@ func printExitSummary(profileNames []string, configured []auth.Profile, og strin
 	}
 	tenant := configured[0].Tenant
 	active, _ := auth.Active()
+
+	// Color the active profile name by its class so the eye lands on
+	// the safety posture (matches the rest of the CLI's class colors).
+	var activeColored string
+	switch active {
+	case "operator":
+		activeColored = warn(active)
+	case "admin":
+		activeColored = red(active)
+	default:
+		activeColored = green(active)
+	}
+
+	// Comma-separated configured-profiles list, each colored by class.
+	parts := make([]string, 0, len(profileNames))
+	for _, n := range profileNames {
+		switch n {
+		case "ro":
+			parts = append(parts, green(n))
+		case "operator":
+			parts = append(parts, warn(n))
+		case "admin":
+			parts = append(parts, red(n))
+		default:
+			parts = append(parts, n)
+		}
+	}
+
 	fmt.Fprintln(stderrWriter, summarySeparator())
-	fmt.Fprintln(stderrWriter, "Setup complete.")
+	fmt.Fprintf(stderrWriter, "%s  %s\n", green("✓"), bold("Setup complete."))
 	fmt.Fprintln(stderrWriter)
-	fmt.Fprintf(stderrWriter, "  Profiles configured: %s\n", strings.Join(profileNames, ", "))
-	fmt.Fprintf(stderrWriter, "  Active profile:      %s\n", active)
-	fmt.Fprintf(stderrWriter, "  Tenant:              %s\n", tenant)
+	fmt.Fprintf(stderrWriter, "  %s %s\n", dim("Profiles configured:"), strings.Join(parts, dim(", ")))
+	fmt.Fprintf(stderrWriter, "  %s %s\n", dim("Active profile:     "), activeColored)
+	fmt.Fprintf(stderrWriter, "  %s %s\n", dim("Tenant:             "), example(tenant))
 	if og != "" {
-		fmt.Fprintf(stderrWriter, "  OG context:          %s\n", og)
+		fmt.Fprintf(stderrWriter, "  %s %s\n", dim("OG context:         "), example(og))
 	}
 	fmt.Fprintln(stderrWriter)
-	fmt.Fprintln(stderrWriter, "What's next:")
-	fmt.Fprintln(stderrWriter)
-	fmt.Fprintln(stderrWriter, "  Verify your setup —")
-	fmt.Fprintln(stderrWriter, "    ws1 doctor                Connectivity, auth, OG sanity check")
-	fmt.Fprintln(stderrWriter, "    ws1 status                Snapshot of current profile + OG")
-	fmt.Fprintln(stderrWriter)
-	fmt.Fprintln(stderrWriter, "  Explore the API —")
-	fmt.Fprintln(stderrWriter, "    ws1 ops search <pattern>  Find ops by substring (op id or summary)")
-	fmt.Fprintln(stderrWriter, "    ws1 ops list --section mdmv1 --tag devices --summary")
-	fmt.Fprintln(stderrWriter, "                              Filter ops by section / tag / class")
-	fmt.Fprintln(stderrWriter, "    ws1 ops describe <op>     Full schema for one op (params, class)")
-	fmt.Fprintln(stderrWriter, "    ws1 mdmv1 devices search --pagesize 5")
-	fmt.Fprintln(stderrWriter, "                              First page of devices in this OG")
-	fmt.Fprintln(stderrWriter)
-	fmt.Fprintln(stderrWriter, "  Change configuration —")
-	fmt.Fprintln(stderrWriter, "    ws1 og use <id>           Switch the default OG context")
-	fmt.Fprintln(stderrWriter, "    ws1 profile list          Show configured profiles")
-	fmt.Fprintln(stderrWriter, "    ws1 profile use ro        Switch active profile (terminal-only)")
-	fmt.Fprintln(stderrWriter, "    ws1 setup --advanced      Add ro / admin profiles alongside this one")
-	fmt.Fprintln(stderrWriter, "    ws1 setup                 Re-run; existing values offered as defaults")
+	fmt.Fprintln(stderrWriter, bold("What's next"))
+	fmt.Fprintln(stderrWriter, dim("───────────"))
+	printSection("Verify your setup", []nextCmd{
+		{"ws1 doctor", "Connectivity, auth, OG sanity check"},
+		{"ws1 status", "Snapshot of current profile + OG"},
+	})
+	printSection("Explore the API", []nextCmd{
+		{"ws1 ops search <pattern>", "Find ops by substring (op id or summary)"},
+		{"ws1 ops list --section mdmv1 --tag devices --summary", ""},
+		{"", "Filter ops by section / tag / class"},
+		{"ws1 ops describe <op>", "Full schema for one op (params, class)"},
+		{"ws1 mdmv1 devices search --pagesize 5", ""},
+		{"", "First page of devices in this OG"},
+	})
+	printSection("Change configuration", []nextCmd{
+		{"ws1 og use <id>", "Switch the default OG context"},
+		{"ws1 profile list", "Show configured profiles"},
+		{"ws1 profile use ro", "Switch active profile (terminal-only)"},
+		{"ws1 setup --advanced", "Add ro / admin profiles alongside this one"},
+		{"ws1 setup", "Re-run; existing values offered as defaults"},
+	})
 	fmt.Fprintln(stderrWriter, summarySeparator())
+}
+
+// nextCmd is one row in a "what's next" section: a command on the
+// left, a one-line description on the right. Empty Cmd renders as a
+// continuation-indent description (used for commands too long for one
+// line).
+type nextCmd struct {
+	Cmd  string
+	Desc string
+}
+
+// printSection writes one "what's next" group: a section header in
+// bold then color-coded command rows. Commands aligned to a 50-col
+// gutter so descriptions stack cleanly.
+func printSection(title string, rows []nextCmd) {
+	fmt.Fprintln(stderrWriter)
+	fmt.Fprintf(stderrWriter, "  %s\n", bold(title))
+	const cmdWidth = 50
+	for _, r := range rows {
+		if r.Cmd == "" {
+			// Continuation row: just the description, indented past gutter.
+			fmt.Fprintf(stderrWriter, "    %s%s\n", strings.Repeat(" ", cmdWidth+2), dim(r.Desc))
+			continue
+		}
+		if r.Desc == "" {
+			// Command-only row (description follows on next line).
+			fmt.Fprintf(stderrWriter, "    %s\n", code(r.Cmd))
+			continue
+		}
+		fmt.Fprintf(stderrWriter, "    %s  %s\n", code(padRight(r.Cmd, cmdWidth)), dim(r.Desc))
+	}
 }
 
 // printProfileModel explains the ro/operator/admin construct and the
