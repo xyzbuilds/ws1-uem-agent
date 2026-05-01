@@ -99,3 +99,41 @@ A `--dry-run` variant must complete the same flow without any state-changing API
 ## Roadmap pointer
 
 For the v0 task list, see spec section 12 ("Next concrete steps"). For parked questions, see spec section 13.
+
+## Current release state
+
+**Shipped:** [v0.1.0](https://github.com/xyzbuilds/ws1-uem-agent/releases/tag/v0.1.0) — initial PoC release, 2026-04-30. Five cross-compiled binaries on the release page; install one-liners in `README.md`.
+
+**Release notes:** `docs/release-notes/v0.1.0.md` — feature list, install per platform, demo path for stakeholder calls, known limitations.
+
+**License:** MIT (see `LICENSE`). Sole-authored through v0.1.0.
+
+**Next cut:** see `docs/release-notes/v0.1.0.md` "What's next" for the v0.2 / v1 roadmap. Top items deferred from v0.1.0:
+- Destructive op pre-flight summary (target name + owner + OG before approval round-trip).
+- TTL on elevated profiles (auto-revert to `ro` after N minutes idle) — see `SECURITY.md`.
+- `--profile <name>` per-invocation override that doesn't mutate the persisted active-profile file.
+
+## Release workflow
+
+```bash
+make release VERSION=X.Y.Z       # cross-compile to dist/
+$EDITOR docs/release-notes/vX.Y.Z.md
+git commit -m "docs(release-notes): vX.Y.Z" && git push origin main
+make release VERSION=X.Y.Z       # rebuild on the docs commit so version is clean
+git tag -a vX.Y.Z -m "..."  &&  git push origin vX.Y.Z
+gh release create vX.Y.Z --notes-file docs/release-notes/vX.Y.Z.md dist/ws1-* dist/SHA256SUMS
+```
+
+`make release` cross-compiles five targets (darwin arm64/amd64, linux amd64/arm64, windows amd64), CGO=0, statically linked, version-stamped, with SHA256SUMS. Don't skip the second `make release` — without it, the version stamp will say `-dirty`.
+
+## Brand surface (locked at v0.1.0)
+
+The teal mascot banner, "ws1 CLI" title, and "Workspace ONE UEM — agent-first CLI" tagline are locked. All banner surfaces (`ws1 setup`, bare `ws1`, future commands) go through `titleLine()` + `brandTagline` + `printBanner()` in `cmd/ws1/banner.go`.
+
+Color/symbol vocabulary is consistent across every TTY surface:
+- `read` → green, `write` → blue, `destructive` → red — wrapped via `colorByClass()`.
+- Profile names colored same as their class (`ro` green, `operator` warn-yellow, `admin` red).
+- Symbols: `✓` pass, `✗` fail, `·` skip, `⚠` always-requires-approval, `!` approval-at-scale, `→` async dispatch, `›` input prompt marker.
+- Every visual decoration is gated on `stderrIsTTY()`; agents (no TTY) get plain text and identical JSON envelopes on stdout.
+
+Don't invent new colors or symbols without checking this list — consistency is the point.
