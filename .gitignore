@@ -19,10 +19,13 @@ AGENTS.md
 .claude/
 
 # Internal maintainer docs — not for public repo.
-# (Superpowers brainstorming + planning docs, internal pipelines.)
+# (Superpowers brainstorming + planning docs, internal pipelines,
+# original v0 design doc.)
 /docs/superpowers/
 /docs/build-pipeline.md
 /docs/spec-acquisition.md
+/ws1-uem-agent-v0-spec.md
+/ws1-uem-agent.md
 
 # IDE / editor
 .idea/
