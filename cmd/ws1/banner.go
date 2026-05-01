@@ -105,6 +105,21 @@ func info(s string) string {
 	return "\x1b[38;2;121;192;255m" + s + colorReset
 }
 
+// code wraps s in info-blue — used for inline command names and
+// flag examples in helper text. Visually distinct from prose so the
+// reader's eye lands on what to actually type.
+func code(s string) string {
+	return info(s)
+}
+
+// example wraps s in info-blue (same as code) — semantic alias for
+// concrete-value examples like "as1784.awmdm.com" inside helper
+// text. Keeping the alias lets us re-skin examples without touching
+// every call site.
+func example(s string) string {
+	return info(s)
+}
+
 // colorByClass returns s wrapped in the canonical class color:
 // read → green, write → info-blue, destructive → red. Anything else
 // passes through unchanged. Use this everywhere the class is shown

@@ -151,14 +151,13 @@ func RunSetup(ctx context.Context, opts SetupOptions, p Prompter) error {
 		// Non-interactive: keep the value as-is, no prompt.
 	} else {
 		helpText(
-			"Your Workspace ONE UEM tenant URL — the hostname the CLI",
-			"will call for every API request. Best practice is the",
-			"\"as\" hostname (API Service), e.g. as1784.awmdm.com — NOT",
-			"the \"cn\" hostname (Console UI), e.g. cn1506.awmdm.com.",
-			"The console URL also works but is not the recommended",
-			"endpoint for programmatic access. Find the as-URL in the",
-			"WS1 console > Groups & Settings > All Settings > System >",
-			"Advanced > Site URLs > REST API URL.",
+			bold("Step 1")+dim(" — Tenant"),
+			"Your Workspace ONE UEM tenant URL: the hostname the CLI calls for every API request.",
+			"",
+			"Best practice: use the "+green("as")+"-prefix hostname (API Service), e.g. "+example("as1784.awmdm.com")+".",
+			"Avoid the "+warn("cn")+"-prefix hostname (Console UI), e.g. "+dim("cn1506.awmdm.com")+" — the console URL works but isn't the recommended programmatic endpoint.",
+			"",
+			dim("Find the as-URL in: WS1 console > Groups & Settings > All Settings > System > Advanced > Site URLs > REST API URL."),
 		)
 		tenant, err := p.Ask("Tenant hostname", opts.Tenant)
 		if err != nil {
@@ -175,11 +174,10 @@ func RunSetup(ctx context.Context, opts SetupOptions, p Prompter) error {
 				return fmt.Errorf("%w: --region or --auth-url", errNonInteractiveMissingFlag)
 			}
 			helpText(
-				"Pick the data center hosting your tenant. WS1's OAuth",
-				"token endpoint is region-scoped — the wrong region",
-				"will fail validation. (If unsure, ask your tenant admin",
-				"or check the WS1 console > Groups & Settings >",
-				"Configurations > System > Advanced > API.)",
+				bold("Step 2")+dim(" — Region"),
+				"Pick the data center hosting your tenant. WS1's OAuth token endpoint is region-scoped — the wrong region will fail validation.",
+				"",
+				dim("If unsure, ask your tenant admin or check the WS1 console > Groups & Settings > Configurations > System > Advanced > API."),
 			)
 			region, err := pickRegion(p)
 			if err != nil {
@@ -255,9 +253,7 @@ func selectProfilesToConfigure(p Prompter, opts SetupOptions) ([]string, error) 
 		return []string{name}, nil
 	}
 	helpText(
-		"Comma-separated list of profiles to configure (e.g.",
-		"\"ro,operator\"). Each gets its own client_id + secret",
-		"prompt below.",
+		"Comma-separated list of profiles to configure (e.g. " + example("\"ro,operator\"") + "). Each gets its own client_id + secret prompt below.",
 	)
 	answer, err := p.Ask("Profiles to configure", "operator")
 	if err != nil {
@@ -305,12 +301,15 @@ func configureOneProfile(ctx context.Context, p Prompter, opts SetupOptions, nam
 		clientSecret = ""
 	}
 	if clientID == "" {
+		profileColor := green(name)
+		if name == "operator" || name == "admin" {
+			profileColor = warn(name)
+		}
 		helpText(
-			"OAuth client_id for the \""+name+"\" profile. Provision in:",
-			"  WS1 console > Groups & Settings > Configurations >",
-			"  OAuth Client Management > Add",
-			"Make sure the role/account assigned to this client matches",
-			"the \""+name+"\" profile (see profile model above).",
+			"OAuth "+bold("client_id")+" for the "+profileColor+" profile.",
+			dim("  Provision in: WS1 console > Groups & Settings > Configurations > OAuth Client Management > Add"),
+			"",
+			"Make sure the role/account assigned to this client matches the "+profileColor+" profile (see profile model above).",
 		)
 		var err error
 		clientID, err = p.Ask(clientIDLabel, "")
@@ -320,11 +319,9 @@ func configureOneProfile(ctx context.Context, p Prompter, opts SetupOptions, nam
 	}
 	if clientSecret == "" {
 		helpText(
-			"OAuth client_secret from the same console screen.",
-			"Stored in your OS keychain (or",
-			"~/.config/ws1/secrets.json if WS1_ALLOW_DISK_SECRETS",
-			"is set). You'll be re-prompted on each setup run; it",
-			"is never echoed and never logged.",
+			"OAuth "+bold("client_secret")+" from the same console screen.",
+			dim("Stored in your OS keychain (or ~/.config/ws1/secrets.json if WS1_ALLOW_DISK_SECRETS=1)."),
+			dim("Never echoed, never logged. You'll be re-prompted on each setup run."),
 		)
 		var err error
 		clientSecret, err = p.AskSecret(clientSecretLabel)
@@ -460,29 +457,28 @@ func printExitSummary(profileNames []string, configured []auth.Profile, og strin
 // they're about to configure (Quick) or pick from (Advanced).
 func printProfileModel(quick bool) {
 	fmt.Fprintln(stderrWriter)
-	fmt.Fprintln(stderrWriter, "Profile model")
-	fmt.Fprintln(stderrWriter, "-------------")
-	fmt.Fprintln(stderrWriter, "ws1 supports three capability profiles. Each profile is a")
-	fmt.Fprintln(stderrWriter, "separate OAuth client_id + secret pair, and the WS1 console")
-	fmt.Fprintln(stderrWriter, "role assigned to that OAuth client must match the profile:")
+	fmt.Fprintln(stderrWriter, bold("Profile model"))
+	fmt.Fprintln(stderrWriter, dim("─────────────"))
+	fmt.Fprintln(stderrWriter, "ws1 supports three capability profiles. Each profile is a separate OAuth client_id + secret pair, and the WS1 console role assigned to that OAuth client must match the profile:")
 	fmt.Fprintln(stderrWriter)
-	fmt.Fprintln(stderrWriter, "  ro        Read-only (list, get, search). Safest for agents")
-	fmt.Fprintln(stderrWriter, "            and dashboards. Use a Read-Only console role.")
-	fmt.Fprintln(stderrWriter, "  operator  Read + write (lock, unenroll, install apps).")
-	fmt.Fprintln(stderrWriter, "            Destructive ops require browser approval. Use a")
-	fmt.Fprintln(stderrWriter, "            Console Administrator (or equivalent write) role.")
-	fmt.Fprintln(stderrWriter, "  admin     Operator + tenant-level config (groups, policies,")
-	fmt.Fprintln(stderrWriter, "            OAuth clients). Use sparingly. Use an elevated")
-	fmt.Fprintln(stderrWriter, "            console-admin role.")
+	indent := "         " // 9 cols, matches padRight width
+	fmt.Fprintf(stderrWriter, "  %s %s\n", green(padRight("ro", 9)), "Read-only (list, get, search). Safest for agents")
+	fmt.Fprintf(stderrWriter, "  %s %s\n", indent, dim("and dashboards. Use a Read-Only console role."))
+	fmt.Fprintf(stderrWriter, "  %s %s\n", warn(padRight("operator", 9)), "Read + write (lock, unenroll, install apps).")
+	fmt.Fprintf(stderrWriter, "  %s %s\n", indent, dim("Destructive ops require browser approval. Use a"))
+	fmt.Fprintf(stderrWriter, "  %s %s\n", indent, dim("Console Administrator (or equivalent write) role."))
+	fmt.Fprintf(stderrWriter, "  %s %s\n", red(padRight("admin", 9)), "Operator + tenant-level config (groups, policies,")
+	fmt.Fprintf(stderrWriter, "  %s %s\n", indent, dim("OAuth clients). Use sparingly. Use an elevated"))
+	fmt.Fprintf(stderrWriter, "  %s %s\n", indent, dim("console-admin role."))
 	fmt.Fprintln(stderrWriter)
 	fmt.Fprintln(stderrWriter, "Configure multiple profiles and switch any time:")
 	if quick {
-		fmt.Fprintln(stderrWriter, "  ws1 setup --advanced     Configure ro/admin alongside this one")
+		fmt.Fprintf(stderrWriter, "  %s %s\n", code(padRight("ws1 setup --advanced", 26)), dim("Configure ro/admin alongside this one"))
 	} else {
-		fmt.Fprintln(stderrWriter, "  ws1 setup                Re-run; existing values offered as defaults")
+		fmt.Fprintf(stderrWriter, "  %s %s\n", code(padRight("ws1 setup", 26)), dim("Re-run; existing values offered as defaults"))
 	}
-	fmt.Fprintln(stderrWriter, "  ws1 profile use <name>   Switch active profile (terminal-only)")
-	fmt.Fprintln(stderrWriter, "  ws1 profile list         Show what's configured")
+	fmt.Fprintf(stderrWriter, "  %s %s\n", code(padRight("ws1 profile use <name>", 26)), dim("Switch active profile (terminal-only)"))
+	fmt.Fprintf(stderrWriter, "  %s %s\n", code(padRight("ws1 profile list", 26)), dim("Show what's configured"))
 }
 
 // helpText writes a multi-line explanatory block to stderrWriter,
@@ -564,10 +560,9 @@ func pickOG(ctx context.Context, p Prompter, prof *auth.Profile, prefilled strin
 	}
 	spin.Done(true, fmt.Sprintf("Found %d OGs", len(ogs)))
 	helpText(
-		"Pick the default Org Group context. Every CLI command",
-		"runs scoped to one OG; this picks the one most of your",
-		"work targets. Override per-command with --og <id>, or",
-		"change later with `ws1 og use <id>`.",
+		"Pick the default Org Group context. Every CLI command runs scoped to one OG; this picks the one most of your work targets.",
+		"",
+		"Override per-command with "+code("--og <id>")+", or change later with "+code("ws1 og use <id>")+".",
 	)
 	options := make([]PickItem, 0, len(ogs))
 	for _, og := range ogs {

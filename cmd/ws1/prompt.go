@@ -169,10 +169,11 @@ func (p *TTYPrompter) r() *bufio.Reader {
 
 func (p *TTYPrompter) Ask(label, def string) (string, error) {
 	if def != "" {
-		fmt.Fprintf(p.Out, "%s [%s]: ", label, def)
+		fmt.Fprintf(p.Out, "%s %s ", bold(label), dim("["+def+"]"))
 	} else {
-		fmt.Fprintf(p.Out, "%s: ", label)
+		fmt.Fprintf(p.Out, "%s ", bold(label))
 	}
+	fmt.Fprint(p.Out, teal("›")+" ")
 	line, err := p.r().ReadString('\n')
 	if err != nil && line == "" {
 		return "", err
@@ -185,7 +186,7 @@ func (p *TTYPrompter) Ask(label, def string) (string, error) {
 }
 
 func (p *TTYPrompter) AskSecret(label string) (string, error) {
-	fmt.Fprintf(p.Out, "%s: ", label)
+	fmt.Fprintf(p.Out, "%s %s ", bold(label), teal("›"))
 	if term.IsTerminal(int(p.In.Fd())) {
 		pw, err := term.ReadPassword(int(p.In.Fd()))
 		fmt.Fprintln(p.Out)
@@ -198,15 +199,16 @@ func (p *TTYPrompter) AskSecret(label string) (string, error) {
 
 func (p *TTYPrompter) Pick(label string, options []PickItem) (PickItem, error) {
 	for {
-		fmt.Fprintf(p.Out, "%s:\n", label)
+		fmt.Fprintf(p.Out, "%s\n", bold(label))
 		for i, o := range options {
+			marker := dim(fmt.Sprintf("%2d.", i+1))
 			if o.Hint != "" {
-				fmt.Fprintf(p.Out, "  [%d] %-8s %s\n", i+1, o.Label, o.Hint)
+				fmt.Fprintf(p.Out, "  %s  %-12s  %s\n", marker, o.Label, dim(o.Hint))
 			} else {
-				fmt.Fprintf(p.Out, "  [%d] %s\n", i+1, o.Label)
+				fmt.Fprintf(p.Out, "  %s  %s\n", marker, o.Label)
 			}
 		}
-		fmt.Fprintf(p.Out, "Pick: ")
+		fmt.Fprintf(p.Out, "%s ", teal("›"))
 		line, err := p.r().ReadString('\n')
 		if err != nil && line == "" {
 			return PickItem{}, err
@@ -214,7 +216,7 @@ func (p *TTYPrompter) Pick(label string, options []PickItem) (PickItem, error) {
 		line = strings.TrimSpace(line)
 		n, convErr := strconv.Atoi(line)
 		if convErr != nil || n < 1 || n > len(options) {
-			fmt.Fprintf(p.Out, "  invalid; pick a number 1-%d\n", len(options))
+			fmt.Fprintf(p.Out, "  %s\n", warn(fmt.Sprintf("invalid; pick a number 1-%d", len(options))))
 			continue
 		}
 		return options[n-1], nil
@@ -224,9 +226,9 @@ func (p *TTYPrompter) Pick(label string, options []PickItem) (PickItem, error) {
 func (p *TTYPrompter) PickByLetter(label string, options []ByLetterItem) (ByLetterItem, error) {
 	parts := make([]string, 0, len(options))
 	for _, o := range options {
-		parts = append(parts, fmt.Sprintf("[%c] %s", o.Letter, o.Label))
+		parts = append(parts, fmt.Sprintf("%s %s", dim(fmt.Sprintf("[%c]", o.Letter)), o.Label))
 	}
-	fmt.Fprintf(p.Out, "%s  %s: ", label, strings.Join(parts, "  "))
+	fmt.Fprintf(p.Out, "%s  %s %s ", bold(label), strings.Join(parts, "  "), teal("›"))
 	buf := make([]byte, 1)
 	if _, err := p.In.Read(buf); err != nil {
 		return ByLetterItem{}, err
