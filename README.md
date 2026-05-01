@@ -24,35 +24,55 @@ See [`SECURITY.md`](SECURITY.md) for the full threat model and the v1-doesn't-de
 
 ## Install the CLI
 
-Pick the binary for your machine from the [v0.1.0 release](https://github.com/xyzbuilds/ws1-uem-agent/releases/tag/v0.1.0):
+Pick the binary for your machine from the [v0.1.0 release](https://github.com/xyzbuilds/ws1-uem-agent/releases/tag/v0.1.0). The default install drops the binary in `~/.local/bin`, which is on `PATH` by default on most modern shells — **no sudo required**.
 
 ```bash
-# macOS Apple Silicon
+# macOS Apple Silicon (M1/M2/M3/M4)
+mkdir -p ~/.local/bin
 curl -L https://github.com/xyzbuilds/ws1-uem-agent/releases/download/v0.1.0/ws1-darwin-arm64 \
-  -o /usr/local/bin/ws1 && chmod +x /usr/local/bin/ws1
+  -o ~/.local/bin/ws1 && chmod +x ~/.local/bin/ws1
 
 # macOS Intel
+mkdir -p ~/.local/bin
 curl -L https://github.com/xyzbuilds/ws1-uem-agent/releases/download/v0.1.0/ws1-darwin-amd64 \
-  -o /usr/local/bin/ws1 && chmod +x /usr/local/bin/ws1
+  -o ~/.local/bin/ws1 && chmod +x ~/.local/bin/ws1
 
 # Linux x86_64
+mkdir -p ~/.local/bin
 curl -L https://github.com/xyzbuilds/ws1-uem-agent/releases/download/v0.1.0/ws1-linux-amd64 \
-  -o /usr/local/bin/ws1 && chmod +x /usr/local/bin/ws1
+  -o ~/.local/bin/ws1 && chmod +x ~/.local/bin/ws1
 
 # Linux arm64
+mkdir -p ~/.local/bin
 curl -L https://github.com/xyzbuilds/ws1-uem-agent/releases/download/v0.1.0/ws1-linux-arm64 \
-  -o /usr/local/bin/ws1 && chmod +x /usr/local/bin/ws1
-
-# Windows: download ws1-windows-amd64.exe and place it on %PATH%
+  -o ~/.local/bin/ws1 && chmod +x ~/.local/bin/ws1
 ```
 
-Verify:
+If `~/.local/bin` isn't on your `PATH`, add it once:
+
+```bash
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc
+```
+
+**Windows:** download `ws1-windows-amd64.exe` from the release page, rename to `ws1.exe`, and drop it in a folder already on `%PATH%` (e.g. `C:\Users\<you>\AppData\Local\Programs\ws1\`).
+
+### Verify
 
 ```bash
 ws1
 ```
 
 You should see the teal mascot banner and a "no configuration found" prompt.
+
+### If you want it system-wide
+
+Install to `/usr/local/bin` so every user on the machine can run `ws1`. Needs `sudo` on macOS:
+
+```bash
+# macOS Apple Silicon — substitute the binary name for your platform
+sudo curl -L https://github.com/xyzbuilds/ws1-uem-agent/releases/download/v0.1.0/ws1-darwin-arm64 \
+  -o /usr/local/bin/ws1 && sudo chmod +x /usr/local/bin/ws1
+```
 
 ## Configure the CLI
 
