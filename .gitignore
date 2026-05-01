@@ -20,10 +20,11 @@ AGENTS.md
 
 # Internal maintainer docs — not for public repo.
 # (Superpowers brainstorming + planning docs, internal pipelines,
-# original v0 design doc.)
+# original v0 design doc, UX mockup explorations.)
 /docs/superpowers/
 /docs/build-pipeline.md
 /docs/spec-acquisition.md
+/docs/ux-mockups.html
 /ws1-uem-agent-v0-spec.md
 /ws1-uem-agent.md
 
