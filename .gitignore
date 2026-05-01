@@ -11,6 +11,12 @@ coverage.out
 .env
 .env.*
 
+# Agent-instruction config — local only, never check in.
+CLAUDE.md
+GEMINI.md
+AGENTS.md
+.claude/
+
 # IDE / editor
 .idea/
 .vscode/

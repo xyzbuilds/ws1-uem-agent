@@ -6,6 +6,22 @@ An agent-shaped CLI for [Omnissa Workspace ONE UEM](https://docs.omnissa.com/) a
 
 ---
 
+## Safety: human-in-the-loop by design
+
+`ws1` is built for skill-capable agents (Claude, Copilot CLI, etc.) to operate WS1 — but the **human is always in the loop for anything that changes state**. Five guardrails work together:
+
+- **Browser approval for destructive ops.** `wipe`, `unenroll`, `delete`, and any op classified `destructive` in [`operations.policy.yaml`](operations.policy.yaml) opens a localhost approval page in your default browser. The CLI binds to `127.0.0.1:<random-port>`, the agent waits, **the user clicks Approve or Deny**, then the CLI proceeds (or aborts). The agent never sees the request id and cannot fabricate approval.
+- **Blast-radius gating.** Even non-destructive write ops (e.g. bulk lock across 200 devices) trigger the same approval flow when target count exceeds a configurable threshold. Scale changes the calculus.
+- **Fail-closed policy.** Operations that don't appear in [`operations.policy.yaml`](operations.policy.yaml) are treated as destructive + approval-required (with an `UNKNOWN_OPERATION` warning) until a maintainer classifies them. New API surface never gets a free pass.
+- **Stale-resource freshness check.** At execute time the CLI re-fetches each target and compares to the snapshot taken at approval time. Any drift returns `STALE_RESOURCE` and the approval is **not consumed** — the user re-approves with the new state in front of them.
+- **Hash-chained audit log.** Every state-changing call appends a JSONL row to `~/.config/ws1/audit.log` with a SHA-256 chain. Tampering is detectable via `ws1 audit verify`. Every envelope's `meta.audit_log_entry` points back to the exact row.
+
+Profile escalation is also user-only: `ws1 profile use operator` refuses to run when the CLI is not attached to a terminal, so an agent piping I/O cannot grant itself write privileges via argv.
+
+See [`SECURITY.md`](SECURITY.md) for the full threat model and the v1-doesn't-defend list.
+
+---
+
 ## Install the CLI
 
 Pick the binary for your machine from the [v0.1.0 release](https://github.com/xyzbuilds/ws1-uem-agent/releases/tag/v0.1.0):
