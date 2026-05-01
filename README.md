@@ -142,9 +142,6 @@ Requires Go 1.25+. Lint with [golangci-lint](https://golangci-lint.run) v2.
 
 - [v0.1.0 release notes](docs/release-notes/v0.1.0.md) — feature list, install, demo path, known limitations
 - [`SECURITY.md`](SECURITY.md) — threat model, what v1 does and doesn't defend, OS-user-scope notes
-- [`CLAUDE.md`](CLAUDE.md) — project conventions and locked design decisions
-- [`docs/spec-acquisition.md`](docs/spec-acquisition.md) — how OpenAPI specs are pulled and hashed into the binary
-- [`docs/build-pipeline.md`](docs/build-pipeline.md) — the maintainer's `sync-specs` workflow
 
 ---
 

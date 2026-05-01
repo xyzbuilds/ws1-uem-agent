@@ -17,6 +17,12 @@ GEMINI.md
 AGENTS.md
 .claude/
 
+# Internal maintainer docs — not for public repo.
+# (Superpowers brainstorming + planning docs, internal pipelines.)
+/docs/superpowers/
+/docs/build-pipeline.md
+/docs/spec-acquisition.md
+
 # IDE / editor
 .idea/
 .vscode/
