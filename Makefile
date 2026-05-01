@@ -1,4 +1,4 @@
-.PHONY: all build install uninstall test test-race lint fmt vet generate sync-specs demo clean tools tools-build help
+.PHONY: all build install uninstall test test-race lint fmt vet generate sync-specs demo clean tools tools-build help release release-clean
 
 # ----- Identity -------------------------------------------------------------
 MODULE       := github.com/xyzbuilds/ws1-uem-agent
@@ -104,4 +104,41 @@ demo: build  ## Run the alice-lock end-to-end demo against a local mock tenant
 	./scripts/demo.sh
 
 clean:  ## Remove build artifacts
-	rm -rf $(BIN) .build
+	rm -rf $(BIN) .build dist
+
+# ----- Release build (cross-compile) ---------------------------------------
+# `make release` produces stripped, version-stamped binaries for every
+# supported target platform under dist/. Used by the GitHub Release
+# workflow; can also be run locally to share a binary out-of-band.
+#
+# Targets are deliberately a small set to keep the release surface tight:
+#   - darwin/arm64    Apple Silicon Macs (M1/M2/M3)
+#   - darwin/amd64    Intel Macs
+#   - linux/amd64     standard cloud VMs / WSL
+#   - linux/arm64     Graviton / Raspberry Pi
+#   - windows/amd64   PMs running Windows
+#
+# CGO is off so binaries are static and copy-runnable. -s -w strips the
+# symbol table + DWARF for smaller artifacts.
+RELEASE_LDFLAGS := -s -w $(LDFLAGS)
+
+DIST := dist
+
+release: release-clean  ## Cross-compile release binaries for every supported target into dist/
+	@mkdir -p $(DIST)
+	@echo "→ darwin/arm64"
+	@CGO_ENABLED=0 GOOS=darwin  GOARCH=arm64 $(GO) build -trimpath -ldflags '$(RELEASE_LDFLAGS)' -o $(DIST)/ws1-darwin-arm64  ./cmd/ws1
+	@echo "→ darwin/amd64"
+	@CGO_ENABLED=0 GOOS=darwin  GOARCH=amd64 $(GO) build -trimpath -ldflags '$(RELEASE_LDFLAGS)' -o $(DIST)/ws1-darwin-amd64  ./cmd/ws1
+	@echo "→ linux/amd64"
+	@CGO_ENABLED=0 GOOS=linux   GOARCH=amd64 $(GO) build -trimpath -ldflags '$(RELEASE_LDFLAGS)' -o $(DIST)/ws1-linux-amd64   ./cmd/ws1
+	@echo "→ linux/arm64"
+	@CGO_ENABLED=0 GOOS=linux   GOARCH=arm64 $(GO) build -trimpath -ldflags '$(RELEASE_LDFLAGS)' -o $(DIST)/ws1-linux-arm64   ./cmd/ws1
+	@echo "→ windows/amd64"
+	@CGO_ENABLED=0 GOOS=windows GOARCH=amd64 $(GO) build -trimpath -ldflags '$(RELEASE_LDFLAGS)' -o $(DIST)/ws1-windows-amd64.exe ./cmd/ws1
+	@cd $(DIST) && shasum -a 256 ws1-* > SHA256SUMS && cat SHA256SUMS
+	@echo ""
+	@echo "Release artifacts in $(DIST)/ — version $(VERSION)"
+
+release-clean:
+	@rm -rf $(DIST)
