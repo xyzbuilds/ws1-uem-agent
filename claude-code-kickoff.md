@@ -3,7 +3,7 @@
 Paste the prompt below into a fresh Claude Code session, run from this directory:
 
 ```
-cd "/Users/xyz/Coding/ws1-uem-agent/WS1 UEM Agent"
+cd "/Users/xyz/Coding/ws1-uem-agent"
 claude
 ```
 
